@@ -1,5 +1,13 @@
-using Sigma
-using Base.Test
+tests = [
+    "bool",
+    "controlflow",
+    "randomvariable",
+    "query"]
 
-# write your own tests here
-@test 1 == 1
+println("Running tests:")
+
+for t in tests
+    test_fn = "$t.jl"
+    println(" * $test_fn")
+    include(test_fn)
+end
