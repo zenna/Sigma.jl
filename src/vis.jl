@@ -30,7 +30,7 @@ function plot_volume_distribution(bs::Vector{Box})
   plot(x=vols, Geom.histogram)
 end
 
-function plot_psuedo_density(rv::RandomVariable, lower::Float64, upper::Float64; n_bars = 20, max_depth = 13)
+function plot_density(rv::RandomVariable, lower::Float64, upper::Float64; n_bars = 20, max_depth = 13)
   xs = Array(Float64,n_bars - 1)
   ys = Array(Float64,n_bars - 1)
   ymin = Array(Float64,n_bars - 1)
@@ -68,6 +68,14 @@ function plot_cond_density(X::RandomVariable, Y::RandomVariable, lower::Float64,
        ymin = ymin, ymax = ymax, Geom.line, Geom.errorbar)
 end
 
+function plot_sample_cond_density(X::RandomVariable, Y::RandomVariable,
+                                  numsamples::Integer; max_depth = 10)
+  sampler = cond_sample(X,Y,max_depth = max_depth)
+  samples = [sampler(100) for i = 1:numsamples]
+  samples = map(x->x[1],samples)
+  Gadfly.plot(x = samples, Gadfly.Geom.histogram, Gadfly.Geom.Scale.y_continuous(minvalue=0))
+end
+
 function plot_sat_distribution(t::Tree)
   sat_nodes = filter(x->x.status==SAT,t.nodes)
   unsat_nodes = filter(x->x.status==UNSAT,t.nodes)
@@ -94,12 +102,4 @@ function plot_omega_samples(X::RandomVariable)
     end
   end
   plot(x=xs,y=ys)
-end
-
-function plot_sample_cond_density(X::RandomVariable, Y::RandomVariable,
-                                  numsamples::Integer; max_depth = 10)
-  sampler = cond_sample(X,Y,max_depth = max_depth)
-  samples = [sampler(100) for i = 1:numsamples]
-  samples = map(x->x[1],samples)
-  Gadfly.plot(x = samples, Gadfly.Geom.histogram, Gadfly.Geom.Scale.y_continuous(minvalue=0))
 end

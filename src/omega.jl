@@ -10,7 +10,7 @@ function getindex{T}(o::Omega{T}, key::Int64)
   if haskey(o.intervals,key)
     o.intervals[key]
   else
-    i = unitinterval(T)
+    i = unitinterval()
     o.intervals[key] = i
     i
   end
@@ -37,7 +37,7 @@ function middle_split(o::Omega)
   vs = collect(values(o.intervals))
   box = convert(NDimBox,vs)
   z = middle_split(box)
-  map(x->Omega(Dict(ks,to_intervals(x))),z)
+  map(x->Omega(Dict(ks,convert(Vector{Interval},x))),z)
 end
 
 # REVIEW: REMOVE OR ENABLE

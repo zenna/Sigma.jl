@@ -50,3 +50,9 @@ function split_many_boxes{T}(to_split::Vector{T})
   end
   bs
 end
+
+# ========
+# Sampling
+
+rand_interval(a::Float64, b::Float64) = a + (b - a) * rand()
+rand(b::Box) = [apply(rand_interval,b.intervals[:,i]) for i = 1:num_dims(b)]
