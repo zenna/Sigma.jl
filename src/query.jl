@@ -36,14 +36,65 @@ cond_prob = cond_prob_deep
 
 ## ========
 ## Sampling
-function cond_sample(X::RandomVariable, Y::RandomVariable; max_depth = 10)
+rand(X::RandomVariable) = X(SampleOmega())
+
+type ConditionalRandomVariable
+  over_pre_cond
+  c::Categorical
+  X::RandomVariable
+  Y::RandomVariable
+end
+
+function rand(C::ConditionalRandomVariable; maxtries = Inf, countrejected = false)
+  nrejected = 0
+  ntried = 0
+  while true
+    omega = C.over_pre_cond[rand(C.c)]
+    sample = rand(omega)
+    if C.Y(sample)
+      return countrejected ? (C.X(sample), nrejected) : C.X(sample)
+    else
+      nrejected = nrejected + 1
+    end
+    ntried += 1
+    if ntried == maxtries
+      return nothing
+    end
+  end
+end
+
+function cond(X::RandomVariable, Y::RandomVariable; max_depth = 10)
+  # Find preimage and measure each box in disjunction
   tree = pre_deepening(Y, T, Omega(), max_depth = max_depth)
   over_pre_cond = mixedsat_tree_data(tree)
   measures::Vector{Float64} = measure(over_pre_cond)
   pnormalize!(measures)
-  println("Sum of normalised weights is", sum(measures))
+  c = Categorical(measures, Distributions.NoArgCheck())
+  ConditionalRandomVariable(over_pre_cond,c,X,Y)
+end
+
+# Conditional probability found using samples
+function prob_sampled(X::RandomVariable; nsamples = 1000)
+  samples = [rand(X) for i=1:nsamples]
+  length(filter(x->x,samples))/length(samples)
+end
+
+function cond_prob_sampled(X::RandomVariable, Y::RandomVariable; nsamples = 1000)
+  C = cond(X,Y)
+  samples = [rand(C) for i=1:nsamples]
+  length(filter(x->x,samples))/length(samples)
+end
+
+# FIXME: DEPRECATE
+function cond_sample(X::RandomVariable, Y::RandomVariable; max_depth = 10)
+  # Find preimage and measure each box in disjunction
+  tree = pre_deepening(Y, T, Omega(), max_depth = max_depth)
+  over_pre_cond = mixedsat_tree_data(tree)
+  measures::Vector{Float64} = measure(over_pre_cond)
+  pnormalize!(measures)
   c = Categorical(measures, Distributions.NoArgCheck())
 
+  # Return a function which can be plot_sample_cond_density
   function(num_tries)
     local num_rejected = 0
     for i = 1:num_tries

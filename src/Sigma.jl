@@ -2,7 +2,7 @@ module Sigma
 
 using Distributions
 
-import Base: ifelse
+import Base: ifelse, cond
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
@@ -25,7 +25,12 @@ export
   pre_recursive,
   pre_greedy,
   pre_deepening,
+  prob,
+  cond_prob,
+  prob_deep,
   cond_prob_deep,
+  prob_sampled,
+  cond_prob_sampled,
 
   ndcube,
   sqr,
@@ -55,6 +60,7 @@ export
   plot_sat_distribution,
   distinguished_colors,
   rand_color,
+  plot_sample_cond_density,
 
   # Benchmarking
   parse_output,

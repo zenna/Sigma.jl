@@ -23,4 +23,4 @@ positive_mammogram = @If breast_cancer flip(2, 0.8) flip(3,0.096)
 # Queries
 prob(positive_mammogram)
 cond_prob(breast_cancer, positive_mammogram, max_depth = 10)
-sampler = cond_sample(breast_cancer, positive_mammogram,max_depth = 12)
+cond_prob_sampled(breast_cancer, positive_mammogram)

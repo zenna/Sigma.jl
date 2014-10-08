@@ -24,7 +24,7 @@ getindex(rv::RandomArray, i::Integer, j::Integer) = ω->pipeomega(rv(ω)[i,j],ω
 ## Functionally set a value in a random array
 ## This is inefficient
 function setindex{T}(rv::RandomArray,v::T,i::Integer,j::Integer)
-  ω->(a = rv(ω); [if (i == n) && (j == p) pipeomega(v,ω) else rv_push(a[n,p],ω) end
+  ω->(a = rv(ω); [if (i == n) && (j == p) pipeomega(v,ω) else pipeomega(a[n,p],ω) end
                   for n=1:size(a,1), p=1:size(a,2)])
 end
 
@@ -37,7 +37,7 @@ function MakeRandomArray(t::DataType,x::Integer, y::Integer)
 end
 
 function MakeRandomArray(a::Array)
-  ω->[rv_push(a[i,j],ω) for i=1:size(a,1), j=1:size(a,2)]
+  ω->[pipeomega(a[i,j],ω) for i=1:size(a,1), j=1:size(a,2)]
 end
 
 # Expets a unary primtive constructor

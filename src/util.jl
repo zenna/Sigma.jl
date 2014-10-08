@@ -1,3 +1,11 @@
+type Counter
+  X::Int64
+end
+
+const GLOBAL_COUNTER = Counter(0)
+inc(c::Counter) = c.X +=1
+genint() = (inc(GLOBAL_COUNTER);GLOBAL_COUNTER.X-1)
+
 tolerant_eq(a,b,epsilon = 1E-5) = abs(a - b) <= epsilon
 
 function cart_product{E}(n, A::Array{Array{E,1},1})
@@ -34,3 +42,12 @@ rand_interval{T<:Real}(a::T, b::T) = a + (b - a) * rand()
 rand_select(v::Vector) = v[ceil(rand_interval(0,length(v)))]
 
 sqr(x::Float64) = x * x
+function tosatboxes(pre)
+  sat =  Sigma.sat_tree_data(pre)
+  map(x->convert(Sigma.NDimBox,collect(values(x.intervals))),sat)
+end
+
+function tomixedboxes(pre)
+  mixed =  Sigma.mixedsat_tree_data(pre)
+  map(x->convert(Sigma.NDimBox,collect(values(x.intervals))),mixed)
+end
