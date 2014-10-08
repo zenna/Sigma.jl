@@ -123,7 +123,7 @@ function abs(x::Interval)
   end
 end
 
-
+round(x::Interval) = Interval(round(x.l), round(x.u))
 
 ## =======
 ## Merging

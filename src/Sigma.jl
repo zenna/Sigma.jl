@@ -5,7 +5,7 @@ using Distributions
 import Base: ifelse
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
-import Base: sum, dot, length, join
+import Base: sum, dot, length, join, round
 
 export
   RandomVariable,
@@ -69,6 +69,7 @@ export
 
 include("domains.jl")
 include("randomvariable.jl")
+include("randomarray.jl")
 include("controlflow.jl")
 include("util.jl")
 include("omega.jl")
