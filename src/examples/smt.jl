@@ -1,6 +1,6 @@
 using Sigma
 
-# Probabilistic Programming Generalises SMT
+# Probabilistic Programming Generalises SMT$
 
 X = uniform(0,10)
 Y = uniform(0,10)

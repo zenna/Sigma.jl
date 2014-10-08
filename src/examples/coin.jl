@@ -8,6 +8,10 @@ using Sigma
 # How does this depend on your prior belief about the coin?
 
 coinweight = uniform(0, 0.38, 0.6101)
+coinweight = normal(0, 0.55, 0.05)
+Sigma.plot_sample_density(coinweight, 1000)
+plot_density(coinweight, 0.0, 1.0, n_bars = 40)
+
 flips = [flip(i,coinweight) for i=1:3]
 cond_prob_deep((coinweight > 0.75) & (coinweight < (0.75 + 0.025)),
                   flips[1] & flips[2] & flips[3] &

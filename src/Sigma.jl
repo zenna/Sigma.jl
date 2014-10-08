@@ -53,7 +53,7 @@ export
 
   #Plotting
   plot_2d_boxes,
-  plot_psuedo_density,
+  plot_density,
   plot_cond_density,
   plot_volume_distribution,
   plot_performance,
@@ -61,6 +61,7 @@ export
   distinguished_colors,
   rand_color,
   plot_sample_cond_density,
+  plot_sample_density,
 
   # Benchmarking
   parse_output,

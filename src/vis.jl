@@ -66,6 +66,11 @@ function plot_cond_density(X::RandomVariable, Y::RandomVariable, lower::Float64,
        ymin = ymin, ymax = ymax, Geom.line, Geom.errorbar)
 end
 
+function plot_sample_density(X::RandomVariable, nsamples::Int64)
+  samples = [rand(X) for i = 1:nsamples]
+  Gadfly.plot(x = samples, Gadfly.Geom.histogram, Gadfly.Geom.Scale.y_continuous(minvalue=0))
+end
+
 function plot_sample_cond_density(X::RandomVariable, Y::RandomVariable,
                                   numsamples::Integer; max_depth = 10)
   sampler = cond_sample(X,Y,max_depth = max_depth)
