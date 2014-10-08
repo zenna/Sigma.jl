@@ -3,7 +3,8 @@ typealias RandomVariable Function
 # Lift primitive operators to work on random variables
 # A function applied to a random variable evaluates to
 # a random variable
-for op = (:+, :-, :*, :/, :./, :&, :|, :$, :>, :>=, :<=, :<)
+
+for op = (:+, :-, :*, :/, :./, :&, :|, :$, :>, :>=, :<=, :<, :eq)
   @eval begin
     function ($op)(a::RandomVariable, b::RandomVariable)
       f(ω) = ($op)(a(ω),b(ω))

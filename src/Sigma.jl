@@ -22,7 +22,6 @@ export
   @While,
 
   # Preimages
-  pre_bfs,
   pre_recursive,
   pre_greedy,
   pre_deepening,
@@ -75,7 +74,8 @@ include("util.jl")
 include("omega.jl")
 include("refinement.jl")
 include("query.jl")
+include("distributions.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")
-# include("vis.jl")
+include("vis.jl")
 end

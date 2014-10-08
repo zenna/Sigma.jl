@@ -1,4 +1,4 @@
-immutable Interval <: Box
+immutable Interval <: Domain{Real}
   l::Real
   u::Real
   Interval(l,u) =  if u > l new(l, u) else new(u,l) end
@@ -33,7 +33,15 @@ overlap(x::Interval, y::Interval) = y.l <= x.u && x.l <= y.u
 ## ====================================
 ## Interval Arithmetic and Inequalities
 
-# CODEREVIEW - TEST ALL OF THESE
+function eq(x::Interval, y::Interval)
+  if x.u == y.u && x.l == y.l T
+  elseif overlap(x,y) TF
+  else F end
+end
+
+eq(x::Interval,y::ConcreteReal) = eq(promote(x,y)...)
+eq(y::ConcreteReal,x::Interval) = eq(promote(y,x)...)
+
 >(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.l > y.u T else F end
 <(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.u < y.l T else F end
 
@@ -102,6 +110,9 @@ function /(x::Interval, y::Interval)
   end
 end
 
+/(c::ConcreteReal, x::Interval) = convert(Interval,c) / x
+/(x::Interval, c::ConcreteReal) = x / convert(Interval,c)
+
 flip(x::Interval) = Interval(-x.l,-x.u)
 makepos(x::Interval) = Interval(max(x.l,0), max(x.u,0))
 
@@ -112,8 +123,7 @@ function abs(x::Interval)
   end
 end
 
-/(c::ConcreteReal, x::Interval) = convert(Interval,c) / x
-/(x::Interval, c::ConcreteReal) = x / convert(Interval,c)
+
 
 ## =======
 ## Merging

@@ -1,12 +1,10 @@
 ## =============
 # Visualisation
-function vis_init()
-  using Gadfly
-  using Color
-end
+using Gadfly
+using Color
 
 rand_color() = RGB(rand(),rand(),rand())
-distinguished_colors = distinguishable_colors(10)
+distinguished_colors = Gadfly.distinguishable_colors(10)
 faint_colors = map(c->AlphaColorValue(c,0.25), distinguished_colors)
 
 function plot_2d_boxes{B <:Box}(bs::Vector{B})
