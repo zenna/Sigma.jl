@@ -1,11 +1,4 @@
-## =============
-# Visualisation
-using Gadfly
-using Color
-
-rand_color() = RGB(rand(),rand(),rand())
-distinguished_colors = Gadfly.distinguishable_colors(10)
-faint_colors = map(c->AlphaColorValue(c,0.25), distinguished_colors)
+@async using Gadfly
 
 function plot_2d_boxes{B <:Box}(bs::Vector{B})
   x_min = Float64[]
@@ -28,7 +21,8 @@ function plot_volume_distribution(bs::Vector{Box})
   plot(x=vols, Geom.histogram)
 end
 
-function plot_density(rv::RandomVariable, lower::Float64, upper::Float64; n_bars = 20, max_depth = 13)
+function plot_density(rv::RandomVariable, lower::Real, upper::Real;
+                      n_bars = 20, max_depth = 13)
   xs = Array(Float64,n_bars - 1)
   ys = Array(Float64,n_bars - 1)
   ymin = Array(Float64,n_bars - 1)
@@ -47,7 +41,8 @@ function plot_density(rv::RandomVariable, lower::Float64, upper::Float64; n_bars
        ymin = ymin, ymax = ymax, Geom.line, Geom.errorbar)
 end
 
-function plot_cond_density(X::RandomVariable, Y::RandomVariable, lower::Float64, upper::Float64; n_bars = 20, max_depth = 10)
+function plot_cond_density(X::RandomVariable, Y::RandomVariable,
+                           lower::Real, upper::Real; n_bars = 20, max_depth = 10)
   xs = Array(Float64,n_bars - 1)
   ys = Array(Float64,n_bars - 1)
   ymin = Array(Float64,n_bars - 1)

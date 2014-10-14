@@ -85,5 +85,7 @@ include("query.jl")
 include("distributions.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")
-include("vis.jl")
+
+# include("vis.jl")
+
 end

@@ -1,5 +1,9 @@
 using Gadfly
 using Color
+rand_color() = RGB(rand(),rand(),rand())
+distinguished_colors = Gadfly.distinguishable_colors(10)
+faint_colors = map(c->AlphaColorValue(c,0.25), distinguished_colors)
+
 
 # d = [0 => 0.4, 1 => 0.6]
 # e = [0 => 0.6, 1 => 0.4]

@@ -39,8 +39,13 @@ function eq(x::Interval, y::Interval)
   else F end
 end
 
+neq(x::Interval,y::Interval) = !(eq(x,y))
+
 eq(x::Interval,y::ConcreteReal) = eq(promote(x,y)...)
 eq(y::ConcreteReal,x::Interval) = eq(promote(y,x)...)
+
+neq(x::Interval, y::ConcreteReal) = !eq(x,y)
+neq(y::ConcreteReal, x::Interval) = !eq(y,x)
 
 >(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.l > y.u T else F end
 <(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.u < y.l T else F end
@@ -82,11 +87,14 @@ function *(x::Interval, y::Interval)
 end
 
 # is c inside the interval
+# CODREVIEW: TESTME
 in(c::ConcreteReal, y::Interval) = y.l <= c <= y.u
 
+# CODREVIEW: TESTME
 inv(x::Interval) = Interval(1/x.u,1/x.l)
 
- # Ratz Interval Division
+# Ratz Interval Division
+# CODREVIEW: TESTME
 function /(x::Interval, y::Interval)
   a,b,c,d = x.l,x.u,y.l,y.u
   if !(0 ∈ y)
@@ -141,7 +149,16 @@ end
 ## ========
 ## Splitting
 function split_box(i::Interval, split_point::Float64)
-  [Interval(i.l, split_point), Interval(i.u,split_point)]
+  @assert i.l <= split_point <= i.u "Split point must be within interval"
+  @assert i.l != i.u "Can't split a single point interval into disjoint sets"
+
+  if split_point < i.u
+    [Interval(i.l, split_point), Interval(nextfloat(split_point), i.u)]
+  else
+    [Interval(i.l, prevfloat(split_point)), Interval(split_point, i.u)]
+  end
 end
+
 # middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(NDimBox, is,)))
 measure(i::Interval) = i.u - i.l
+findnext

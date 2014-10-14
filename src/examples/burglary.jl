@@ -1,4 +1,4 @@
-using Sigma
+$using Sigma
 
 earthquake = flip(0.001)
 burglary = flip(0.01)

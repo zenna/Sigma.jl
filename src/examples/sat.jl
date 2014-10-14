@@ -5,6 +5,7 @@ using Sigma
 A = flip()
 B = flip()
 C = flip()
+E = flip()
 
 formula = (A & B) | C
 vars = MakeRandomArray([A,B,C])

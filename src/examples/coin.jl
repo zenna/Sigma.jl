@@ -8,7 +8,7 @@ using Sigma
 # How does this depend on your prior belief about the coin?
 
 coinweight = uniform(0, 0.38, 0.6101)
-coinweight = normal(0, 0.55, 0.05)
+# coinweight = normal(0, 0.55, 0.05)
 Sigma.plot_sample_density(coinweight, 1000)
 plot_density(coinweight, 0.0, 1.0, n_bars = 40)
 
