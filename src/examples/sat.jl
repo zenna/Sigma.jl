@@ -9,6 +9,6 @@ E = flip()
 
 formula = (A & B) | C
 vars = MakeRandomArray([A,B,C])
-solutions = cond(vars,formula)
+solutions = cond(A,formula)
 model = rand(solutions)
 model[1],model[2],model[3]

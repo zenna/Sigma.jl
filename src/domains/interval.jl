@@ -121,6 +121,9 @@ end
 /(c::ConcreteReal, x::Interval) = convert(Interval,c) / x
 /(x::Interval, c::ConcreteReal) = x / convert(Interval,c)
 
+## Non primitive functions
+## =======================
+
 flip(x::Interval) = Interval(-x.l,-x.u)
 makepos(x::Interval) = Interval(max(x.l,0), max(x.u,0))
 
@@ -132,6 +135,10 @@ function abs(x::Interval)
 end
 
 round(x::Interval) = Interval(round(x.l), round(x.u))
+
+function quantile{D <: Distribution}(d::D, i::Interval)
+  Interval(quantile(d,i.l),quantile(d,i.u))
+end
 
 ## =======
 ## Merging

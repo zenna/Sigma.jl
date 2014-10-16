@@ -51,8 +51,8 @@ function rand(C::ConditionalRandomVariable; maxtries = Inf, countrejected = fals
   while true
     omega = C.over_pre_cond[rand(C.c)]
     sample = rand(omega)
-    if C.Y(sample)
-      return countrejected ? (C.X(sample), nrejected) : C.X(sample)
+    if call!(C.Y,sample)
+      return countrejected ? (call!(C.X,sample), nrejected) : call!(C.X,sample)
     else
       nrejected = nrejected + 1
     end

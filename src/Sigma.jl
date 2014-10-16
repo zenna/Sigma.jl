@@ -7,6 +7,8 @@ import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
 
+import Distributions: quantile
+
 export
   RandomVariable,
   RandomArray,

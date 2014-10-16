@@ -59,10 +59,11 @@ function mixedsat_tree_data(t::Tree)
   a
 end
 
-function dls(f::Function, Y_sub, depth::Integer, depth_limit::Integer, t::Tree, node::Node; box_budget = 300000)
+function dls(f::Union(RandomVariable, Function), Y_sub, depth::Integer, depth_limit::Integer, t::Tree, node::Node; box_budget = 300000)
   # Resolve SAT status is unknown
   if node.status == UNKNOWNSAT
-    image = f(node.data)
+#     image = f(node.data)
+    image = call!(f,node.data)
     satstatus = if subsumes(Y_sub, image) SAT elseif overlap(image,Y_sub) MIXEDSAT else UNSAT end
     node.status = satstatus
   end
@@ -103,7 +104,7 @@ end
 
 # Preimage refinement based on iterative deepening
 # Returns under and overapproximating sets of boxes
-function pre_deepening{T}(f::Function, Y_sub, X::T; box_budget = 300000, max_depth = 4)
+function pre_deepening{T}(f::Union(RandomVariable, Function), Y_sub, X::T; box_budget = 300000, max_depth = 4)
   tree = Tree(Node(rand(Uint64), UNKNOWNSAT, X))
   for depth_limit = 1:max_depth
     println("Deepening Depth Limit", depth_limit)
