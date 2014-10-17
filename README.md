@@ -35,13 +35,13 @@ Probabilstic models are then smiply created by defining primitive RandomVariable
 
 ## Random Arrays
 
-RandomArrays, or multivariate random variables can be created using `RandomArray`, which takes a type as the first parameter, and a normal Julia array as the second.
+Multivariate random variables can be created using `RandomArray`, which takes a type as the first parameter, and a normal Julia array as the second.
 
 ```julia
 RandomArray(Float64, [uniform(0,1), normal(0,2)])
 ```
 
-The array can store RandomVariables which are differently distributed (e.g., uniform and normal in the above example), but they must all be only store `T`-valued.
+The array can store RandomVariables which are distributed differently (e.g., uniform and normal in the above example), but they must all be the same type.
 For instance the following is *invalid*:
 
 ```julia
@@ -50,15 +50,14 @@ RandomArray(Float64, [uniform(0,1), flip(0.5)])
 
 Because flip is `bool`-valued.
 
-RandomArrays can be accessed using familiar julia style access, e.g.
+RandomArrays can be accessed using familiar Julia array style access, e.g.:
 
 ```julia
 X = RandomArray(Float64, [uniform(0,1), flip(0.5)])
 prob(X[1] > 0.5)
 ```
 
-Typical functions such as `length`,`sum`,etc produce RandomVaribles.
-e.g.
+Typical functions such as `length`,`sum` produce RandomVaribles:
 
 ```julia
 X = RandomArray(Float64, [normal(0,1), normal(0.5)])
@@ -121,9 +120,12 @@ Z = cond(Y, X>0.5)
 rand(Z)
 ```
 
-# Theory
+# Notes
 
-
+- Currently only a few RandomVariable constructors, `uniform`, `normal` and `flip`, support RandomVaribles as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported
+- All RandomVariable constructors have methods which take an integer `i` as a first parameter, e.g.,  `uniform(0,0,1)`.  Put briefly, RandomVaribles constructed with differing values of `i` will be statistically __independent__.  If this parameter is omitted, it will be randomly (and uniquely) generated for you, but in some cases this can cause a performance hit.
+- RandomArrays are currently only of fixed size, i.e. their length is not a RandomVariable
+- Most query operations, e.g. `prob, cond_prob, cond` support a keyword parameter `maxdepth`.  e.g., `prob(X>0,maxdepth = 10)`.  This is an implementation detail, which eventually you should never have to worry about.  For the moment however, increasing maxdepth will result in a more precise answer.  It may be necessary, especially if you query a low probability event.
 
 [![Build Status](https://travis-ci.org/zenna/Sigma.jl.svg?branch=master)](https://travis-ci.org/zenna/Sigma.jl)
 
