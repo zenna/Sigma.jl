@@ -22,7 +22,7 @@ To create a uniformly distributed random variable use, try:
 X = uniform(0,1)
 ```
 
-RandomVariable constructors return RandomVariable objects, and not samples from distributions - i.e., it's not the same as `rand()`in C, nor python's `random.uniform(0,1)'.
+RandomVariable constructors return RandomVariable objects, and not samples from distributions - i.e., it's not the same as `rand()`in C, nor python's `random.uniform(0,1)`.
 All RandomVaribles have a type; we say for example that `uniform` returns a `Float64`-valued RandomVariable, `poission` returns a `Int64`-valued random variable and `flip` returns a `bool`-valued RandomVariable.
 
 Applying functions to RandomVariables return new RandomVariables.  In the following, `X`, `Y` and `Z` are all RandomVariables.
