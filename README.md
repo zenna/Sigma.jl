@@ -23,6 +23,7 @@ X = uniform(0,1)
 ```
 
 RandomVariable constructors return RandomVariable objects, and not samples from distributions - i.e., it's not the same as `rand()`in C, nor python's `random.uniform(0,1)'.
+All RandomVaribles have a type; we say for example that `uniform` returns a `Float64`-valued RandomVariable, `poission` returns a `Int64`-valued random variable and `flip` returns a `bool`-valued RandomVariable.
 
 Applying functions to RandomVariables return new RandomVariables.  In the following, `X`, `Y` and `Z` are all RandomVariables.
 
@@ -31,7 +32,7 @@ Y = X * X
 Z = Y > 0
 ```
 
-Probabilstic models are then smiply created by defining primitive RandomVariables and composing these together to create more complex ones.
+Probabilstic models are then simply created by defining primitive RandomVariables and composing these together to create more complex ones.
 
 ## Random Arrays
 
@@ -122,9 +123,9 @@ rand(Z)
 
 # Notes
 
-- Currently only a few RandomVariable constructors, `uniform`, `normal` and `flip`, support RandomVaribles as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported
+- Currently only a few RandomVariable constructors - `uniform`, `normal` and `flip`, support RandomVaribles as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported.
 - All RandomVariable constructors have methods which take an integer `i` as a first parameter, e.g.,  `uniform(0,0,1)`.  Put briefly, RandomVaribles constructed with differing values of `i` will be statistically __independent__.  If this parameter is omitted, it will be randomly (and uniquely) generated for you, but in some cases this can cause a performance hit.
-- RandomArrays are currently only of fixed size, i.e. their length is not a RandomVariable
+- RandomArrays are currently only of fixed size.
 - Most query operations, e.g. `prob, cond_prob, cond` support a keyword parameter `maxdepth`.  e.g., `prob(X>0,maxdepth = 10)`.  This is an implementation detail, which eventually you should never have to worry about.  For the moment however, increasing maxdepth will result in a more precise answer.  It may be necessary, especially if you query a low probability event.
 
 [![Build Status](https://travis-ci.org/zenna/Sigma.jl.svg?branch=master)](https://travis-ci.org/zenna/Sigma.jl)
