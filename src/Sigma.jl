@@ -78,7 +78,6 @@ export
 
 include("domains.jl")
 include("randomvariable.jl")
-include("randomarray.jl")
 include("controlflow.jl")
 include("util.jl")
 include("omega.jl")
