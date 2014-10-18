@@ -19,7 +19,7 @@ call!(X::RandomVariableSymbolic, ω) = (compile!(X); X.λ(ω))
 callnocheck(X::RandomVariableSymbolic, ω) = X.λ(ω)
 call!(f::Function, a) = f(a)
 
-typealias RandomVariable RandomVariableSymbolic
+domaintype(X::RandomVariableSymbolic) = typeof(X).parameters[1]
 
 ## Conversion
 ## ============
@@ -35,10 +35,6 @@ headexpr(X::RandomVariableSymbolic) = X.asts[1]
 funcexpr(e::Expr) = e.args[2].args[2]
 headfuncexpr(X::RandomVariableSymbolic) = funcexpr(headexpr(X))
 
-
-# Option 1. use ConcreteReal
-# Option 2. Use a bigger union Float64, Float32, Float16, ...
-# Option 3. Overload each type individually
 # Binary functions
 for op = (:+, :-, :*, :/,:eq, :neq)
   @eval begin
