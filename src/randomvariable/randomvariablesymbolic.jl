@@ -1,15 +1,15 @@
 type RandVarSymbolic{T} <: RandVar{T}
-  ast::Expr
+  ast
   compiled::Bool
   λ::Function
 
   # Precompiled
-  RandVarSymbolic(ast::Expr, λ::Function) = new(ast,true,λ)
-  RandVarSymbolic(ast::Expr) = new(ast,false)
+  RandVarSymbolic(ast, λ::Function) = new(ast,true,λ)
+  RandVarSymbolic(ast) = new(ast,false)
 end
 
 ## Constructors
-RandVarSymbolic(T::DataType, e::Expr) = RandVarSymbolic{T}(e)
+RandVarSymbolic(T::DataType, e) = RandVarSymbolic{T}(e)
 
 function compile!(X::RandVarSymbolic)
   if !X.compiled X.λ = eval(headexpr(X)) end
@@ -33,9 +33,6 @@ convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)
 
 ## Abstractions
 ast(X::RandVarSymbolic) = X.ast
-# headexpr(X::RandVarSymbolic) = X.ast
-# funcexpr(e::Expr) = e.args[2].args[2]
-# headfuncexpr(X::RandVarSymbolic) = funcexpr(headexpr(X))
 
 # Binary functions
 for op = (:+, :-, :*, :/,:eq, :neq)
@@ -57,7 +54,7 @@ for op = (:>, :>=, :<=, :<, :eq, :neq)
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
       let op = $op
         newast = :($op($(ast(X)),$(ast(Y))))
-        RandVarSymbolic(Bool, ast)
+        RandVarSymbolic(Bool, newast)
       end
     end
 
@@ -71,7 +68,7 @@ for op = (:&, :|, :eq, :neq)
     function ($op)(X::RandVarSymbolic{Bool}, Y::RandVarSymbolic{Bool})
       let op = $op
         newast = :($op($(ast(X)),$(ast(Y))))
-        RandVarSymbolic(Bool, ast)
+        RandVarSymbolic(Bool, newast)
       end
     end
 
@@ -86,7 +83,7 @@ for op = (:!,)
     function ($op)(X::RandVarSymbolic{Bool})
       let op = $op
         newast = :($op($(ast(X))))
-        RandVarSymbolic(Bool, ast)
+        RandVarSymbolic(Bool, newast)
       end
     end
   end
@@ -98,8 +95,19 @@ for op = (:sqrt,:sqr,:abs,:round)
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T})
       let op = $op
         newast = :($op($(ast(X))))
-        RandVarSymbolic(T, ast)
+        RandVarSymbolic(T, newast)
       end
     end
   end
+end
+
+@noexpand sqr(C)
+macro noexpand(dtype, call)
+  @assert call.head == :call
+  fname = call.args[1]
+  fargs = call.args[2,:]
+  astapply = [:ast, fargs]
+  rv = :(RandVarSymbolic($dtype,:(sqr($(ast(fargs))))))
+  rv.args[3].args[4].args[2,:] = fargs #hack, I don't know how to get fargs in
+  return rv
 end
