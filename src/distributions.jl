@@ -1,27 +1,27 @@
 ## Primitive Distributions
 ## =======================
 # random(i) = ω->ω[i]
-random(i::Int64) = RandomVariableSymbolic(Float64, :(ω -> ω[$i]))
+random(i::Int64) = RandVarSymbolic(Float64, :(ω[$i]))
 
-## # Distributions.jl Distribution -> RandomVariable by inverse transform sampling
+## # Distributions.jl Distribution -> RandVar by inverse transform sampling
 ## ================================================================================
 
 # Normal
 normal(i::Int64,μ::Float64,σ::Float64) =
-  RandomVariableSymbolic(Float64,:(ω -> quantile(Normal($μ,$σ),ω[$i])))
-normal(i::Int64,μ::RandomVariableSymbolic{Float64},σ::RandomVariableSymbolic{Float64})= (normal(i,0.,1.) * μ) + σ
+  RandVarSymbolic(Float64,:(ω -> quantile(Normal($μ,$σ),ω[$i])))
+normal(i::Int64,μ::RandVarSymbolic{Float64},σ::RandVarSymbolic{Float64})= (normal(i,0.,1.) * μ) + σ
 normal(μ,σ) = normal(genint(),μ, σ)
 
 # uniform
-uniform(i::Int64,a::Float64,b::Float64) = RandomVariableSymbolic(Float64,:(ω -> quantile(Uniform($a,$b),ω[$i])))
-uniform(i::Int64,a::RandomVariableSymbolic{Float64},b::RandomVariableSymbolic{Float64}) = (b - a) * uniform(i,0,1) + a
+uniform(i::Int64,a::Float64,b::Float64) = RandVarSymbolic(Float64,:(ω -> quantile(Uniform($a,$b),ω[$i])))
+uniform(i::Int64,a::RandVarSymbolic{Float64},b::RandVarSymbolic{Float64}) = (b - a) * uniform(i,0,1) + a
 uniform(a,b) = uniform(genint(),a,b)
 
 # Bernoulli
-flip{T<:Union(RandomVariableSymbolic{Float64},Float64)}(i::Int64,p::T) = p > random(i)
+flip{T<:Union(RandVarSymbolic{Float64},Float64)}(i::Int64,p::T) = p > random(i)
 flip(i::Int64) = 0.5 > random(i)
 flip() = 0.5 > random(genint())
-flip{T<:Union(RandomVariableSymbolic{Float64},Float64)}(p::T) = p > random(genint())
+flip{T<:Union(RandVarSymbolic{Float64},Float64)}(p::T) = p > random(genint())
 # randomize{D <: Distribution}(i, d::D) = quantile(d, random(i))
 
 ## Convenience Random Variable Constructors

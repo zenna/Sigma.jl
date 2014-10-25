@@ -64,7 +64,7 @@ Typical functions such as `length`,`sum` produce RandomVariables:
 
 ```julia
 X = RandomArray(Float64, [normal(0,1), normal(0.5)])
-Y = sum(X) # Float64 Values RandomVariable
+Y = sum(X) # Float64-valued RandomVariable
 ```
 
 ### Queries
