@@ -10,7 +10,7 @@ import Base: sum, dot, length, join, round
 import Distributions: quantile
 
 export
-  RandomVariable,
+  RandVar,
   RandomArray,
   MakeRandomArray,
   independentRandomArray,
@@ -44,10 +44,13 @@ export
   setindex,
 
   # Distributions
+  random,
   normal,
   uniform,
   flip,
   uniformArray,
+
+  @noexpand,
 
   #utils
   tolerant_eq,
@@ -77,7 +80,7 @@ export
   add_KL_church!
 
 include("domains.jl")
-include("randomvariable.jl")
+include("randvar.jl")
 include("controlflow.jl")
 include("util.jl")
 include("omega.jl")

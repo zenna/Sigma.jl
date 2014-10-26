@@ -20,8 +20,9 @@ uniform(a,b) = uniform(genint(),a,b)
 # Bernoulli
 flip{T<:Union(RandVarSymbolic{Float64},Float64)}(i::Int64,p::T) = p > random(i)
 flip(i::Int64) = 0.5 > random(i)
-flip() = 0.5 > random(genint())
 flip{T<:Union(RandVarSymbolic{Float64},Float64)}(p::T) = p > random(genint())
+flip() = 0.5 > random(genint())
+
 # randomize{D <: Distribution}(i, d::D) = quantile(d, random(i))
 
 ## Convenience Random Variable Constructors

@@ -12,13 +12,18 @@ end
 RandVarSymbolic(T::DataType, e) = RandVarSymbolic{T}(e)
 
 function compile!(X::RandVarSymbolic)
-  if !X.compiled X.λ = eval(headexpr(X)) end
+  if !X.compiled X.λ = eval(:(ω->$(ast(X)))) end
   X.compiled = true
   X
 end
-call!(X::RandVarSymbolic, ω) = (compile!(X); X.λ(ω))
+
+# Call is state changing, but I've omitted ! so that that we can
+# overload the () syntax.
+call(X::RandVarSymbolic, ω) = (compile!(X); X.λ(ω))
 callnocheck(X::RandVarSymbolic, ω) = X.λ(ω)
-call!(f::Function, a) = f(a)
+
+# Will need to deprecate this in v4.
+call(f::Function, a) = f(a)
 
 domaintype(X::RandVarSymbolic) = typeof(X).parameters[1]
 
@@ -101,13 +106,30 @@ for op = (:sqrt,:sqr,:abs,:round)
   end
 end
 
-@noexpand sqr(C)
-macro noexpand(dtype, call)
-  @assert call.head == :call
-  fname = call.args[1]
-  fargs = call.args[2,:]
-  astapply = [:ast, fargs]
-  rv = :(RandVarSymbolic($dtype,:(sqr($(ast(fargs))))))
-  rv.args[3].args[4].args[2,:] = fargs #hack, I don't know how to get fargs in
-  return rv
+macro noexpand(dtype, fcall)
+  @assert fcall.head == :call
+  fname = fcall.args[1]
+  fargs = fcall.args[2:end]
+  quote
+    pargs = vcat($(fargs...))
+    callexpr = Expr(:call, $fname, pargs...)
+    pipeexpr = Expr(:call, :pipeomega, callexpr, :ω)
+    RandVarSymbolic($dtype, pipeexpr)
+  end
 end
+
+# macro noexpand(dtype, call)
+#   @assert call.head == :call
+#   fname = call.args[1]
+#   fargs = call.args[2,:]
+#   astapply = [:ast, fargs]
+#   rv = :(RandVarSymbolic($dtype,:(pipeomega(fname($(ast(fargs))),ω))))
+#   rv = :(RandVarSymbolic($dtype,:(pipeomega(fname(fargs),ω))))
+#   dump(rv,20)
+#   rv.args[3].args[1].value.args[2].args[1] = fname
+#   rv.args[3].args[1].value.args[2].args[2,:] = fargs
+#    #hacks, I don't know how to get fname and fargs in simply
+# #   rv.args[3].args[4].args[3] = QuoteNode(fname)
+# #   rv.args[3].args[4].args[4].args[2,:] = fargs
+#   return rv
+# end

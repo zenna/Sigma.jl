@@ -10,13 +10,13 @@ measure{B<:Box}(bs::Vector{B}) = map(volume,bs)
 # Queries
 
 sum_empty(x) = if isempty(x) 0 else sum(x) end
-function prob_deep(rv::RandomVariable;  max_depth = 5, box_budget = 300000)
+function prob_deep(rv::RandVar{Bool};  max_depth = 5, box_budget = 300000)
   tree = pre_deepening(rv, T, Omega(), max_depth = max_depth, box_budget = box_budget)
   under_pre, over_pre = sat_tree_data(tree), mixedsat_tree_data(tree)
   sum_empty(measure(under_pre)), sum_empty(measure(over_pre))
 end
 
-function cond_prob_deep(rv::RandomVariable, q::RandomVariable; box_budget = 300000, max_depth = 5)
+function cond_prob_deep(rv::RandVar{Bool}, q::RandVar{Bool}; box_budget = 300000, max_depth = 5)
   tree1 = pre_deepening(rv & q, T, Omega(), max_depth = max_depth, box_budget = box_budget)
   under_pre_cond, over_pre_cond = sat_tree_data(tree1), mixedsat_tree_data(tree1)
 
@@ -36,16 +36,16 @@ cond_prob = cond_prob_deep
 
 ## ========
 ## Sampling
-rand(X::RandomVariable) = X(SampleOmega())
+rand(X::RandVar) = X(SampleOmega())
 
-type ConditionalRandomVariable
+type ConditionalRandVar
   over_pre_cond
   c::Categorical
-  X::RandomVariable
-  Y::RandomVariable
+  X::RandVar
+  Y::RandVar
 end
 
-function rand(C::ConditionalRandomVariable; maxtries = Inf, countrejected = false)
+function rand(C::ConditionalRandVar; maxtries = Inf, countrejected = false)
   nrejected = 0
   ntried = 0
   while true
@@ -63,30 +63,30 @@ function rand(C::ConditionalRandomVariable; maxtries = Inf, countrejected = fals
   end
 end
 
-function cond(X::RandomVariable, Y::RandomVariable; max_depth = 10)
+function cond(X::RandVar, Y::RandVar{Bool}; max_depth = 10)
   # Find preimage and measure each box in disjunction
   tree = pre_deepening(Y, T, Omega(), max_depth = max_depth)
   over_pre_cond = mixedsat_tree_data(tree)
   measures::Vector{Float64} = measure(over_pre_cond)
   pnormalize!(measures)
   c = Categorical(measures, Distributions.NoArgCheck())
-  ConditionalRandomVariable(over_pre_cond,c,X,Y)
+  ConditionalRandVar(over_pre_cond,c,X,Y)
 end
 
 # Conditional probability found using samples
-function prob_sampled(X::RandomVariable; nsamples = 1000)
+function prob_sampled(X::RandVar; nsamples = 1000)
   samples = [rand(X) for i=1:nsamples]
   length(filter(x->x,samples))/length(samples)
 end
 
-function cond_prob_sampled(X::RandomVariable, Y::RandomVariable; nsamples = 1000)
+function cond_prob_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
   C = cond(X,Y)
   samples = [rand(C) for i=1:nsamples]
   length(filter(x->x,samples))/length(samples)
 end
 
 # FIXME: DEPRECATE
-function cond_sample(X::RandomVariable, Y::RandomVariable; max_depth = 10)
+function cond_sample(X::RandVar, Y::RandVar{Bool}; max_depth = 10)
   # Find preimage and measure each box in disjunction
   tree = pre_deepening(Y, T, Omega(), max_depth = max_depth)
   over_pre_cond = mixedsat_tree_data(tree)

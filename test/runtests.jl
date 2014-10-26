@@ -1,7 +1,7 @@
 tests = [
     "bool",
     "controlflow",
-    "randomvariable",
+    "RandVar",
     "query"]
 
 println("Running tests:")

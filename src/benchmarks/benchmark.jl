@@ -52,7 +52,7 @@ function stat_errorbar_layer(stats,x,ylow,yhigh)
         Theme(default_color=rand_select(faint_colors)))
 end
 
-function plot_cond_performance(X::RandomVariable, Y::RandomVariable;
+function plot_cond_performance(X::RandVar, Y::RandVar;
                                num_points = 10, max_depth = 10,
                                max_boxes = 300000)
   box_budget = linspace(1,max_boxes,num_points)
@@ -71,7 +71,7 @@ function plot_cond_performance(X::RandomVariable, Y::RandomVariable;
    for i = 1:num_points]
 end
 
-function plot_prob_performance(X::RandomVariable;
+function plot_prob_performance(X::RandVar;
                                num_points = 10, max_depth = 10,
                                max_boxes = 300000)
   box_budget = linspace(1,max_boxes,num_points)

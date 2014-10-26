@@ -1,7 +1,3 @@
-# Control flow functions/operators
-pipeomega(v, ω) = v
-pipeomega(v::RandomVariable, ω) = v(ω)
-
 # When condition is TF we need to evaluate both branches
 # and merge with ⊔
 function ifelse(c::AbstractBool, x, y)
@@ -16,7 +12,7 @@ end
 
 # When cond is a random variable, @If and ifelse return a random variable
 # Which also 'pipes' ω into x and y if they are random variables
-function ifelse(c::RandomVariable, x, y)
+function ifelse(c::RandVar, x, y)
   function(ω)
     ifelse(c(ω),pipeomega(x,ω),pipeomega(y,ω))
   end
@@ -49,7 +45,7 @@ end
 #   rvinner = makeif(a,:(pipeomega($b,ω)),:(pipeomega($c,ω)))
 #   rv =
 #   quote
-#     if isa($a, RandomVariable)
+#     if isa($a, RandVar)
 #       function(ω)
 #         $rvinner
 #       end
@@ -73,7 +69,7 @@ end
 #       a = $(esc(conseq))
 #       b = $(esc(alt))
 #       ⊔(a,b)
-#     elseif isa(a,RandomVariable)
+#     elseif isa(a,RandVar)
 
 #     else
 #       throw(DomainError())
@@ -110,7 +106,7 @@ end
 # Z = @If true flip(1,0.4) flip(2,0.4)
 # Z
 
-# Short circut version of ifelse, handles AbstractBool and RandomVariable
+# Short circut version of ifelse, handles AbstractBool and RandVar
 macro If(condition, conseq, alt)
   local idtrue = singleton(gensym())
   local idfalse = singleton(gensym())
@@ -118,7 +114,7 @@ macro If(condition, conseq, alt)
   quote
   c =  $(esc(condition));
 #   println("enterin$$g the if",$idtrue)
-  if isa(c, RandomVariable)
+  if isa(c, RandVar)
     (ω)->begin
           d = c(ω)
           if isa(d, EnvVar)

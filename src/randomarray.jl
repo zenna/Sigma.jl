@@ -1,6 +1,6 @@
 ## =============
 ## Random Arrays
-typealias RandomArray RandomVariable
+typealias RandomArray RandVar
 
 for op = (:sum, :length)
   @eval begin
@@ -49,7 +49,7 @@ end
 # The problem with smallest is that it requries we iterate over the list
 uniformArray(l,u,x,y) = independentRandomArray(x->uniform(x,l,u),x,y)
 
-function smallest(rv::RandomVariable, ra::RandomArray)
+function smallest(rv::RandVar, ra::RandomArray)
   function(ω)
     A = ra(ω)
     v = rv(ω)

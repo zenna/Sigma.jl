@@ -31,13 +31,13 @@ end
 begin
   local x = flip(1,0.6)
   local a = @If x false true
-  @test isa(a,Sigma.RandomVariable)
+  @test isa(a,Sigma.RandVar)
   @test a(Omega()) === TF
   @test a([0.3]) == false
   @test a([0.7]) == true
 
   a = ifelse(x,false,true)
-  @test isa(a,Sigma.RandomVariable)
+  @test isa(a,Sigma.RandVar)
   @test a(Omega()) === TF
   @test a([0.3]) == false
   @test a([0.7]) == true
@@ -49,16 +49,16 @@ end
 begin
   local x = flip(1,0.6)
   local a = @If x flip(1,0.9) flip(1,0.2)
-  @test isa(a,Sigma.RandomVariable)
+  @test isa(a,Sigma.RandVar)
   # Omega() should be piped through to a or b, and hence:
-  @test !isa(a(Omega()),Sigma.RandomVariable)
+  @test !isa(a(Omega()),Sigma.RandVar)
   @test a([0.3]) == true
   @test a([0.7]) == false
 
   a = ifelse(x,flip(1,0.9), flip(1,0.2))
-  @test isa(a,Sigma.RandomVariable)
+  @test isa(a,Sigma.RandVar)
   # Omega() should be piped through to a or b, and hence:
-  @test !isa(a(Omega()),Sigma.RandomVariable)
+  @test !isa(a(Omega()),Sigma.RandVar)
   @test a([0.3]) == true
   @test a([0.7]) == false
 end
