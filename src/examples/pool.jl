@@ -1,43 +1,39 @@
 # Pool like simulation/inference
 using Sigma
-
-Sigma.sqr(x::Real) = x * x
+using Compose
+using Color
 
 ## Conversion
 ## ==========
 points_to_vec(p1::Lifted{Vector{Float64}}, p2::Lifted{Vector{Float64}}) = p1 - p2
-points_to_vec(edge) = points_to_vec(edge[:,1], edge[:,2])
+points_to_vec(edge::Lifted{Matrix{Float64}}) = points_to_vec(edge[:,1], edge[:,2])
 
 # Parametric form of line is p1 + (p2 - p1)
-points_to_parametric(p1,p2) = [p1 points_to_vec(p2,p1)]
-points_to_parametric(edge) = points_to_parametric(edge[:,1], edge[:,2])
-parametric_to_point(p, s::Lifted{Float64}) = p[:,1] + s * p[:,2]
+points_to_parametric(p1::Lifted{Vector{Float64}},p2::Lifted{Vector{Float64}}) =
+  liftedarray([p1 points_to_vec(p2,p1)])
+points_to_parametric(edge::Lifted{Matrix{Float64}}) = points_to_parametric(edge[:,1], edge[:,2])
+parametric_to_point(p::Lifted{Matrix{Float64}}, s::Lifted{Float64}) = p[:,1] + s * p[:,2]
 
-# Where if anywhere, along p does it interect segment
-function intersect_segments(p, q)
+# Where if anywhere, along p does it intersect segment
+function intersect_segments(p::Lifted{Matrix{Float64}}, q::Lifted{Matrix{Float64}})
   w = p[:,1] - q[:,1]
   u = p[:,2]
   v = q[:,2]
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
-perp(v) = [-v[2],v[1]]
-function normalise(v)
+perp(v::Lifted{Vector{Float64}}) = liftedarray([-v[2],v[1]])
+function normalise(v::Lifted{Vector{Float64}})
   denom = sqrt(sqr(v[1]) + sqr(v[2]))
-  [v[i] / denom for i = 1:length(v)]
+  liftedarray([v[i] / denom for i = 1:length(v)])
 end
 
-function reflect(v,q)
-#   println("New Reflection \n")
+function reflect(v::Lifted{Vector{Float64}},q::Lifted{Vector{Float64}})
   q_norm = normalise(q)
   n_amb = perp(q_norm)
   v2 = normalise(v)
-#   @show dotty(q_norm,v2)
-  n = @If dotty(q_norm,v2) < 0 n_amb -n_amb
-#   @show n
-#   @show dotty(v2,n)
-  ir = 2 * (dotty(v2,n) * n)
-  [v[1] - ir[1], v[2] - ir[2]]
+  n = @If dot(q_norm,v2) < 0 n_amb -n_amb
+  v2 - 2 * (dot(v2,n) * n)
 end
 
 # is a the smallest element in list ss
@@ -61,19 +57,10 @@ function smallest(x,ys)
 end
 
 function bounce(p,s,o)
-  println("trying to bounce")
-  v = [p[1,2], p[2,2]]
+  v = p[:,2]
   reflection = reflect(v,o[:,2])
-#   @show reflection
-  sc = [p[1,2] * s, p[2,2] * s]
-  new_pos = [p[1,1] + sc[1],p[2,1] + sc[2]]
-#   [p[1,1] + ]
-#   ir = p[:,1] + p[:,2]
-#   ir = p[:,1] + p[:,2]
-#   new_pos = [ir[1]* s, ir[2] *s]
-#   @show new_pos
-  println("Finished bouncing")
-  [new_pos reflection]
+  new_pos = p[:,1] + p[:,2] * s
+  liftedarray([new_pos reflection])
 end
 
 function simulate(num_steps::Integer, start_pos, start_dir, obs)
@@ -98,50 +85,9 @@ function simulate(num_steps::Integer, start_pos, start_dir, obs)
   pos_parametric
 end
 
-function simulate_prob(num_stepso::Integer, obs)
-  function (omega)
-    obs = map(points_to_parametric, obstacles)
-    num_steps = num_stepso - 1
-    start_pos = Any[4, 5]
-#     v0,v1 = Interval(0.5,0.6), Interval(0.5,0.6)
-    v0,v1 = uniform(1,-1,1)(omega), uniform(1,-1,1)(omega)
-    dir  = normalise(Any[v0,v1])
-    pos_parametric = Array(Any, num_stepso + 1)
-    v = [start_pos dir]
-    pos_parametric[1] = v
 
-    for i = 1:num_steps
-      println("TAKING A STEP \n\n")
-#       println("step: ", i, "of ", num_steps)
-      p = pos_parametric[i]
-      ss = Array(Any, length(obs))
-      for j = 1:length(obs)
-        ss[j] = intersect_segments(p, obs[j])
-      end
-      println("finished intersecting obstacles")
-      pos_parametric[i+1] = @If(smallest(ss[1],ss), bounce(p,ss[1],obs[2]),
-                                @If(smallest(ss[2],ss),bounce(p,ss[2],obs[2]),
-                                    bounce(p,ss[3],obs[3])))
-      println("finished that")
-#       @show pos_parametric
-    end
-#     pos_parametric[end-1]
-    pos_parametric[end-1][1] > 5
-#     pos_parametric[end][1] > 5
-  end
-end
-
-function intersect_segments_prob(p0x,p0y,q0x,q0y, u1, u2, v1, v2)
-  w1 = p0x - q0x
-  w2 = p0y - q0y
-
-  u = p[:,2]
-  v = q[:,2]
-  (v2 * w1 - v1 * w2) / (v1 * u2 - v2 * u1)
-end
-
-## ====
 ## Vis
+## ===
 function make_point_pairs(lines)
   b = Array(Any, length(lines)-1)
   for i = 1:length(lines) - 1
@@ -168,20 +114,23 @@ function draw_lines(lines...)
   apply(compose,vcat(context(), x))
 end
 
-## ========
-## Examples
+## Deterministic Examples
+## ======================
 obstacles = Array[[8.01 3.01; 1.02 9],
                   [0.5 3.08; 2.02 9.04],
                   [0.0 9.99; 3 5.04]]
 
-s = simulate_prob(4,obstacles)
-s(Omega(Sigma.EnvVar))
+simulation = simulate(4, [3, 5], [rand()*2 - 1,rand()*2 - 1], obstacles)
+a = make_compose_lines(obstacles)
+b = make_compose_lines(make_point_pairs(simulation))
+rand_color() = RGB(rand(),rand(),rand())
+draw_lines(a,b)
+
+## Probabilistic Examples
+## ======================
+
+# s = simulate_prob(4,obstacles)
+# s(Omega(Sigma.EnvVar))
 # p = prob_deep(s, max_depth = 5)
 # p = pre_deepening(s,T,Omega(),max_depth = 10)
 # p
-simulation = simulate(4, [3, 5], [rand()*2 - 1,rand()*2 - 1], obstacles)
-# a = make_compose_lines(obstacles)
-# b = make_compose_lines(make_point_pairs(simulation))
-
-# draw_lines(a,b)
-

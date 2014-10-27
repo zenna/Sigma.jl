@@ -23,6 +23,9 @@ export
   @If,
   @While,
 
+  Lifted,
+  liftedarray,
+
   # Preimages
   pre_recursive,
   pre_greedy,
@@ -55,6 +58,7 @@ export
   #utils
   tolerant_eq,
   rand_select,
+  sqr,
 
   #Plotting
   plot_2d_boxes,

@@ -27,7 +27,7 @@ callnocheck(X::RandVarSymbolic, ω) = X.λ(ω)
 # Will need to deprecate this in v4.
 call(f::Function, a) = f(a)
 
-domaintype(X::RandVarSymbolic) = typeof(X).parameters[1]
+rangetype(X::RandVarSymbolic) = typeof(X).parameters[1]
 
 ## Conversion
 ## ============

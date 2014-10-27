@@ -34,6 +34,10 @@ end
 
 # [cart_product(i,v) for i = 0:23]
 
+## Arithmetic
+## ==========
+
+sqr{T <: Real}(x::T) = x * x
 
 ## =====================
 ## Probabilstic Utilities
@@ -41,7 +45,6 @@ end
 rand_interval{T<:Real}(a::T, b::T) = a + (b - a) * rand()
 rand_select(v::Vector) = v[ceil(rand_interval(0,length(v)))]
 
-sqr(x::Float64) = x * x
 function tosatboxes(pre)
   sat =  Sigma.sat_tree_data(pre)
   map(x->convert(Sigma.NDimBox,collect(values(x.intervals))),sat)

@@ -14,19 +14,19 @@ Pkg.clone("git@github.com:zenna/Sigma.jl.git")
 # Basic Usage
 
 ## Random Variables
-One of the fundamental items in Sigma is a __RandomVariable__.
-RandomVariables are created using primitive RandomVariable constructors.
+One of the fundamental items in Sigma is a random variable, which we represented by abstract type __RandVar__.
+RandVars are created using primitive RandVar constructors.
 To create a random variable uniformly distributed between 0 and 1, use:
 
 ```julia
 X = uniform(0.0,1.0)
 ```
 
-RandomVariable constructors return values of the RandomVariable type, and not samples from distributions - i.e., it's not the same as `rand()` in Julia.Base, nor python's `random.uniform(0,1)`.
-All RandomVariables have a domain type; we say for example that `uniform` returns a `Float64`-valued RandomVariable, `poission` returns a `Int64`-valued RandomVariable and `flip` returns a `Bool`-valued RandomVariable.
-The domain type can be access with `domaintype`, e.g. `domaintype(flip())` will return `Bool`.
+RandVar constructors return values of the RandVar type, and not samples from distributions - i.e., it's not the same as `rand()` in Julia.Base, nor python's `random.uniform(0,1)`.
+All RandVars have a domain type; we say for example that `uniform` returns a `Float64`-valued RandVar, `poission` returns a `Int64`-valued RandVar and `flip` returns a `Bool`-valued RandVar.
+The domain type can be access with `rangetype`, e.g. `rangetype(flip())` will return `Bool`.
 
-Applying functions to RandomVariables returns new RandomVariables.  In the following, `X`, `Y` and `Z` are all RandomVariables, with domaintypes `Float64`,`Float64`, and `Bool` respectively.
+Applying functions to RandVars returns new RandVars.  In the following, `X`, `Y` and `Z` are all RandVars, with rangetypes `Float64`,`Float64`, and `Bool` respectively.
 
 ```julia
 X = normal(0,1)
@@ -34,42 +34,60 @@ Y = X * X
 Z = Y > 0
 ```
 
-Complex probabilistic models are then simply created by defining primitive RandomVariables and composing these together.
+Complex probabilistic models are then simply created by defining primitive RandVars and composing these together.
+We can use (almost) all of the power of Julia to do this.
+When defining functions intended to operate on values in the range of random variables, we must take a simple precaution to ensure that the RandomVariables.
+
+For instance if you wanted to define a squared uniform distribution, the following will type fail.
+
+```julia
+X = uniform(0,1)
+square(x::Float64) = x * x
+Y = square(X)
+```
+
+Instead, you should use `Lifted` and write
+
+```julia
+X = uniform(0,1)
+square(x::Lifted{Float64}) = x * x
+Y = square(X)
+```
 
 ## Random Arrays
 
-Multivariate random variables can be created using `RandomArray`, which takes a type as the first parameter, and a normal Julia array as the second.
+Multivariate random variables can be created using `RandArray`, which takes a type as the first parameter, and a normal Julia array as the second.
 
 ```julia
-RandomArray(Float64, [uniform(0,1), normal(0,2)])
+RandArray(Float64, [uniform(0,1), normal(0,2)])
 ```
 
-The array can store RandomVariables which are distributed differently (e.g., uniform and normal in the above example), but they must all be the same domain type.
+The array can store RandVars which are distributed differently (e.g., uniform and normal in the above example), but they must all be the same domain type.
 For instance the following is *invalid*:
 
 ```julia
-RandomArray(Float64, [uniform(0,1), flip(0.5)])
+RandArray(Float64, [uniform(0,1), flip(0.5)])
 ```
 
 Because flip is `Bool`-valued.
 
-RandomArrays can be accessed using familiar Julia array style access, e.g.:
+RandArrays can be accessed using familiar Julia array style access, e.g.:
 
 ```julia
-X = RandomArray(Float64, [uniform(0,1), flip(0.5)])
+X = RandArray(Float64, [uniform(0,1), flip(0.5)])
 prob(X[1] > 0.5)
 ```
 
-Typical functions such as `length`,`sum` produce RandomVariables:
+Typical functions such as `length`,`sum` produce RandVars:
 
 ```julia
-X = RandomArray(Float64, [normal(0,1), normal(0.5)])
-Y = sum(X) # Float64-valued RandomVariable
+X = RandArray(Float64, [normal(0,1), normal(0.5)])
+Y = sum(X) # Float64-valued RandVar
 ```
 
 ### Queries
 
-Consructing probabilistic models is all well and good, but you can do it in almost any language.
+Constructing probabilistic models is all well and good, but you can do it in almost any language.
 What sets Sigma apart is its ability to answer queries.
 For example, given the model:
 
@@ -100,7 +118,7 @@ Returns the conditional probability bounds that Y>0 given X>0.
 
 ### Sampling
 
-Oftentimes we want to sample from a RandomVariable.
+Oftentimes we want to sample from a RandVar.
 To do this, use `rand`
 
 ```julia
@@ -111,7 +129,7 @@ rand(X)
 will return a sample.
 
 More interestingly, we can __conditionally sample__.
-First we have to construct a ConditionalRandomVariable using `cond`.
+First we have to construct a ConditionalRandVar using `cond`.
 We can sample from the conditional distribution simply using rand.
 
 ```julia
@@ -123,9 +141,9 @@ rand(Z)
 
 # Notes
 
-- Currently only a few RandomVariable constructors - `uniform`, `normal` and `flip`, support RandomVariables as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported.
-- All RandomVariable constructors have methods which take an integer `i` as a first parameter, e.g.,  `uniform(0,0,1)`.  Put briefly, RandomVariables constructed with differing values of `i` will be statistically __independent__.  If this parameter is omitted, it will be randomly (and uniquely) generated for you, but in some cases this can cause a performance hit.
-- RandomArrays are currently only of fixed size.
+- Currently only a few RandVar constructors - `uniform`, `normal` and `flip`, support RandVars as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported.
+- All RandVar constructors have methods which take an integer `i` as a first parameter, e.g.,  `uniform(0,0,1)`.  Put briefly, RandVars constructed with differing values of `i` will be statistically __independent__.  If this parameter is omitted, it will be randomly (and uniquely) generated for you, but in some cases this can cause a performance hit.
+- RandArrays are currently only of fixed size.
 - Most query operations, e.g. `prob, cond_prob, cond` support a keyword parameter `maxdepth`.  e.g., `prob(X>0,maxdepth = 10)`.  This is an implementation detail, which eventually you should never have to worry about.  For the moment however, increasing maxdepth will result in a more precise answer.  It may be necessary, especially if you query a low probability event.
 
 [![Build Status](https://travis-ci.org/zenna/Sigma.jl.svg?branch=master)](https://travis-ci.org/zenna/Sigma.jl)
