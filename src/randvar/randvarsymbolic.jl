@@ -11,8 +11,10 @@ end
 ## Constructors
 RandVarSymbolic(T::DataType, e) = RandVarSymbolic{T}(e)
 
+lambarise(X::RandVarSymbolic) = :(ω->$(ast(X)))
+
 function compile!(X::RandVarSymbolic)
-  if !X.compiled X.λ = eval(:(ω->$(ast(X)))) end
+  if !X.compiled X.λ = eval(lambarise(X)) end
   X.compiled = true
   X
 end
@@ -40,7 +42,7 @@ convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)
 ast(X::RandVarSymbolic) = X.ast
 
 # Binary functions
-for op = (:+, :-, :*, :/,:eq, :neq)
+for op = (:+, :-, :*, :/, :(==), :!=)
   @eval begin
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
       let op = $op
@@ -54,7 +56,7 @@ for op = (:+, :-, :*, :/,:eq, :neq)
   end
 end
 
-for op = (:>, :>=, :<=, :<, :eq, :neq)
+for op = (:>, :>=, :<=, :<, :(==), :!=)
   @eval begin
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
       let op = $op
@@ -68,7 +70,7 @@ for op = (:>, :>=, :<=, :<, :eq, :neq)
   end
 end
 
-for op = (:&, :|, :eq, :neq)
+for op = (:&, :|, :(==), :!=)
   @eval begin
     function ($op)(X::RandVarSymbolic{Bool}, Y::RandVarSymbolic{Bool})
       let op = $op
@@ -117,19 +119,3 @@ macro noexpand(dtype, fcall)
     RandVarSymbolic($dtype, pipeexpr)
   end
 end
-
-# macro noexpand(dtype, call)
-#   @assert call.head == :call
-#   fname = call.args[1]
-#   fargs = call.args[2,:]
-#   astapply = [:ast, fargs]
-#   rv = :(RandVarSymbolic($dtype,:(pipeomega(fname($(ast(fargs))),ω))))
-#   rv = :(RandVarSymbolic($dtype,:(pipeomega(fname(fargs),ω))))
-#   dump(rv,20)
-#   rv.args[3].args[1].value.args[2].args[1] = fname
-#   rv.args[3].args[1].value.args[2].args[2,:] = fargs
-#    #hacks, I don't know how to get fname and fargs in simply
-# #   rv.args[3].args[4].args[3] = QuoteNode(fname)
-# #   rv.args[3].args[4].args[4].args[2,:] = fargs
-#   return rv
-# end

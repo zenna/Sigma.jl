@@ -36,7 +36,7 @@ cond_prob = cond_prob_deep
 
 ## ========
 ## Sampling
-rand(X::RandVar) = X(SampleOmega())
+rand(X::RandVar) = call(X,SampleOmega())
 
 type ConditionalRandVar
   over_pre_cond

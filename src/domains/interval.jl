@@ -29,23 +29,25 @@ promote_rule{T<:ConcreteReal}(::Type{T}, ::Type{Interval}) = Interval
 num_dims(i::Interval) = 1
 subsumes(x::Interval, y::Interval) = y.l >= x.l && y.u <= x.u
 overlap(x::Interval, y::Interval) = y.l <= x.u && x.l <= y.u
+domaineq(x::Interval, y::Interval) = x.u == y.u && x.l == y.l
 
-## ====================================
 ## Interval Arithmetic and Inequalities
+## ====================================
 
-function eq(x::Interval, y::Interval)
+# ==, != return values in AbstractBool
+function ==(x::Interval, y::Interval)
   if x.u == y.u && x.l == y.l T
   elseif overlap(x,y) TF
   else F end
 end
 
-neq(x::Interval,y::Interval) = !(eq(x,y))
+!=(x::Interval,y::Interval) = !(==(x,y))
 
-eq(x::Interval,y::ConcreteReal) = eq(promote(x,y)...)
-eq(y::ConcreteReal,x::Interval) = eq(promote(y,x)...)
+==(x::Interval,y::ConcreteReal) = ==(promote(x,y)...)
+==(y::ConcreteReal,x::Interval) = ==(promote(y,x)...)
 
-neq(x::Interval, y::ConcreteReal) = !eq(x,y)
-neq(y::ConcreteReal, x::Interval) = !eq(y,x)
+!=(x::Interval, y::ConcreteReal) = !==(x,y)
+!=(y::ConcreteReal, x::Interval) = !==(y,x)
 
 >(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.l > y.u T else F end
 <(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.u < y.l T else F end
@@ -168,4 +170,3 @@ end
 
 # middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(NDimBox, is,)))
 measure(i::Interval) = i.u - i.l
-findnext

@@ -13,7 +13,7 @@ normal(i::Int64,μ::RandVarSymbolic{Float64},σ::RandVarSymbolic{Float64})= (nor
 normal(μ,σ) = normal(genint(),μ, σ)
 
 # uniform
-uniform(i::Int64,a::Float64,b::Float64) = RandVarSymbolic(Float64,:(ω -> quantile(Uniform($a,$b),ω[$i])))
+uniform(i::Int64,a::Float64,b::Float64) = RandVarSymbolic(Float64,:(quantile(Uniform($a,$b),ω[$i])))
 uniform(i::Int64,a::RandVarSymbolic{Float64},b::RandVarSymbolic{Float64}) = (b - a) * uniform(i,0,1) + a
 uniform(a,b) = uniform(genint(),a,b)
 
@@ -22,6 +22,14 @@ flip{T<:Union(RandVarSymbolic{Float64},Float64)}(i::Int64,p::T) = p > random(i)
 flip(i::Int64) = 0.5 > random(i)
 flip{T<:Union(RandVarSymbolic{Float64},Float64)}(p::T) = p > random(genint())
 flip() = 0.5 > random(genint())
+
+# Discrete Uniform
+discreteuniform(i::Int64,a::Int64,b::Int64) =
+  RandVarSymbolic(Int64,:(ω -> quantile(DiscreteUniform($a,$b),ω[$i])))
+discreteuniform(i::Int64,a::RandVarSymbolic{Int64},b::RandVarSymbolic{Int64}) =
+  (b - a) * discreteuniform(i,0,1) + a
+uniform(a,b) = uniform(genint(),a,b)
+
 
 # randomize{D <: Distribution}(i, d::D) = quantile(d, random(i))
 
