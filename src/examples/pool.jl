@@ -5,7 +5,7 @@ Sigma.sqr(x::Real) = x * x
 
 ## Conversion
 ## ==========
-points_to_vec(p1, p2) = p1 - p2
+points_to_vec(p1::Lifted{Vector{Float64}}, p2::Lifted{Vector{Float64}}) = p1 - p2
 points_to_vec(edge) = points_to_vec(edge[:,1], edge[:,2])
 
 # Parametric form of line is p1 + (p2 - p1)
@@ -21,12 +21,12 @@ function intersect_segments(p, q)
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
-dotty(a,b) = a[1]*b[1] + a[2]*b[2]
 perp(v) = [-v[2],v[1]]
 function normalise(v)
   denom = sqrt(sqr(v[1]) + sqr(v[2]))
   [v[i] / denom for i = 1:length(v)]
 end
+
 function reflect(v,q)
 #   println("New Reflection \n")
   q_norm = normalise(q)

@@ -8,4 +8,7 @@ Xs = iid(Float64, random, 3,3)
 
 As = iid(Float64, random, 3,1)
 Bs = iid(Float64, random, 3,1)
-rand(As⋅Bs)
+rand(As⋅Bs
+
+Qs = iid(Float64, i->normal(i,0.,1.),4)
+call(Qs,Omega())

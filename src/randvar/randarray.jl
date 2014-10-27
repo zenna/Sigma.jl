@@ -1,31 +1,38 @@
 import Base: length, dot, sum
 
-type PureRandomArray{T} <: RandVar{Array{T}}
-  array::Array{RandVarSymbolic{T}}
+type PureRandArray{T,D} <: RandVar{Array{T,D}}
+  array::Array{RandVarSymbolic{T},D}
 end
 
-domaintype(Xs::PureRandomArray) = Array{typeof(Xs).parameters[1]}
+typealias PureRandVector{T} PureRandArray{T,1}
+
+domaintype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
+call(Xs::PureRandArray, ω) = map(x->call(x,ω),Xs.array)
 
 ## Primitive Array Functions
 ## =========================
 # PERF: anon function calls are slow
-sum{T}(X::PureRandomArray{T}, ω) = sum(map(x->call(x,ω), X.array))
-sum{T}(X::PureRandomArray{T}) = @show RandVarSymbolic(T,:(sum($X,ω)))
-length(X::PureRandomArray) = RandVarSymbolic(Int64,:(length($X.array)))
+sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
+sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
+length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
 
 # PERF: use list comprehensions for speed
-rand{T}(X::PureRandomArray{T}) = map(rand,X.array)::Array{T}
+rand{T}(Xs::PureRandArray{T}) = map(rand,Xs.array)::Array{T}
 
 ## Array Access/Updating
 ## =====================
-getindex{T}(X::PureRandomArray{T}, i::Int64, j::Int64) =
-  RandVarSymbolic(T,:(pipeomega(X.array[$i,$j],ω)))
+getindex{T}(X::PureRandArray{T}, i::Int64, j::Int64) =
+  RandVarSymbolic(T,:(pipeomega($X.array[$i,$j],ω)))
 
-setindex{T}(X::PureRandomArray,v::T,i::Integer,j::Integer) = X.array[i,j] = v
+getindex{T}(X::PureRandVector{T}, i::Int64) =
+  RandVarSymbolic(T,:(pipeomega($X.array[$i],ω)))
+
+setindex{T}(X::PureRandArray,v::T,i::Integer,j::Integer) = X.array[i,j] = v
+setindex{T}(X::PureRandVector,v::T,i::Integer,j::Integer) = X.array[i] = v
 
 ## Complex Array Functions
 ## =======================
-function dot(A::PureRandomArray,B::PureRandomArray)
+function dot(A::PureRandVector,B::PureRandVector)
   @assert length(A.array) == length(B.array)
   array = [A.array[i] * B.array[i] for i = 1:length(A.array)]
   sum(array)::RandVarSymbolic{Float64}
@@ -34,12 +41,18 @@ end
 ## Generators
 ## ==========
 
-# Creates a RandomArray where each element is returned by unary constructor
+# Creates a RandArray where each element is returned by unary constructor
 # constructor expects integer arg, should correspond to component of ω, e.g. i->uniform(i,0.,1.)
 # i values start at offset + 1
 function iid(T::DataType, constructor::Function,
-             nrows::Int64, ncols::Int64, offset::Int64 = 0)
+             nrows::Int64, ncols::Int64; offset::Int64 = 0)
   array::Array{RandVarSymbolic{T}} = [constructor(i+(j-1)*(nrows) + offset)
                                       for i = 1:nrows, j = 1:ncols]
-  PureRandomArray{T}(array)
+  PureRandArray{T}(array)
+end
+
+## Create an iid vector
+function iid(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
+  vector::Vector{RandVarSymbolic{T}} = [constructor(i + offset) for i = 1:nrows]
+  PureRandVector{T}(vector)
 end
