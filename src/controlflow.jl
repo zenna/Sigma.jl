@@ -12,10 +12,8 @@ end
 
 # When cond is a random variable, @If and ifelse return a random variable
 # Which also 'pipes' ω into x and y if they are random variables
-function ifelse(c::RandVar, x, y)
-  function(ω)
-    ifelse(c(ω),pipeomega(x,ω),pipeomega(y,ω))
-  end
+function ifelse{T}(c::RandVar{Bool},x::T,y::T)
+  RandVarSymbolic(domaintype(x),:(ifelse($(c.ast),$x,$y)))
 end
 
 # function makeif(condition::Expr, conseq::Expr, alt::Expr)

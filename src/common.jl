@@ -1,0 +1,1 @@
+typealias Lifted{T} Union(T, Domain{T}, RandVar{T})

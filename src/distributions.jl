@@ -8,7 +8,7 @@ random(i::Int64) = RandVarSymbolic(Float64, :(ω[$i]))
 
 # Normal
 normal(i::Int64,μ::Float64,σ::Float64) =
-  RandVarSymbolic(Float64,:(ω -> quantile(Normal($μ,$σ),ω[$i])))
+  RandVarSymbolic(Float64,:(quantile(Normal($μ,$σ),ω[$i])))
 normal(i::Int64,μ::RandVarSymbolic{Float64},σ::RandVarSymbolic{Float64})= (normal(i,0.,1.) * μ) + σ
 normal(μ,σ) = normal(genint(),μ, σ)
 
@@ -25,7 +25,7 @@ flip() = 0.5 > random(genint())
 
 # Discrete Uniform
 discreteuniform(i::Int64,a::Int64,b::Int64) =
-  RandVarSymbolic(Int64,:(ω -> quantile(DiscreteUniform($a,$b),ω[$i])))
+  RandVarSymbolic(Int64,:(quantile(DiscreteUniform($a,$b),ω[$i])))
 discreteuniform(i::Int64,a::RandVarSymbolic{Int64},b::RandVarSymbolic{Int64}) =
   (b - a) * discreteuniform(i,0,1) + a
 uniform(a,b) = uniform(genint(),a,b)

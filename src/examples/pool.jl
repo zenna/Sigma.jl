@@ -1,33 +1,26 @@
 # Pool like simulation/inference
 using Sigma
-# using Compose
-# using Color
-
-points_to_parametric(p1,p2) = [p1 points_to_vec(p2,p1)]
-points_to_parametric(edge) = points_to_parametric(edge[:,1], edge[:,2])
-points_to_vec(p1, p2) = [p1[1] - p2[1], p1[2] - p2[2]]
-points_to_vec(edge) = points_to_vec(edge[:,1], edge[:,2])
-
-# Where if anywhere, along p does it interect segment
-function intersect_segments(p, q)
-#   println("Intersecting Segments?,")
-#   @show p
-#   @show q[1,1]
-#   w = p[:,1] - q[:,1]
-  w = [p[1,1] - q[1,1], p[2,1] - q[2,1]]
-#   println("WE DID THE W")
-#   u = p[:,2]
-  u = [p[1,2],p[2,2]]
-#   v = q[:,2]
-  v = [q[1,2],q[2,2]]
-  ret = (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
-#   @show ret
-  ret
-end
 
 Sigma.sqr(x::Real) = x * x
 
-parametric_to_point(p, s) = p[:,1] + s * p[:,2]
+## Conversion
+## ==========
+points_to_vec(p1, p2) = p1 - p2
+points_to_vec(edge) = points_to_vec(edge[:,1], edge[:,2])
+
+# Parametric form of line is p1 + (p2 - p1)
+points_to_parametric(p1,p2) = [p1 points_to_vec(p2,p1)]
+points_to_parametric(edge) = points_to_parametric(edge[:,1], edge[:,2])
+parametric_to_point(p, s::Lifted{Float64}) = p[:,1] + s * p[:,2]
+
+# Where if anywhere, along p does it interect segment
+function intersect_segments(p, q)
+  w = p[:,1] - q[:,1]
+  u = p[:,2]
+  v = q[:,2]
+  (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
+end
+
 dotty(a,b) = a[1]*b[1] + a[2]*b[2]
 perp(v) = [-v[2],v[1]]
 function normalise(v)

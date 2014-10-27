@@ -1,6 +1,6 @@
-immutable Interval <: Domain{Real}
-  l::Real
-  u::Real
+immutable Interval <: Domain{Float64}
+  l::Float64
+  u::Float64
   Interval(l,u) =  if u > l new(l, u) else new(u,l) end
 end
 

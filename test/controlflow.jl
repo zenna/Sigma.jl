@@ -31,6 +31,7 @@ end
 begin
   local x = flip(1,0.6)
   local a = @If x false true
+  @show typeof(a)
   @test isa(a,Sigma.RandVar)
   @test a(Omega()) === TF
   @test a([0.3]) == false

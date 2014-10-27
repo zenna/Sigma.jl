@@ -81,6 +81,7 @@ export
 
 include("domains.jl")
 include("randvar.jl")
+include("common.jl")
 include("controlflow.jl")
 include("util.jl")
 include("omega.jl")
