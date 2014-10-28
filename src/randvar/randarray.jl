@@ -7,6 +7,11 @@ end
 typealias PureRandVector{T} PureRandArray{T,1}
 typealias PureRandMatrix{T} PureRandArray{T,2}
 
+## Constructor
+PureRandArray(T::DataType, nrows::Int64) =
+  PureRandArray{T,1}(Array(RandVarSymbolic{T},nrows))
+PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
+  PureRandArray{T,2}(Array(RandVarSymbolic{T},nrows,ncols))
 
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
 call(Xs::PureRandArray, ω) = map(x->call(x,ω),Xs.array)
@@ -23,14 +28,13 @@ rand{T}(Xs::PureRandArray{T}) = map(rand,Xs.array)::Array{T}
 
 ## Array Access/Updating
 ## =====================
+getindex{T}(X::PureRandVector{T}, i::Int64) =
+  RandVarSymbolic(T,:(pipeomega($X.array[$i],ω)))
 getindex{T}(X::PureRandArray{T}, i::Int64, j::Int64) =
   RandVarSymbolic(T,:(pipeomega($X.array[$i,$j],ω)))
 
-getindex{T}(X::PureRandVector{T}, i::Int64) =
-  RandVarSymbolic(T,:(pipeomega($X.array[$i],ω)))
-
-setindex{T}(X::PureRandArray,v::T,i::Integer,j::Integer) = X.array[i,j] = v
-setindex{T}(X::PureRandVector,v::T,i::Integer,j::Integer) = X.array[i] = v
+setindex!{T}(X::PureRandVector,v::T,i::Int64) = X.array[i] = v
+setindex!{T}(X::PureRandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
 
 ## Complex Array Functions
 ## =======================

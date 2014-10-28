@@ -5,30 +5,37 @@ using Color
 
 ## Conversion
 ## ==========
-points_to_vec(p1::Lifted{Vector{Float64}}, p2::Lifted{Vector{Float64}}) = p1 - p2
-points_to_vec(edge::Lifted{Matrix{Float64}}) = points_to_vec(edge[:,1], edge[:,2])
+
+typealias Point Lifted{Vector{Float64}}
+typealias Vec Lifted{Vector{Float64}}
+typealias Mat Lifted{Matrix{Float64}}
+typealias PointPair Lifted{Matrix{Float64}}
+typealias Edge Lifted{Matrix{Float64}}  #Parametric form of line is p1 + (p2 - p1)
+typealias Scalar Lifted{Float64}
+
+points_to_vec(p1::Point, p2::Point) = p1 - p2
+points_to_vec(edge::PointPair) = points_to_vec(edge[:,1], edge[:,2])
 
 # Parametric form of line is p1 + (p2 - p1)
-points_to_parametric(p1::Lifted{Vector{Float64}},p2::Lifted{Vector{Float64}}) =
-  liftedarray([p1 points_to_vec(p2,p1)])
-points_to_parametric(edge::Lifted{Matrix{Float64}}) = points_to_parametric(edge[:,1], edge[:,2])
-parametric_to_point(p::Lifted{Matrix{Float64}}, s::Lifted{Float64}) = p[:,1] + s * p[:,2]
+points_to_parametric(p1::Point,p2::Point) = liftedarray([p1 points_to_vec(p2,p1)])
+points_to_parametric(edge::PointPair) = points_to_parametric(edge[:,1], edge[:,2])
+parametric_to_point(p::Edge, s::Scalar) = p[:,1] + s * p[:,2]
 
 # Where if anywhere, along p does it intersect segment
-function intersect_segments(p::Lifted{Matrix{Float64}}, q::Lifted{Matrix{Float64}})
+function intersect_segments(p::Edge, q::Edge)
   w = p[:,1] - q[:,1]
   u = p[:,2]
   v = q[:,2]
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
-perp(v::Lifted{Vector{Float64}}) = liftedarray([-v[2],v[1]])
-function normalise(v::Lifted{Vector{Float64}})
+perp(v::Vec) = liftedarray([-v[2],v[1]])
+function normalise(v::Vec)
   denom = sqrt(sqr(v[1]) + sqr(v[2]))
   liftedarray([v[i] / denom for i = 1:length(v)])
 end
 
-function reflect(v::Lifted{Vector{Float64}},q::Lifted{Vector{Float64}})
+function reflect(v::Vec,q::Vec)
   q_norm = normalise(q)
   n_amb = perp(q_norm)
   v2 = normalise(v)
@@ -63,26 +70,31 @@ function bounce(p,s,o)
   liftedarray([new_pos reflection])
 end
 
-function simulate(num_steps::Integer, start_pos, start_dir, obs)
+# Simulate a ball bouncing around an environment
+function simulate(nbounces::Int64, start_pos::Point, start_dir::Vec, obs::Vector,
+                  UninitArray = Array)
+  # We want obstacles in parametric form
   obs = map(points_to_parametric, obstacles)
-  num_steps = num_steps - 1
-  dir  = normalise(start_dir)
-  pos_parametric = Array(Any, num_steps + 1)
-  pos_parametric[1] = [start_pos dir]
 
-  for i = 1:num_steps
-    p = pos_parametric[i]
-    ss = Array(Any, length(obs))
+  dir  = normalise(start_dir)
+  pos_dirs = Array(Any, nbounces + 1)
+  pos_dirs[1] = [start_pos dir]
+
+  # Num points in trajectory is one less the number of bounces
+  npoints = nbounces + 1
+
+  for i = 1:nbounces
+    p = pos_dirs[i]
+    # Find the intersection of current pos_vec and each obstacles
+    ss = UninitArray(Float64, length(obs))
     for j = 1:length(obs)
-      d = obs[j]
-#       println("d is", p)
       ss[j] = intersect_segments(p, obs[j])
     end
-    pos_parametric[i+1] = @If(smallest(ss[1],ss), bounce(p,ss[1],obs[2]),
+    pos_dirs[i+1] = @If(smallest(ss[1],ss), bounce(p,ss[1],obs[2]),
                               @If(smallest(ss[2],ss),bounce(p,ss[2],obs[2]),
                                   bounce(p,ss[3],obs[3])))
   end
-  pos_parametric
+  pos_dirs
 end
 
 
@@ -120,7 +132,11 @@ obstacles = Array[[8.01 3.01; 1.02 9],
                   [0.5 3.08; 2.02 9.04],
                   [0.0 9.99; 3 5.04]]
 
-simulation = simulate(4, [3, 5], [rand()*2 - 1,rand()*2 - 1], obstacles)
+nbounces = 4
+start_pos = [3., 5.]
+start_dir = [rand()*2 - 1,rand()*2 - 1]
+
+simulation = simulate(nbounces, start_pos, start_dir, obstacles)
 a = make_compose_lines(obstacles)
 b = make_compose_lines(make_point_pairs(simulation))
 rand_color() = RGB(rand(),rand(),rand())
