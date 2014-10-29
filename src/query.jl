@@ -57,3 +57,10 @@ function cond_prob_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
   samples = [rand(C) for i=1:nsamples]
   length(filter(x->x,samples))/length(samples)
 end
+
+## Expectation
+## ===========
+
+function sample_mean{T<:ConcreteReal}(X::RandVar{T}; nsamples = 1000)
+  mean(rand(X, nsamples))
+end
