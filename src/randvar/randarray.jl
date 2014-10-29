@@ -1,4 +1,4 @@
-import Base: length, dot, sum
+import Base: length, dot, sum, ndims, endof
 
 type PureRandArray{T,N} <: RandVar{Array{T,N}}
   array::Array{RandVarSymbolic{T},N}
@@ -7,24 +7,21 @@ end
 typealias PureRandVector{T} PureRandArray{T,1}
 typealias PureRandMatrix{T} PureRandArray{T,2}
 
-## Constructor
+## Constructors
+## ============
+PureRandArray{T,N}(xs::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(xs)
 PureRandArray(T::DataType, nrows::Int64) =
   PureRandArray{T,1}(Array(RandVarSymbolic{T},nrows))
 PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
   PureRandArray{T,2}(Array(RandVarSymbolic{T},nrows,ncols))
 
+## Conversion
+## ==========
+convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
+convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
+
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
 call(Xs::PureRandArray, ω) = map(x->call(x,ω),Xs.array)
-
-## Primitive Array Functions
-## =========================
-# PERF: anon function calls are slow
-sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
-sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
-length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
-
-# PERF: use list comprehensions for speed
-rand{T}(Xs::PureRandArray{T}) = map(rand,Xs.array)::Array{T}
 
 ## Array Access/Updating
 ## =====================
@@ -35,6 +32,26 @@ getindex{T}(X::PureRandArray{T}, i::Int64, j::Int64) =
 
 setindex!{T}(X::PureRandVector,v::T,i::Int64) = X.array[i] = v
 setindex!{T}(X::PureRandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
+
+ndims{T,N}(Xs::PureRandArray{T,N}) = N
+size(Xs::PureRandArray, i) = size(Xs.array, i)
+size(Xs::PureRandArray) = size(Xs.array)
+endof(Xs::PureRandArray) = endof(Xs.array)
+
+getindex(Xs::PureRandMatrix, i::Int64, js::UnitRange{Int64}) = PureRandArray(Xs.array[i,js])
+getindex(Xs::PureRandMatrix, is::UnitRange{Int64}, j::Int64) = PureRandArray(Xs.array[is,j])
+getindex(Xs::PureRandMatrix, is::UnitRange{Int64}, js::UnitRange{Int64}) = PureRandArray(Xs.array[is,js])
+getindex(Xs::PureRandVector, is::UnitRange{Int64}) = PureRandArray(Xs.array[is])
+
+## Primitive Array Functions
+## =========================
+# PERF: anon function calls are slow
+sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
+sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
+length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
+
+# PERF: use list comprehensions for speed
+rand{T}(Xs::PureRandArray{T}) = map(rand,Xs.array)::Array{T}
 
 ## Complex Array Functions
 ## =======================
