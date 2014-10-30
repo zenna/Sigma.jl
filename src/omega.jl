@@ -1,5 +1,5 @@
 # Omega is the sample space which random variables transform.
-immutable Omega{T}
+immutable Omega{T} <: Domain{Float64}
   intervals::Dict{Int64,T}
 end
 

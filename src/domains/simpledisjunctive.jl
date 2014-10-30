@@ -12,7 +12,7 @@ for op = (:+, :-, :*, :/)
   @eval begin
     function ($op){T}(x::SimpleDisjunctive{T}, y::SimpleDisjunctive{T})
       let op = $op
-        product($op,T,x,y)
+        fcartproduct($op,T,x,y)
       end
     end
   end
@@ -23,7 +23,7 @@ for op = (:>, :>=, :<, :<=, :&, :|)
   @eval begin
     function ($op){T}(x::SimpleDisjunctive{T}, y::SimpleDisjunctive{T})
       let op = $op
-        product($op,Bool,x,y)
+        fcartproduct($op,Bool,x,y)
       end
     end
   end
@@ -35,8 +35,8 @@ function !(x::SimpleDisjunctive{Bool})
   else x end
 end
 
-# We need to find the cartesian product
-function product(f::Function, T::DataType, x::SimpleDisjunctive, y::SimpleDisjunctive)
+# Apply f to the cartesian product of values in x and y
+function fcartproduct(f::Function, T::DataType, x::SimpleDisjunctive, y::SimpleDisjunctive)
   result = Set{T}()
   @show result
   for args in Iterators.product(x.values,y.values)

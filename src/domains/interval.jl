@@ -123,12 +123,15 @@ end
 /(c::ConcreteReal, x::Interval) = convert(Interval,c) / x
 /(x::Interval, c::ConcreteReal) = x / convert(Interval,c)
 
-## Non primitive functions
-## =======================
+## Functions on interval abstraction itself
+## =======================================
 
 flip(x::Interval) = Interval(-x.l,-x.u)
 makepos(x::Interval) = Interval(max(x.l,0), max(x.u,0))
+mid(x::Interval) = (x.u - x.l) / 2 + x.l
 
+## Non primitive functions
+## =======================
 function abs(x::Interval)
   if x.l >= 0.0 && x.u >= 0.0 x
   elseif x.u >= 0.0 Interval(0,max(abs(x.l), abs(x.u)))
@@ -168,5 +171,6 @@ function split_box(i::Interval, split_point::Float64)
   end
 end
 
+middle_split(i::Interval) = split_box(i,mid(i))
 # middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(NDimBox, is,)))
 measure(i::Interval) = i.u - i.l
