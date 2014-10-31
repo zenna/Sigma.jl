@@ -21,14 +21,13 @@ convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureR
 convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
 
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
-call(Xs::PureRandArray, ω) = map(x->call(x,ω),Xs.array)
+call{T}(Xs::PureRandArray{T,1}, ω) = [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
+call{T}(Xs::PureRandArray{T,2}, ω) = [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
 ## Array Access/Updating
 ## =====================
-getindex{T}(X::PureRandVector{T}, i::Int64) =
-  RandVarSymbolic(T,:(pipeomega($X.array[$i],ω)))
-getindex{T}(X::PureRandArray{T}, i::Int64, j::Int64) =
-  RandVarSymbolic(T,:(pipeomega($X.array[$i,$j],ω)))
+getindex(Xs::PureRandVector, i::Int64) = Xs.array[i]
+getindex(Xs::PureRandVector, i::Int64, j::Int64) = Xs.array[i,j]
 
 setindex!{T}(X::PureRandVector,v::T,i::Int64) = X.array[i] = v
 setindex!{T}(X::PureRandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
@@ -46,7 +45,11 @@ getindex(Xs::PureRandVector, is::UnitRange{Int64}) = PureRandArray(Xs.array[is])
 ## Primitive Array Functions
 ## =========================
 # PERF: anon function calls are slow
-sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
+# sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
+sum{T}(Xs::PureRandArray{T}, ω) = sum(call(Xs,ω))
+#   sum(map(x->call(x,ω), Xs.array))
+
+
 sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
 length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
 

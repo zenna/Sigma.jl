@@ -5,7 +5,14 @@ type ConditionalRandVar{T} <: RandVar{T}
   Y::RandVar{Bool}
 end
 
-function rand(C::ConditionalRandVar; maxtries = Inf, countrejected = false)
+function ConditionalRandVar{T}(Ypre_overapprox::Vector,X::RandVar{T},Y::RandVar{Bool})
+  measures::Vector{Float64} = measure(Ypre_overapprox)
+  pnormalize!(measures)
+  c = Categorical(measures, Distributions.NoArgCheck())
+  ConditionalRandVar{T}(Ypre_overapprox,c,X,Y)
+end
+
+function rand(C::ConditionalRandVar; maxtries = 1E7, countrejected = false)
   nrejected = 0
   ntried = 0
   while true

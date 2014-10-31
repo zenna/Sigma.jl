@@ -29,6 +29,8 @@ function cond_prob_deep(rv::RandVar{Bool}, q::RandVar{Bool}; box_budget = 300000
   (sum_empty(measure(under_pre_cond))) / (sum_empty(measure(under_pre_query))), (sum_empty(measure(over_pre_cond))) / (sum_empty(measure(over_pre_query)))
 end
 
+## Queries using pre_bfs
+## ====================
 function prob_bounds{T<:Domain}(satsets::Vector{T},mixedsets::Vector{T})
   lowerbound = sum(measure(satsets))
   upperbound = sum(measure(mixedsets)) + lowerbound
@@ -48,39 +50,53 @@ function cond_prob_bfs(X::RandVar{Bool}, Y::RandVar{Bool};
   prob_bounds(XYsatsets, XYmixedsets) / prob_bounds(Ysatsets, Ymixedsets)
 end
 
+function cond_bfs{E}(X::RandVar{E}, Y::RandVar{Bool}; box_budget = 1E3, max_iters = 1E3)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(), box_budget = box_budget, max_iters = max_iters)
+  ConditionalRandVar(vcat(Ymixedsets,Ysatsets), X,Y)
+end
 
-# Convenience Aliases
-prob = prob_deep
-cond_prob = cond_prob_deep
+function cond_prob_bfs_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
+  C = cond_bfs(X,Y)
+  samples = [rand(C) for i=1:nsamples]
+  length(filter(x->x,samples))/length(samples)
+end
 
-## ========
+
 ## Sampling
-
-function cond(X::RandVar, Y::RandVar{Bool}; max_depth = 10)
+## ========
+function cond_deep(X::RandVar, Y::RandVar{Bool}; max_depth = 10)
   # Find preimage and measure each box in disjunction
   tree = pre_deepening(Y, T, Omega(), max_depth = max_depth)
   Ypre_overapprox = mixedsat_tree_data(tree)
-  measures::Vector{Float64} = measure(over_pre_cond)
+  measures::Vector{Float64} = measure(Ypre_overapprox)
   pnormalize!(measures)
   c = Categorical(measures, Distributions.NoArgCheck())
   ConditionalRandVar(Ypre_overapprox,c,X,Y)
 end
 
-# Conditional probability found using samples
+# probability found using samples
 function prob_sampled(X::RandVar; nsamples = 1000)
-  samples = [rand(X) for i=1:nsamples]
-  length(filter(x->x,samples))/length(samples)
+  ntrue = 0
+  for i=1:nsamples if rand(X) ntrue += 1 end end
+  ntrue/nsamples
 end
 
-function cond_prob_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
-  C = cond(X,Y)
+# conditional probability found using samples
+function cond_prob_sampled_deep(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
+  C = cond_deep(X,Y)
   samples = [rand(C) for i=1:nsamples]
   length(filter(x->x,samples))/length(samples)
 end
 
 ## Expectation
 ## ===========
-
 function sample_mean{T<:ConcreteReal}(X::RandVar{T}; nsamples = 1000)
   mean(rand(X, nsamples))
 end
+
+## Convenience Aliases
+## ==================
+prob = prob_bfs
+cond_prob = cond_prob_bfs
+conditional = cond_bfs
+cond_prob_sampled = cond_prob_bfs_sampled

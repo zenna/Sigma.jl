@@ -25,8 +25,8 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
   satsets = D[]
   local mixedsets
   satstatus = checksat(f,Y,X)
-  if satstatus == SAT return X
-  elseif satstatus == UNSAT return D[]
+  if satstatus == SAT return D[X],D[]
+  elseif satstatus == UNSAT return D[],D[]
   else mixedsets = D[X]
   end
 
@@ -34,7 +34,8 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
   # and we're no longer adding to our box_budget (just shrinking it)
   i = 0
   while length(mixedsets) + length(satsets) <= box_budget &&
-        i <= max_iters
+        length(mixedsets) > 0 && i <= max_iters
+#     println("Iteration $i : $length(boxes) boxes")
     Xsub = shift!(mixedsets)
     update_approx!(f,Xsub,Y,satsets,mixedsets)
     i += 1

@@ -1,7 +1,9 @@
+using FastAnonymous
+
 type RandVarSymbolic{T} <: RandVar{T}
   ast
   compiled::Bool
-  λ::Function
+  λ
 
   # Precompiled
   RandVarSymbolic(ast, λ::Function) = new(ast,true,λ)
@@ -14,7 +16,7 @@ RandVarSymbolic(T::DataType, e) = RandVarSymbolic{T}(e)
 lambarise(X::RandVarSymbolic) = :(ω->$(ast(X)))
 
 function compile!(X::RandVarSymbolic)
-  if !X.compiled X.λ = eval(lambarise(X)) end
+  if !X.compiled X.λ = eval(:(@anon $(lambarise(X)))) end
   X.compiled = true
   X
 end

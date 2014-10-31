@@ -5,4 +5,4 @@ typealias Lifted{T} Union(T, Domain{T}, RandVar{T})
 liftedarray{T<:Any}(Xs::Array{T}) = Xs
 liftedarray{T<:RandVar, N}(Xs::Array{T,N}) = PureRandArray{eltype(Xs).parameters[1],N}(Xs)
 
-Callable = Union(RandVar, Function)
+Callable = Union(RandVar, Function, DataType)

@@ -36,6 +36,7 @@ export
   cond_prob_deep,
   prob_sampled,
   cond_prob_sampled,
+  conditional,
 
   ndcube,
   sqr,
@@ -43,6 +44,7 @@ export
   # Probabilistic functions
   prob,
   prob_deep,
+  prob_bfs,
   cond_sample,
   setindex,
 
@@ -51,7 +53,7 @@ export
   normal,
   uniform,
   flip,
-  uniformArray,
+  iid,
 
   @noexpand,
 

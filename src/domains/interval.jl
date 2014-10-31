@@ -23,6 +23,13 @@ convert(::Type{Vector{Interval}}, b::NDimBox) = [Interval(b.intervals[:,i]) for 
 convert(::Type{Interval}, c::ConcreteReal) = Interval(c, c)
 promote_rule{T<:ConcreteReal}(::Type{T}, ::Type{Interval}) = Interval
 
+## Print
+## =====
+string(x::Interval) = "[$(x.l) $(x.u)]"
+print(io::IO, x::Interval) = print(io, string(x))
+show(io::IO, x::Interval) = print(io, string(x))
+showcompact(io::IO, x::Interval) = print(io, string(x))
+
 ## Set operations
 ## ==============
 
