@@ -1,5 +1,5 @@
 using Sigma
-
+sigma.loadvis()
 ## From probmods.org / Kahnenman and Tversky
 ## ==========================================
 
@@ -23,4 +23,23 @@ positive_mammogram = @If breast_cancer flip(2, 0.8) flip(3,0.096)
 # Queries
 prob(positive_mammogram)
 cond_prob(breast_cancer, positive_mammogram, max_depth = 10)
+cond_prob_sampled(breast_cancer, positive_mammogram)
+
+## CANCER WITH BETA ELABORATION
+## =======================
+function ground_truth(cancer_rate)
+  (cancer_rate * 0.008) / ((0.008 * cancer_rate) + (0.00096 * 0.99))
+end
+
+# Model
+cancer_base_rate = betarv(0,0.5,0.5)
+cancer_base_rate = 0.01
+breast_cancer = flip(1,cancer_base_rate)
+positive_mammogram = ifelse(breast_cancer,flip(2, 0.8),flip(3,0.096))
+
+plot_preimage(positive_mammogram,[1,2])
+
+# Queries
+prob(positive_mammo$gram)
+cond_prob(breast_cancer, positive_mammogram, box_budget = 1E5, max_iters = 1E5)
 cond_prob_sampled(breast_cancer, positive_mammogram)

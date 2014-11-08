@@ -2,7 +2,7 @@ module Sigma
 
 using Distributions
 
-import Base: ifelse, cond
+import Base: ifelse, cond, isequal
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
@@ -22,6 +22,9 @@ export
   T, F, TF,
   @If,
   @While,
+
+  PureRandArray,
+  RandVarSymbolic,
 
   Lifted,
   liftedarray,
@@ -53,6 +56,10 @@ export
   normal,
   uniform,
   flip,
+  betarv,
+  gamma,
+  categorical,
+  geometric,
   iid,
 
   @noexpand,
@@ -78,7 +85,7 @@ export
   parse_output,
   run_church,
   stat_line_layer,
-  stat_ribbon_layer,
+    stat_ribbon_layer,
   stat_errorbar_layer,
   plot_cond_performance,
   plot_prob_performance,
@@ -97,6 +104,8 @@ include("distributions.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")
 
-# include("vis.jl")
+# Hack to avoid loading G= adfly each time
+vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
+loadvis() = include(vispath)
 
 end

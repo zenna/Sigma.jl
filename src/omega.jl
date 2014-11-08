@@ -16,6 +16,15 @@ function getindex{T}(o::Omega{T}, key::Int64)
   end
 end
 
+## Conversion
+## ===========
+convert(::Type{Vector{Interval}}, o::Omega) = collect(values(o.intervals))
+convert{T}(::Type{Vector{Interval}}, o::Omega{T}, dims::Vector) = T[o[d] for d in dims]
+
+function convert(::Type{Vector{Box}}, os::Vector{Omega})
+  map(x->convert(NDimBox,collect(values(x.intervals))),os)
+end
+
 # REVIEW: add setindex(omega)
 # REVIEW: CLEAN UP OMEGA TYPE MESS
 
@@ -67,6 +76,8 @@ function rand(o::Omega)
   SampleOmega(s)
 end
 
+## Sample Omega
+## ============
 immutable SampleOmega
   samples::Dict{Int64,Float64}
 end
@@ -82,6 +93,4 @@ function getindex(o::SampleOmega, key::Int64)
   end
 end
 
-function convert(::Type{Vector{Box}}, os::Vector{Omega})
-  map(x->convert(NDimBox,collect(values(x.intervals))),os)
-end
+

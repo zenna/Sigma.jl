@@ -73,7 +73,7 @@ end
 # this may be preferable
 for op = (:+, :-, :*, :/, :(==), :!=, :&, :|)
   @eval begin
-    function ($op){T<:ConcreteReal,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
+    function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
       let op = $op
         PureRandArray{T,D}(($op)(X.array,Y.array))
       end

@@ -40,5 +40,8 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
     update_approx!(f,Xsub,Y,satsets,mixedsets)
     i += 1
   end
+
+  if (i + 1) == max_iters print("Reached Max iterations") end
+  @show i
   satsets,mixedsets
 end

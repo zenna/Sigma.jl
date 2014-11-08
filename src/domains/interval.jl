@@ -37,6 +37,7 @@ num_dims(i::Interval) = 1
 subsumes(x::Interval, y::Interval) = y.l >= x.l && y.u <= x.u
 overlap(x::Interval, y::Interval) = y.l <= x.u && x.l <= y.u
 domaineq(x::Interval, y::Interval) = x.u == y.u && x.l == y.l
+isequal(x::Interval,y::Interval) = domaineq(x,y)
 
 ## Interval Arithmetic and Inequalities
 ## ====================================
@@ -179,5 +180,17 @@ function split_box(i::Interval, split_point::Float64)
 end
 
 middle_split(i::Interval) = split_box(i,mid(i))
+function middle_split(i::Interval, n::Int64)
+  A = [i]
+  for i = 1:n
+    res = Interval[]
+    for a in A
+      splitted = middle_split(a)
+      push!(res,splitted[1],splitted[2])
+    end
+    A = res
+  end
+  A
+end
 # middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(NDimBox, is,)))
 measure(i::Interval) = i.u - i.l

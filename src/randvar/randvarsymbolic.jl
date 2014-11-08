@@ -99,7 +99,7 @@ for op = (:!,)
 end
 
 # Lift unary primitve functions
-for op = (:sqrt,:sqr,:abs,:round)
+for op = (:sqrt,:sqr,:abs)
   @eval begin
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T})
       let op = $op
@@ -109,6 +109,19 @@ for op = (:sqrt,:sqr,:abs,:round)
     end
   end
 end
+
+# Lift unary primitve functions
+for op = (:round,)
+  @eval begin
+    function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T})
+      let op = $op
+        newast = :($op($(ast(X))))
+        RandVarSymbolic(Int64, newast)
+      end
+    end
+  end
+end
+
 
 macro noexpand(dtype, fcall)
   @assert fcall.head == :call
