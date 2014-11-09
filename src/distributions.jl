@@ -12,9 +12,10 @@ random(i::Int64) = RandVarSymbolic(Float64, :(ω[$i]))
 ## Location Scale Distribution Families
 ## ====================================
 # Normal
+
 normal(i::Int64,μ::Float64,σ::Float64) =
   RandVarSymbolic(Float64,:(quantile(Normal($μ,$σ),ω[$i])))
-normal(i::Int64,μ::RV{Float64},σ::RV{Float64})= (normal(i,0.,1.) * sqrt(σ)) + μ
+normal(i::Int64,μ::RV{Float64},σ::RV{Float64})= (normal(i,0.,1.) * σ) + μ
 normal(μ,σ) = normal(genint(),μ, σ)
 
 # uniform
