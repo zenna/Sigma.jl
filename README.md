@@ -183,7 +183,7 @@ Y = uniform(0.0,1.0)
 plot_preimage(X > Y)
 ```
 
-If your model defines preimages with more than one dimension, you can project these to 2D projections
+If your model defines preimages with more than two dimensions, you can project these to 2D by supplying an array of the two dimensions you wish to project as the last argument.
 
 ```julia
 A = betarv(1,0.5,0.5)
