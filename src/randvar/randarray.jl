@@ -54,7 +54,7 @@ sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
 length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
 
 # PERF: use list comprehensions for speed
-rand{T}(Xs::PureRandArray{T}) = map(rand,Xs.array)::Array{T}
+rand{T}(Xs::PureRandArray{T}) = call(Xs,SampleOmega())
 
 ## Complex Array Functions
 ## =======================

@@ -1,5 +1,5 @@
 using Sigma
-sigma.loadvis()
+Sigma.loadvis()
 ## From probmods.org / Kahnenman and Tversky
 ## ==========================================
 
@@ -32,14 +32,13 @@ function ground_truth(cancer_rate)
 end
 
 # Model
-cancer_base_rate = betarv(0,0.5,0.5)
-cancer_base_rate = 0.01
+cancer_base_rate = betarv(0,0.5,1.0)
+plot_sample_histogram(cancer_base_rate,10000)
 breast_cancer = flip(1,cancer_base_rate)
 positive_mammogram = ifelse(breast_cancer,flip(2, 0.8),flip(3,0.096))
 
-plot_preimage(positive_mammogram,[1,2])
-
 # Queries
-prob(positive_mammo$gram)
+prob(positive_mammogram)
+prob_sampled(positive_mammogram,nsamples = 100000)
 cond_prob(breast_cancer, positive_mammogram, box_budget = 1E5, max_iters = 1E5)
 cond_prob_sampled(breast_cancer, positive_mammogram)

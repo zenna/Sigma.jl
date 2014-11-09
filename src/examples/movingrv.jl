@@ -1,25 +1,25 @@
 using Sigma
+Sigma.loadvis()
 
-function moving_normal(num_steps::Integer)
-  function(omega)
-    num_steps2 = num_steps - 1
-    X = Array(Any, num_steps2 + 1)
-    X[1] = normal(0,0,3)(omega)
+# Process
+function moving_normal(nsteps::Int64)
+  Xs = PureRandArray(Float64, nsteps)
+  Xs[1] = normal(0,0.,3.)
+#   for i = 1:nsteps - 1
+#     Xs[i+1] = Xs[i] + 3.
+#   end
 
-    for i = 1:num_steps2
-      X[i+1] = @If (X[i]< 10) (X[i] + 2) X[i]
-    end
-    X[7]
+  for i = 1:nsteps - 1
+    Xs[i+1] = ifelse(Xs[i]< 10., Xs[i] + 2., Xs[i])
   end
+  Xs
 end
 
 X = moving_normal(10)
-X(Omega())
 
-# t = pre_deepening(X[end] < 10, T, Omega(), max_depth = 50)
-# length(t.nodes)
+plot_sample_cond_density(X[1], (X[3] > 5.0) & (X[3] < 6.0), 2000)
+
+plot_sample_density(X[10], 2000)
+
 plot_psuedo_density(X, 0.,20.,n_bars = 100)
-prob_deep(X > 8)
-Profile.print(format=:flat)
-using ProfileView
-plot_psuedo_density(X[2], 0., 15.,n_bars = 500)
+cond_prob(X[8] > 8., X[2] < 2.0)

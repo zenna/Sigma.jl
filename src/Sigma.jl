@@ -22,7 +22,9 @@ export
   T, F, TF,
   @If,
   @While,
+  rangetype,
 
+  RandArray,
   PureRandArray,
   RandVarSymbolic,
 
@@ -70,6 +72,7 @@ export
   sqr,
 
   #Plotting
+  loadvis,
   plot_2d_boxes,
   plot_density,
   plot_cond_density,

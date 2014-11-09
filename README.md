@@ -26,46 +26,46 @@ X = uniform(0.0,1.0)
 
 RandVar constructors return values of the RandVar type, and not samples from distributions - i.e., it's not the same as `rand()` in Julia.Base, nor python's `random.uniform(0,1)`.
 All RandVars have a domain type; we say for example that `uniform` returns a `Float64`-valued RandVar, `poission` returns a `Int64`-valued RandVar and `flip` returns a `Bool`-valued RandVar.
-The domain type can be access with `domaintype`, e.g. `domaintype(flip())` will return `Bool`.
+The domain type can be access with `rangetype`, e.g. `rangetype(flip())` will return `Bool`.
 
-Applying functions to RandVars returns new RandVars.  In the following, `X`, `Y` and `Z` are all RandVars, with domaintypes `Float64`,`Float64`, and `Bool` respectively.
+Applying functions to RandVars returns new RandVars.  In the following, `X`, `Y` and `Z` are all RandVars, with rangetypes `Float64`,`Float64`, and `Bool` respectively.
 
 ```julia
-X = normal(0,1)
+X = normal(0.0,1.0)
 Y = X * X
-Z = Y > 0
+Z = Y > 0.0
 ```
 
 Complex probabilistic models are then simply created by defining primitive RandVars and composing these together.
 
 ## Random Arrays
 
-Multivariate random variables can be created using `RandomArray`, which takes a type as the first parameter, and a normal Julia array as the second.
+Multivariate random variables can be created using `RandArray`, which takes a normal Julia array of RandVars.
 
 ```julia
-RandomArray(Float64, [uniform(0,1), normal(0,2)])
+RandArray([uniform(0.0,1.0), normal(0.0,2.0)])
 ```
 
 The array can store RandVars which are distributed differently (e.g., uniform and normal in the above example), but they must all be the same domain type.
 For instance the following is *invalid*:
 
 ```julia
-RandomArray(Float64, [uniform(0,1), flip(0.5)])
+RandArray([uniform(0,1), flip(0.5)])
 ```
 
 Because flip is `Bool`-valued.
 
-RandomArrays can be accessed using familiar Julia array style access, e.g.:
+RandArrays can be accessed using familiar Julia array style access, e.g.:
 
 ```julia
-X = RandomArray(Float64, [uniform(0,1), flip(0.5)])
+X = RandArray([uniform(0,1), flip(0.5)])
 prob(X[1] > 0.5)
 ```
 
-Typical functions such as `length`,`sum` produce RandVars:
+Typical functions such as`sum` produce RandVars:
 
 ```julia
-X = RandomArray(Float64, [normal(0,1), normal(0.5)])
+X = RandArray([normal(0,1), normal(0.5)])
 Y = sum(X) # Float64-valued RandVar
 ```
 
@@ -76,14 +76,14 @@ What sets Sigma apart is its ability to answer queries.
 For example, given the model:
 
 ```julia
-X = normal(0,1)
-Y = normal(X,1)
+X = normal(0.0,1.0)
+Y = normal(X,1.0)
 ```
 
 We can ask what is the probability that Y is greater than 0.
 
 ```julia
-prob(Y>0)
+prob(Y > 0.0)
 ```
 
 It will return lower and upper __probability bounds__, which the true probability must be within.
@@ -95,7 +95,7 @@ We achieve it simply with `cond_prob`.
 For example, keeping the probabilistic model above:
 
 ```
-cond_prob(Y>0,X>0)
+cond_prob(Y > 0.0,X > 0.0)
 ```
 
 Returns the conditional probability bounds that Y>0 given X>0.
@@ -106,26 +106,85 @@ Oftentimes we want to sample from a RandVar.
 To do this, use `rand`
 
 ```julia
-X = beta(0.5,0.5)
+X = betarv(0.5,0.5)
 rand(X)
 ```
 
 will return a sample.
 
 More interestingly, we can __conditionally sample__.
-First we have to construct a ConditionalRandVar using `cond`.
+First we have to construct a ConditionalRandVar using `conditional`.
 We can sample from the conditional distribution simply using rand.
 
 ```julia
-X = beta(0.5,0.2)
-Y = normal(X,1)
-Z = cond(Y, X>0.5)
+X = betarv(0.5,0.2)
+Y = normal(X,1.0)
+Z = conditional(Y, X > 0.5)
 rand(Z)
 ```
+# Primitive Distributions
+
+Currently primitive distributions are split between those which can take random variables as parameters, and those wihch cannot.
+In the former category:
+
+```julia
+normal(μ::Float64,σ::Float64)
+uniform(i::Int64,a::Float64,b::Float64)
+flip(weight)
+discreteuniform
+```
+
+In the latter category:
+
+```
+gamma(k::Float64,theta::Float64)
+betarv(a::Float64,b::Float64) =
+categorical(weights::Vector{Float64}) =
+geometric(weight::Float64) =
+poission(lambda::Float64)
+```
+
+# Plotting
+To plot we have to load the plotting functions.  This is not done by default because they take a long time to initialise.  To load use
+
+```julia
+loadvis()
+```
+
+We can plot an (unnormalised) density of a Float64-valued RandVar using `plot_density`
+
+```julia
+X = betarv(0.5,0.5)
+plot_density(X,0,1)
+```
+
+This plot is created by evaluating splitting the range of the variable into many small intervals, and running a probability query for each interval.  We can plot conditional using `plot_cond_density`.
+
+We can also plot using samples `plot_sample_density` and `plot_sample_cond_density` which takes the number of samples as the last argument.  This density is estimated using kernal density estimation.  If we instead you want a histogram, use `plot_sample_histogram` or `plot_sample_cond_histogram`.
+
+Finally you can plot preimage of a `Bool`-valued RandVar using `plot_preimage`.
+
+```julia
+X = normal(0.0,1.0)
+Y = uniform(0.0,1.0)
+plot_preimage(X > Y)
+```
+
+If your model defines preimages with more than one dimension, you can project these to 2D projections
+
+```julia
+A = betarv(1,0.5,0.5)
+B = normal(2,0.0,1.0)
+C = uniform(3,0.0,1.0)
+plot_preimage(A + B > C, [1,2])
+```
+
+Note here that all the random variables have an additional integer first parameter.  In all the previous examples, this was automatically generated it for you, but it is always defined nonetheless.
 
 # Notes
 
 - Currently only a few RandVar constructors - `uniform`, `normal` and `flip`, support RandVars as their parameters. For instance `beta(normal(0,1),normal(0,1))` is not yet supported.
 - All RandVar constructors have methods which take an integer `i` as a first parameter, e.g.,  `uniform(0,0,1)`.  Put briefly, RandVars constructed with differing values of `i` will be statistically __independent__.  If this parameter is omitted, it will be randomly (and uniquely) generated for you, but in some cases this can cause a performance hit.
-- RandomArrays are currently only of fixed size.
-- Most query operations, e.g. `prob, cond_prob, cond` support a keyword parameter `maxdepth`.  e.g., `prob(X>0,maxdepth = 10)`.  This is an implementation detail, which eventually you should never have to worry about.  For the moment however, increasing maxdepth will result in a more precise answer.  It may be necessary, especially if you query a low probability event.
+- RandArrays are currently only of fixed size.
+- Most query operations, e.g. `prob, cond_prob, cond` support a keyword parameter `box_budget`.  e.g., `prob(X > 0, boxbudget = 1E5)`.  This is an implementation detail, which eventually you should never have to worry about.  For the moment however, increasing box_budget will result in a more precise answer.
+- A second parameter is `max_iters`, which controls how many iterations of the refinement (until `box_budget` is reached) to do.  If you increase `box_budget` you may need to also increase `max_iters` to hit that budget.

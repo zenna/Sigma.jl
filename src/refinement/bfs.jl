@@ -34,14 +34,14 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
   # and we're no longer adding to our box_budget (just shrinking it)
   i = 0
   while length(mixedsets) + length(satsets) <= box_budget &&
-        length(mixedsets) > 0 && i <= max_iters
+        length(mixedsets) > 0 && i < max_iters
 #     println("Iteration $i : $length(boxes) boxes")
     Xsub = shift!(mixedsets)
     update_approx!(f,Xsub,Y,satsets,mixedsets)
     i += 1
   end
 
-  if (i + 1) == max_iters print("Reached Max iterations") end
-  @show i
+  if i == max_iters println("Reached Max iterations - $i")
+  else println("Did $i iterations - max not reached") end
   satsets,mixedsets
 end

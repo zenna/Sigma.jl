@@ -1,5 +1,5 @@
 using Gadfly
-using Sigma
+# using Sigma
 # REVIEW - Decide whether plotting functions should return plot or layer
 # REVIEW - Add 3D preimages. Important, not just because the look cool
 #        - but because they will help with intuitions about independence
@@ -10,7 +10,7 @@ function plot_preimage(X::RandVar{Bool};prob_args...)
   plot_preimage(satsets)
 end
 
-function plot_preimage(X::RandVar{Bool}, dims::Vector ;prob_args...)
+function plot_preimage(X::RandVar{Bool}, dims::Vector; prob_args...)
   satsets, mixedsets = Sigma.pre_bfs(X, T, Omega();prob_args...)
   plot_preimage(satsets, dims)
 end
@@ -48,9 +48,11 @@ function plot_2d_boxes(bs::Vector{Vector{Interval}};
   abs_y_max = min(abs_y_max, maximum(y_max))
   abs_x_max = min(abs_x_max, maximum(x_max))
 
-  @show
+
   plot(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max,
-       color=rand(length(bs)),Geom.rectbin,
+       color=rand(length(bs)),
+       Theme(line_width=10.0mm,highlight_width=20.0mm),
+       Geom.rectbin,
        Scale.x_continuous(minvalue=abs_x_min, maxvalue=abs_y_max),
        Scale.y_continuous(minvalue=abs_y_min, maxvalue=abs_y_max),
        Coord.cartesian(fixed=true))

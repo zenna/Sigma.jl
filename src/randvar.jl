@@ -13,3 +13,6 @@ for finame in ["randvarsymbolic.jl",
                "conditionalrandvar.jl",]
     include(joinpath("randvar", finame))
 end
+
+## Convenience synonym
+RandArray = PureRandArray
