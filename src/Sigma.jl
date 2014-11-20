@@ -2,7 +2,7 @@ module Sigma
 
 using Distributions
 
-import Base: ifelse, cond, isequal
+import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
@@ -62,6 +62,7 @@ export
   gamma,
   categorical,
   geometric,
+  discreteuniform,
   iid,
 
   @noexpand,
@@ -104,6 +105,7 @@ include("omega.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
+include("relation.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")
 

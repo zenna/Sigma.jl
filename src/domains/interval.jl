@@ -153,6 +153,19 @@ function quantile{D <: Distribution}(d::D, i::Interval)
   Interval(quantile(d,i.l),quantile(d,i.u))
 end
 
+function isinf(x::Interval)
+  if isinf(x.l) || isinf(x.u)
+    x.u == x.l ? T : TF
+  else
+    F
+  end
+end
+
+import Base.isapprox
+function isapprox(x::Interval, y::Interval; epsilon::Real = 1E-5)
+  ifelse(isinf(x) | isinf(y), x == y, abs(x - y) <= epsilon)
+end
+
 ## =======
 ## Merging
 

@@ -58,7 +58,7 @@ for op = (:+, :-, :*, :/, :(==), :!=)
   end
 end
 
-for op = (:>, :>=, :<=, :<, :(==), :!=)
+for op = (:>, :>=, :<=, :<, :(==), :!=, :isapprox)
   @eval begin
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
       let op = $op
