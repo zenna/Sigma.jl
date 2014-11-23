@@ -34,44 +34,59 @@ rangetype(X::RandVarSymbolic) = typeof(X).parameters[1]
 ## Conversion
 ## ============
 
-# A constant random variable is a surjection which maps everything to constant c
-# convert{T,E}(::Type{RandVarSymbolic{E}}, c::T) = RandVarSymbolic(T,:(ω -> $c))
+# A constant can be converted into a constant random variable
+# which is a surjection which maps everything to constant c
 convert{T}(::Type{RandVarSymbolic{T}}, c::T) = RandVarSymbolic(T,:($c))
+
+promote_rule{T<:Real}(::Type{T}, ::Type{RandVarSymbolic{T}}) = RandVarSymbolic{T}
 promote_rule{T}(::Type{T}, ::Type{RandVarSymbolic{T}}) = RandVarSymbolic{T}
+
+# Special case for conversion between Number types to allow e.g. uniform(0.,1.) + 3
+convert{T<:Real}(::Type{RandVarSymbolic{T}}, c::T) = RandVarSymbolic(T,:($c))
+convert{T1<:Real, T2<:Real}(::Type{RandVarSymbolic{T1}}, c::T2) =
+  (T = promote_type(T1,T2); RandVarSymbolic(T,:($(convert(T,c)))) )
+
+promote_rule{T1<:Real, T2<:Real}(::Type{T1}, ::Type{RandVarSymbolic{T2}}) =
+  RandVarSymbolic{promote_type(T1,T2)}
+
+# Convert a random variable to a julia function by compiling the lambda
 convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)
 
 ## Abstractions
 ast(X::RandVarSymbolic) = X.ast
 
-# Binary functions
+# Binary functions, with Real output
 for op = (:+, :-, :*, :/, :(==), :!=)
   @eval begin
-    function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
+    function ($op){T1<:Real, T2<:Real}(X::RandVarSymbolic{T1}, Y::RandVarSymbolic{T2})
       let op = $op
+        RETURNT = promote_type(T1, T2)
         newast = :($op($(ast(X)),$(ast(Y))))
-        RandVarSymbolic(T, newast)
+        RandVarSymbolic(RETURNT, newast)
       end
     end
 
-    ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
-    ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)
+    ($op){T1<:Real, T2<:Real}(X::RandVarSymbolic{T1}, c::T2) = ($op)(promote(X,c)...)
+    ($op){T1<:Real, T2<:Real}(c::T1, X::RandVarSymbolic{T2}) = ($op)(promote(c,X)...)
   end
 end
 
+# Real × Real -> Bool
 for op = (:>, :>=, :<=, :<, :(==), :!=, :isapprox)
   @eval begin
-    function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, Y::RandVarSymbolic{T})
+    function ($op){T1<:Real, T2<:Real}(X::RandVarSymbolic{T1}, Y::RandVarSymbolic{T2})
       let op = $op
         newast = :($op($(ast(X)),$(ast(Y))))
         RandVarSymbolic(Bool, newast)
       end
     end
 
-    ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
-    ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)
+    ($op){T1<:Real, T2<:Real}(X::RandVarSymbolic{T1}, c::T2) = ($op)(promote(X,c)...)
+    ($op){T1<:Real, T2<:Real}(c::T1, X::RandVarSymbolic{T2}) = ($op)(promote(c,X)...)
   end
 end
 
+# Bool × Bool -> Bool
 for op = (:&, :|, :(==), :!=)
   @eval begin
     function ($op)(X::RandVarSymbolic{Bool}, Y::RandVarSymbolic{Bool})
@@ -81,12 +96,12 @@ for op = (:&, :|, :(==), :!=)
       end
     end
 
-    ($op)(X::RandVarSymbolic, c::Bool) = ($op)(promote(X,c)...)
-    ($op)(c::Bool, X::RandVarSymbolic) = ($op)(promote(c,X)...)
+    ($op)(X::RandVarSymbolic{Bool}, c::Bool) = ($op)(promote(X,c)...)
+    ($op)(c::Bool, X::RandVarSymbolic{Bool}) = ($op)(promote(c,X)...)
   end
 end
 
-# Lift unary primitve functions
+# Bool -> Bool
 for op = (:!,)
   @eval begin
     function ($op)(X::RandVarSymbolic{Bool})
@@ -98,10 +113,10 @@ for op = (:!,)
   end
 end
 
-# Lift unary primitve functions
-for op = (:sqrt,:sqr,:abs)
+# Real -> Real
+for op = (:sqr,:abs)
   @eval begin
-    function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T})
+    function ($op){T<:Real}(X::RandVarSymbolic{T})
       let op = $op
         newast = :($op($(ast(X))))
         RandVarSymbolic(T, newast)
@@ -110,7 +125,19 @@ for op = (:sqrt,:sqr,:abs)
   end
 end
 
-# Lift unary primitve functions
+# Real -> Float64
+for op = (:sqrt,)
+  @eval begin
+    function ($op){T<:Real}(X::RandVarSymbolic{T})
+      let op = $op
+        newast = :($op($(ast(X))))
+        RandVarSymbolic(Float64, newast)
+      end
+    end
+  end
+end
+
+# Real -> Int
 for op = (:round,)
   @eval begin
     function ($op){T<:ConcreteReal}(X::RandVarSymbolic{T})

@@ -6,6 +6,7 @@ import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
+import Base: call
 
 import Distributions: quantile
 
@@ -65,12 +66,16 @@ export
   discreteuniform,
   iid,
 
+  # Relation
+  Var,
+
   @noexpand,
 
   #utils
   tolerant_eq,
   rand_select,
   sqr,
+  ≊,
 
   #Plotting
   loadvis,

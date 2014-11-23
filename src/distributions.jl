@@ -13,21 +13,21 @@ random(i::Int64) = RandVarSymbolic(Float64, :(ω[$i]))
 ## ====================================
 # Normal
 
-normal(i::Int64,μ::Float64,σ::Float64) =
+normal(i::Int64,μ::Real,σ::Real) =
   RandVarSymbolic(Float64,:(quantile(Normal($μ,$σ),ω[$i])))
-normal(i::Int64,μ::RV{Float64},σ::RV{Float64})= (normal(i,0.,1.) * σ) + μ
+normal{T1<:Real, T2<:Real}(i::Int64,μ::RV{T1},σ::RV{T2})= (normal(i,0.,1.) * σ) + μ
 normal(μ,σ) = normal(genint(),μ, σ)
 
 # uniform
-uniform(i::Int64,a::Float64,b::Float64) =
+uniform(i::Int64,a::Real,b::Real) =
   RandVarSymbolic(Float64,:(quantile(Uniform($a,$b),ω[$i])))
-uniform(i::Int64,a::RV{Float64},b::RV{Float64}) = (b - a) * uniform(i,0.,1.) + a
+uniform{T1<:Real, T2<:Real}(i::Int64,a::RV{T1},b::RV{T2}) = (b - a) * uniform(i,0.,1.) + a
 uniform(a,b) = uniform(genint(),a,b)
 
 # Bernoulli
-flip{T<:Union(RandVarSymbolic{Float64},Float64)}(i::Int64,p::T) = p > random(i)
+flip{T<:Real}(i::Int,p::RV{T}) = p > random(i)
 flip(i::Int64) = 0.5 > random(i)
-flip{T<:Union(RandVarSymbolic{Float64},Float64)}(p::T) = p > random(genint())
+flip{T<:Real}(p::RV{T}) = p > random(genint())
 flip() = 0.5 > random(genint())
 
 # Discrete Uniform
