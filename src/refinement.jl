@@ -18,7 +18,16 @@ print(io::IO, x::SatStatus) = print(io, string(x))
 show(io::IO, x::SatStatus) = print(io, string(x))
 showcompact(io::IO, x::SatStatus) = print(io, string(x))
 
-for finame in ["bfs.jl",
+function checksat(f::Callable, Y, X)
+  setimage = call(f,X)
+  if subsumes(Y, setimage) SAT
+  elseif overlap(setimage, Y) MIXEDSAT
+  else UNSAT end
+end
+
+for finame in ["tree.jl",
+               "bfs.jl",
+               "mh.jl",
                "idr.jl",]
     include(joinpath("refinement", finame))
 end

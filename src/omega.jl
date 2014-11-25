@@ -37,6 +37,7 @@ measure(os::Vector{Omega}) = [measure(o) for o in os]
 measure{T}(os::Vector{Omega{T}}) = [measure(o) for o in os]
 measure(os::Vector{Omega{EnvVar}}) = [measure(o) for o in os]
 
+ndims(o::Omega) = length(keys(o.intervals))
 
 to_disj_intervals(b::Box) = [IntervalDisj(b.intervals[:,i]) for i = 1:num_dims(b)]
 

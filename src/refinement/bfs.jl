@@ -1,10 +1,3 @@
-function checksat(f::Callable, Y, X)
-  setimage = call(f,X)
-  if subsumes(Y, setimage) SAT
-  elseif overlap(setimage, Y) MIXEDSAT
-  else UNSAT end
-end
-
 function update_approx!(f, X, Y, satsets, mixedsets)
   children = middle_split(X)
   for child in children
