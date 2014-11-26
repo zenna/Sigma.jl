@@ -10,18 +10,18 @@ end
 
 const UNSAT = SatStatus(0x0)
 const SAT = SatStatus(0x1)
-const MIXEDSAT = SatStatus(0x2)
+const PARTIALSAT = SatStatus(0x2)
 const UNKNOWNSAT = SatStatus(0x3)
 
-string(x::SatStatus) = ["UNSAT","SAT","MIXEDSAT", "UNKNOWNSAT"][x.status+1]
+string(x::SatStatus) = ["UNSAT","SAT","PARTIALSAT", "UNKNOWNSAT"][x.status+1]
 print(io::IO, x::SatStatus) = print(io, string(x))
 show(io::IO, x::SatStatus) = print(io, string(x))
 showcompact(io::IO, x::SatStatus) = print(io, string(x))
 
-function checksat(f::Callable, Y, X)
+function checksat(f::Callable, Y, X::Domain)
   setimage = call(f,X)
   if subsumes(Y, setimage) SAT
-  elseif overlap(setimage, Y) MIXEDSAT
+  elseif overlap(setimage, Y) PARTIALSAT
   else UNSAT end
 end
 

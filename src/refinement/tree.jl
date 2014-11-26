@@ -74,10 +74,10 @@ function remove_edge!(t::WeightedTree, parent::Node, child::Node)
   end
 end
 
-
 has_children(t::Tree, n::Node) = !isempty(t.children[n.id])
 node_from_id(t::Tree, node_id::Int) = t.nodes[node_id]
 children_ids(t::Tree, n::Node) = t.children[n.id]
+getchildren(t::Tree, n::Node) = t.children[n.id]
 
 ## SAT STUFF
 ## =========

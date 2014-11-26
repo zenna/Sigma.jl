@@ -7,8 +7,8 @@ end
 Interval(v::Vector) = Interval(v[1],v[2])
 unitinterval() = Interval(0.,1.)
 
-## ===========
 ## Conversions
+## ===========
 
 function convert(::Type{NDimBox}, i::Vector{Interval})
   intervals = Array(Float64,2,length(i))
@@ -57,12 +57,11 @@ end
 !=(x::Interval, y::ConcreteReal) = !==(x,y)
 !=(y::ConcreteReal, x::Interval) = !==(y,x)
 
->(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.l > y.u T else F end
-<(x::Interval, y::Interval) = if overlap(x,y) TF elseif x.u < y.l T else F end
+>(x::Interval, y::Interval) = if x.l > y.u T elseif x.u <= y.l F else TF end
+>(x::Interval, y::ConcreteReal) = if x.l > y T elseif x.u <= y F else TF end
+>(y::ConcreteReal, x::Interval) =  if y > x.u T elseif y <= x.l F else TF end
 
->(x::Interval, y::ConcreteReal) = if x.l > y true elseif x.u > y >= x.l TF else false end
->(y::ConcreteReal, x::Interval) =  if x.u < y true elseif x.l < y <= x.u TF else false end
-
+<(x::Interval, y::Interval) = y > x
 <(x::Interval, y::ConcreteReal) = y > x
 <(y::ConcreteReal, x::Interval) = x > y
 

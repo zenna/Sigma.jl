@@ -1,8 +1,12 @@
 ## Exact Sampling
 ## ==============
-function cond_prob_bfs_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
+function cond_sample_bfs(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
   C = cond_bfs(X,Y)
   samples = [rand(C) for i=1:nsamples]
+end
+
+function cond_prob_bfs_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
+  samples = cond_sample_bfs(X,Y; nsamples = nsamples)
   length(filter(x->x,samples))/length(samples)
 end
 

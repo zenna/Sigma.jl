@@ -4,7 +4,7 @@ function dls(f::Callable, Y_sub, depth::Int64,
   if node.status == UNKNOWNSAT
     image = call(f,node.data)
     node.status = if subsumes(Y_sub, image) SAT
-                  elseif overlap(image,Y_sub) MIXEDSAT
+                  elseif overlap(image,Y_sub) PARTIALSAT
                   else UNSAT end
   end
 
@@ -12,11 +12,11 @@ function dls(f::Callable, Y_sub, depth::Int64,
     return t
   end
 
-  if node.status == MIXEDSAT
+  if node.status == PARTIALSAT
     if has_children(t, node)
       for child_id in children_ids(t, node)
         child = node_from_id(t,child_id)
-        if child.status == MIXEDSAT && depth + 1 < depth_limit
+        if child.status == PARTIALSAT && depth + 1 < depth_limit
            t = dls(f, Y_sub, depth + 1, depth_limit, t, child; box_budget = box_budget)
         end
       end

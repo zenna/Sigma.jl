@@ -6,28 +6,32 @@ import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
-import Base: call
+import Base: ndims, endof
+
+# import Base: call # Wait until 0.4
 
 import Distributions: quantile
 
 export
+  # Random Variables
   RandVar,
-  RandomArray,
-  MakeRandomArray,
-  independentRandomArray,
+  RandArray,
+  PureRandArray,
+  RandVarSymbolic,
+  call, # Remove when 0.4
+
+  # Omega
   Omega,
   SampleOmega,
   Interval,
-  NDimBox,
+  Box,
+
+  # Abstract Domains
   AbstractBool,
   T, F, TF,
   @If,
   @While,
   rangetype,
-
-  RandArray,
-  PureRandArray,
-  RandVarSymbolic,
 
   Lifted,
   liftedarray,
@@ -47,11 +51,13 @@ export
   ndcube,
   sqr,
 
-  # Probabilistic functions
+  # Inference queries
   prob,
-  prob_deep,
   prob_bfs,
+  sample_mean,
   cond_sample,
+  cond_sample_mh,
+  cond_sample_bfs,
   setindex,
 
   # Distributions

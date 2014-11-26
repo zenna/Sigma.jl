@@ -139,7 +139,7 @@ end
 function plot_sat_distribution(t::Sigma.Tree)
   sat_nodes = filter(x->x.status==SAT,t.nodes)
   unsat_nodes = filter(x->x.status==UNSAT,t.nodes)
-  mixed_nodes = filter(x->x.status==MIXEDSAT,t.nodes)
+  mixed_nodes = filter(x->x.status==PARTIALSAT,t.nodes)
   println("Relative counts of SAT UNSAT AND MIXED SAT are: ", map(length, Array[sat_nodes, unsat_nodes, mixed_nodes]))
   plot(y = map(length, Array[sat_nodes, unsat_nodes, mixed_nodes]), x = ["SAT", "UNSAT", "MIXED"], Geom.bar)
 end

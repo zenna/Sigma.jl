@@ -4,14 +4,14 @@ function update_approx!(f, X, Y, satsets, mixedsets)
     childsatstatus = checksat(f,Y,child)
     if childsatstatus == SAT
       push!(satsets,child)
-    elseif childsatstatus == MIXEDSAT
+    elseif childsatstatus == PARTIALSAT
       push!(mixedsets,child)
     end
   end
 end
 
 # Preimage of Y under F, unioned with X
-#FIXME: Assumes X is MIXEDSAT
+#FIXME: Assumes X is PARTIALSAT
 function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
                                                      max_iters = 1E3)
   # Over and under approximation

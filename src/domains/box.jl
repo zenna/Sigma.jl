@@ -2,25 +2,26 @@ using Iterators
 import Base.in
 import Base.inv
 
-abstract Box <: Real
+# REVIEW: ConcreteReal shouldn't be here
 ConcreteReal = Union(Float64,Int64)
 
-type NDimBox <: Box
+# REVIEW: What is an NDimBox?
+type Box <: Domain{Float64}
   intervals::Array{Float64,2}
 end
 
-ndcube(l::Float64, u::Float64, num_dims) = NDimBox(repmat([l,u],1,num_dims))
+ndims(b::Box) = size(b.intervals,2)
+measure(b::Box) = prod([b.intervals[2,i] - b.intervals[1,i] for i = 1:ndims(b)])
+logmeasure(b::Box) = sum(map(log,[b.intervals[2,i] - b.intervals[1,i] for i = 1:num_dims(b)]))
 
-num_dims(b::NDimBox) = size(b.intervals,2)
-volume(b::Box) = prod([b.intervals[2,i] - b.intervals[1,i] for i = 1:num_dims(b)])
-logvolume(b::Box) = sum(map(log,[b.intervals[2,i] - b.intervals[1,i] for i = 1:num_dims(b)]))
-
-## ==========
 ## Splitting
-middle_point(i::Vector) = i[1] + (i[2] - i[1]) / 2
-middle_point(b::Box) = [middle_point(b.intervals[:,i]) for i = 1:num_dims(b)]
+## =========
+middle_point{T<:Real}(i::Vector{T}) = i[1] + (i[2] - i[1]) / 2
+middle_point(b::Box) = Float64[middle_point(b.intervals[:,i]) for i = 1:ndims(b)]
 
 split_box(i::Vector, split_point::Float64) = Array[[i[1],split_point],[split_point, i[2]]]
+# Split box into 2^d equally sized boxes by cutting down middle of each axis"
+middle_split(b::Box) = split_box(b, middle_point(b))
 
 # Splits a box at a split-point along all its dimensions into n^d boxes
 function split_box(b::Box, split_points::Vector{Float64})
@@ -36,19 +37,6 @@ function split_box(b::Box, split_points::Vector{Float64})
     push!(boxes, NDimBox(z))
   end
   boxes
-end
-
-# Split box into 2^d equally sized boxes by cutting down middle of each axis"
-middle_split(b::Box) = split_box(b, middle_point(b))
-
-function split_many_boxes{T}(to_split::Vector{T})
-  bs = T[]
-  for b in to_split
-    for bj in middle_split(b)
-      push!(bs, bj)
-    end
-  end
-  bs
 end
 
 # ========

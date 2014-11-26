@@ -1,5 +1,3 @@
-import Base: length, dot, sum, ndims, endof
-
 type PureRandArray{T,N} <: RandVar{Array{T,N}}
   array::Array{RandVarSymbolic{T},N}
 end

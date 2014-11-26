@@ -22,7 +22,7 @@ convert(::Type{Vector{Interval}}, o::Omega) = collect(values(o.intervals))
 convert{T}(::Type{Vector{Interval}}, o::Omega{T}, dims::Vector) = T[o[d] for d in dims]
 
 function convert(::Type{Vector{Box}}, os::Vector{Omega})
-  map(x->convert(NDimBox,collect(values(x.intervals))),os)
+  map(x->convert(Box,collect(values(x.intervals))),os)
 end
 
 # REVIEW: add setindex(omega)
@@ -45,7 +45,7 @@ to_disj_intervals(b::Box) = [IntervalDisj(b.intervals[:,i]) for i = 1:num_dims(b
 function middle_split(o::Omega)
   ks = collect(keys(o.intervals))
   vs = collect(values(o.intervals))
-  box = convert(NDimBox,vs)
+  box = convert(Box,vs)
   z = middle_split(box)
   map(x->Omega(Dict(ks,convert(Vector{Interval},x))),z)
 end
@@ -54,7 +54,7 @@ end
 # function middle_split(o::Omega{IntervalDisj})
 #   ks = collect(keys(o.intervals))
 #   vs = collect(values(o.intervals))
-#   box = convert(NDimBox,vs)
+#   box = convert(Box,vs)
 #   z = middle_split(box)
 #   map(x->Omega(Dict(ks,to_disj_intervals(x))),z)
 # end
@@ -62,7 +62,7 @@ end
 # function middle_split(o)
 #   ks = collect(keys(o.intervals))
 #   vs = map(x->x.worlds[noconstraints],collect(values(o.intervals)))
-#   box = convert(NDimBox,vs)
+#   box = convert(Box,vs)
 #   boxes = middle_split(box)
 #   map(x->Omega(Dict(ks,convert(Vector{EnvVar},x))),boxes)
 # end
