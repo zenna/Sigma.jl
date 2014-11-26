@@ -10,14 +10,14 @@ unitinterval() = Interval(0.,1.)
 ## Conversions
 ## ===========
 
-function convert(::Type{NDimBox}, i::Vector{Interval})
+function convert(::Type{Box}, i::Vector{Interval})
   intervals = Array(Float64,2,length(i))
   for j in 1:length(i)
     intervals[:,j] = [i[j].l i[j].u]
   end
-  NDimBox(intervals)
+  Box(intervals)
 end
-convert(::Type{Vector{Interval}}, b::NDimBox) = [Interval(b.intervals[:,i]) for i = 1:num_dims(b)]
+convert(::Type{Vector{Interval}}, b::Box) = [Interval(b.intervals[:,i]) for i = 1:ndims(b)]
 
 # A concrete number can be concerted to an interval with no width
 convert(::Type{Interval}, c::ConcreteReal) = Interval(c, c)
@@ -33,7 +33,7 @@ showcompact(io::IO, x::Interval) = print(io, string(x))
 ## Set operations
 ## ==============
 
-num_dims(i::Interval) = 1
+ndims(i::Interval) = 1
 subsumes(x::Interval, y::Interval) = y.l >= x.l && y.u <= x.u
 overlap(x::Interval, y::Interval) = y.l <= x.u && x.l <= y.u
 domaineq(x::Interval, y::Interval) = x.u == y.u && x.l == y.l
@@ -204,5 +204,5 @@ function middle_split(i::Interval, n::Int64)
   end
   A
 end
-# middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(NDimBox, is,)))
+# middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(Box, is,)))
 measure(i::Interval) = i.u - i.l

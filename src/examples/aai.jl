@@ -125,12 +125,12 @@ pre
 
 function tosatboxes(pre)
   sat =  Sigma.sat_tree_data(pre)
-  map(x->convert(NDimBox,collect(values(x.intervals))),sat)
+  map(x->convert(Box,collect(values(x.intervals))),sat)
 end
 
 function tomixedboxes(pre)
   mixed =  Sigma.mixedsat_tree_data(pre)
-  map(x->convert(NDimBox,collect(values(x.intervals))),mixed)
+  map(x->convert(Box,collect(values(x.intervals))),mixed)
 end
 
 function doplots(rv,depths)
@@ -141,8 +141,8 @@ function doplots(rv,depths)
     sat_data = lh(pre)
 #       mixed =  Sigma.mixedsat_tree_data(pre)
 #       sat =  Sigma.sat_tree_data(pre)
-#       mixed_boxes = map(x->convert(NDimBox,collect(values(x.intervals))),mixed)
-#       sat_boxes = map(x->convert(NDimBox,collect(values(x.intervals))),sat)
+#       mixed_boxes = map(x->convert(Box,collect(values(x.intervals))),mixed)
+#       sat_boxes = map(x->convert(Box,collect(values(x.intervals))),sat)
     push!(plots,plot_2d_boxes2(sat_data))
     push!(names, "$lh-d$d")
     plot_2d_boxes2(sat_data)

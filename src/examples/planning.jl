@@ -72,7 +72,7 @@ function line_layer(b::Box)
   layer(x=path[1,:], y=path[2,:], Geom.line)
 end
 
-function boxes_layer(bs::Vector{NDimBox})
+function boxes_layer(bs::Vector{Box})
   x_min = Float64[]
   y_min = Float64[]
   x_max = Float64[]
@@ -88,7 +88,7 @@ function boxes_layer(bs::Vector{NDimBox})
   layer(x_min=x_min, x_max=x_max, y_min=y_min,color=rand(length(bs)), y_max=y_max,Geom.rectbin)
 end
 
-# apply(plot, [boxes_layer([NDimBox(start_box)]),
-#              boxes_layer([NDimBox(dest_box)]),
-#              map(o->boxes_layer([NDimBox(o)]),obstacles)...,
+# apply(plot, [boxes_layer([Box(start_box)]),
+#              boxes_layer([Box(dest_box)]),
+#              map(o->boxes_layer([Box(o)]),obstacles)...,
 #              line_layer(preimage[rand(1:length(preimage))])])

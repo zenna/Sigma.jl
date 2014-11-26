@@ -1,4 +1,4 @@
-# Omega is the sample space which random variables transform.
+  # Omega is the sample space which random variables transform.
 immutable Omega{T} <: Domain{Float64}
   intervals::Dict{Int64,T}
 end
@@ -22,7 +22,7 @@ convert(::Type{Vector{Interval}}, o::Omega) = collect(values(o.intervals))
 convert{T}(::Type{Vector{Interval}}, o::Omega{T}, dims::Vector) = T[o[d] for d in dims]
 
 function convert(::Type{Vector{Box}}, os::Vector{Omega})
-  map(x->convert(Box,collect(values(x.intervals))),os)
+  map(x->convert(NDimBox,collect(values(x.intervals))),os)
 end
 
 # REVIEW: add setindex(omega)
@@ -39,7 +39,7 @@ measure(os::Vector{Omega{EnvVar}}) = [measure(o) for o in os]
 
 ndims(o::Omega) = length(keys(o.intervals))
 
-to_disj_intervals(b::Box) = [IntervalDisj(b.intervals[:,i]) for i = 1:num_dims(b)]
+to_disj_intervals(b::Box) = [IntervalDisj(b.intervals[:,i]) for i = 1:ndims(b)]
 
 # REVIEW: IS THIS ORDERING THINGS CORRECTLY?
 function middle_split(o::Omega)
@@ -54,7 +54,7 @@ end
 # function middle_split(o::Omega{IntervalDisj})
 #   ks = collect(keys(o.intervals))
 #   vs = collect(values(o.intervals))
-#   box = convert(Box,vs)
+#   box = convert(NDimBox,vs)
 #   z = middle_split(box)
 #   map(x->Omega(Dict(ks,to_disj_intervals(x))),z)
 # end
@@ -62,7 +62,7 @@ end
 # function middle_split(o)
 #   ks = collect(keys(o.intervals))
 #   vs = map(x->x.worlds[noconstraints],collect(values(o.intervals)))
-#   box = convert(Box,vs)
+#   box = convert(NDimBox,vs)
 #   boxes = middle_split(box)
 #   map(x->Omega(Dict(ks,convert(Vector{EnvVar},x))),boxes)
 # end

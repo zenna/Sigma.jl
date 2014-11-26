@@ -67,7 +67,7 @@ function subsumes(a::AbstractBool,e::EnvVar)
   doessubsume
 end
 
-function convert(::Type{Vector{EnvVar}}, b::NDimBox)
+function convert(::Type{Vector{EnvVar}}, b::Box)
   x = [intervalenvvar(b.intervals[1,i],b.intervals[2,i]) for i = 1:num_dims(b)]
 end
 

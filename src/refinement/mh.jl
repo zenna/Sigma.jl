@@ -62,7 +62,7 @@ end
 # function middle_split(o::Omega, d::depth)
 #   ks = collect(keys(o.intervals))
 #   vs = collect(values(o.intervals))
-#   box = convert(NDimBox,vs)
+#   box = convert(Box,vs)
 #   z = middle_split(box)
 #   map(x->Omega(Dict(ks,convert(Vector{Interval},x))),z)
 # end

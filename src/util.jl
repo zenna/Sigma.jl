@@ -48,10 +48,10 @@ rand_select(v::Vector) = v[ceil(rand_interval(0,length(v)))]
 
 function tosatboxes(pre)
   sat =  Sigma.sat_tree_data(pre)
-  map(x->convert(Sigma.NDimBox,collect(values(x.intervals))),sat)
+  map(x->convert(Sigma.Box,collect(values(x.intervals))),sat)
 end
 
 function tomixedboxes(pre)
   mixed =  Sigma.mixedsat_tree_data(pre)
-  map(x->convert(Sigma.NDimBox,collect(values(x.intervals))),mixed)
+  map(x->convert(Sigma.Box,collect(values(x.intervals))),mixed)
 end
