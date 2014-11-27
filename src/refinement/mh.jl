@@ -5,7 +5,7 @@
 
 
 function add_children!(f::Callable, Y, t::WeightedTree, node::Node)
-  children = middle_split(node.data)
+  children = mid_split(node.data)
   weight = 1/length(children)
   for i = 1:length(children)
     childnode = Node(0,checksat(f,Y,children[i]),children[i])
@@ -47,8 +47,8 @@ end
 # Sets set of domains and weight with which to choose them
 # function split_dim_by_depth(X::Domain, depth::Int64j) end
 
-function weighted_middle_split(o::Omega, depth::Int)
-  splitted = middle_split(o::Omega)
+function weighted_mid_split(o::Omega, depth::Int)
+  splitted = mid_split(o::Omega)
   transitionprob = 1/length(splitted)
   [(event, transitionprob) for event in splitted]
 end
@@ -59,16 +59,16 @@ end
 # end
 
 
-# function middle_split(o::Omega, d::depth)
+# function mid_split(o::Omega, d::depth)
 #   ks = collect(keys(o.intervals))
 #   vs = collect(values(o.intervals))
-#   box = convert(Box,vs)
-#   z = middle_split(box)
+#   box = convert(HyperBox,vs)
+#   z = mid_split(box)
 #   map(x->Omega(Dict(ks,convert(Vector{Interval},x))),z)
 # end
 
 # Like greedy! but better named and smarter
-function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree, split::Function = weighted_middle_split)
+function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree, split::Function = weighted_mid_split)
   node::Node{D} = root(t)
   depth = 0
   logq = 0.0 # == log(1.0)
@@ -93,11 +93,11 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree, split::
     # Go a level deeper in tree
     depth += 1
     logq += log(q)
-    if depth > 1
-      @show length(children)
-      @show depth, child.status
-      @show child.data
-    end
+    # if depth > 1
+    #   @show length(children)
+    #   @show depth, child.status
+    #   @show child.data
+    # end
 
     if child.status == SAT
       return child.data, logq

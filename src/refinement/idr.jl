@@ -21,7 +21,7 @@ function dls(f::Callable, Y_sub, depth::Int64,
         end
       end
     elseif depth + 1 < depth_limit
-      children_data =   middle_split(node.data)
+      children_data =   mid_split(node.data)
       children_nodes = Array(typeof(node),length(children_data)) # DO THIS LAZILY
 #       children_nodes = Array(Node{Omega{EnvVar{Set{Symbol},Interval}}},length(children_data)) # DO THIS LAZILY
       for i = 1:length(children_data)

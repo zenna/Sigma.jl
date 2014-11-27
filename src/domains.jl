@@ -2,7 +2,7 @@
 abstract Domain{T}
 
 for finame in ["bool.jl",
-               "box.jl",
+               "hyperbox.jl",
                "interval.jl",
                "simpledisjunctive.jl",
                "envvar.jl"]

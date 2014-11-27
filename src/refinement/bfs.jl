@@ -1,5 +1,5 @@
 function update_approx!(f, X, Y, satsets, mixedsets)
-  children = middle_split(X)
+  children = mid_split(X)
   for child in children
     childsatstatus = checksat(f,Y,child)
     if childsatstatus == SAT

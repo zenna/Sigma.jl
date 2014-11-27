@@ -1,11 +1,6 @@
 import Base: quantile, convert
 import Distributions.pnormalize!
 
-# =======
-# Measure
-# REVIEW: Remove move this to where it belongs, BOX, maybe delete it
-measure{B<:Box}(bs::Vector{B}) = map(volume,bs)
-
 for finame in ["bounds.jl",
                "samples.jl",]
     include(joinpath("query", finame))

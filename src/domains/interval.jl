@@ -9,15 +9,14 @@ unitinterval() = Interval(0.,1.)
 
 ## Conversions
 ## ===========
-
-function convert(::Type{Box}, i::Vector{Interval})
+function convert(::Type{HyperBox}, i::Vector{Interval})
   intervals = Array(Float64,2,length(i))
   for j in 1:length(i)
     intervals[:,j] = [i[j].l i[j].u]
   end
-  Box(intervals)
+  HyperBox(intervals)
 end
-convert(::Type{Vector{Interval}}, b::Box) = [Interval(b.intervals[:,i]) for i = 1:ndims(b)]
+convert(::Type{Vector{Interval}}, b::HyperBox) = [Interval(b.intervals[:,i]) for i = 1:ndims(b)]
 
 # A concrete number can be concerted to an interval with no width
 convert(::Type{Interval}, c::ConcreteReal) = Interval(c, c)
@@ -32,7 +31,6 @@ showcompact(io::IO, x::Interval) = print(io, string(x))
 
 ## Set operations
 ## ==============
-
 ndims(i::Interval) = 1
 subsumes(x::Interval, y::Interval) = y.l >= x.l && y.u <= x.u
 overlap(x::Interval, y::Interval) = y.l <= x.u && x.l <= y.u
@@ -132,7 +130,6 @@ end
 
 ## Functions on interval abstraction itself
 ## =======================================
-
 flip(x::Interval) = Interval(-x.l,-x.u)
 makepos(x::Interval) = Interval(max(x.l,0), max(x.u,0))
 mid(x::Interval) = (x.u - x.l) / 2 + x.l
@@ -160,14 +157,12 @@ function isinf(x::Interval)
   end
 end
 
-import Base.isapprox
-function isapprox(x::Interval, y::Interval; epsilon::Real = 1E-5)
+function isapprox{T1<:Union(Float64,Interval), T2<:Union(Float64,Interval)}(x::T1, y::T2; epsilon::Real = 1E-5)
   ifelse(isinf(x) | isinf(y), x == y, abs(x - y) <= epsilon)
 end
 
-## =======
 ## Merging
-
+## =======
 function ⊔(a::Interval, b::Interval)
   l = min(a.l,b.l)
   u = max(a.u, b.u)
@@ -178,31 +173,47 @@ end
 ⊔(b::ConcreteReal, a::Interval) = ⊔(promote(b,a)...)
 ⊔(a::Interval) = a
 
-## ========
-## Splitting
-function split_box(i::Interval, split_point::Float64)
-  @assert i.l <= split_point <= i.u "Split point must be within interval"
-  @assert i.l != i.u "Can't split a single point interval into disjoint sets"
+## Vector Interop
+## ==============
+l{T<:Real}(v::Vector{T}) = v[1]
+u{T<:Real}(v::Vector{T}) = v[2]
+l(x::Interval) = x.l
+u(x::Interval) = x.u
+pair(T::Type{Interval},low,up) = Interval(low,up)
+pair(T::Type{Vector{Float64}},low,up) = [low,up]
+Pair = Union(Vector{Float64},Interval)
 
-  if split_point < i.u
-    [Interval(i.l, split_point), Interval(nextfloat(split_point), i.u)]
+## Splitting
+## =========
+function split_box{P<:Pair}(i::P, split_point::Float64)
+  @assert l(i) <= split_point <= u(i) "Split point must be within interval"
+  # @assert l(i) != u(i) "Can't split a single point interval into disjoint sets"
+
+  if l(i) == u(i)  #Degenrate case
+    P[pair(P, l(i), u(i)), pair(P, l(i), u(i))]
+  elseif split_point < u(i)
+    P[pair(P, l(i), split_point), pair(P, nextfloat(split_point), u(i))]
   else
-    [Interval(i.l, prevfloat(split_point)), Interval(split_point, i.u)]
+    P[pair(P, l(i), prevfloat(split_point)), pair(P, split_point, u(i))]
   end
 end
 
-middle_split(i::Interval) = split_box(i,mid(i))
-function middle_split(i::Interval, n::Int64)
+mid_split(i::Interval) = split_box(i,mid(i))
+
+# Split along the middle n times
+function mid_split(i::Interval, n::Int64)
   A = [i]
   for i = 1:n
     res = Interval[]
     for a in A
-      splitted = middle_split(a)
+      splitted = mid_split(a)
       push!(res,splitted[1],splitted[2])
     end
     A = res
   end
   A
 end
-# middle_split(is::Vector{Interval}) = map(to_intervals,middle_split(convert(Box, is,)))
+
+## Measure
+## =======
 measure(i::Interval) = i.u - i.l

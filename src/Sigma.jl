@@ -7,6 +7,7 @@ import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
 import Base: ndims, endof
+import Base.isapprox
 
 # import Base: call # Wait until 0.4
 
@@ -24,7 +25,7 @@ export
   Omega,
   SampleOmega,
   Interval,
-  Box,
+  HyperBox,
 
   # Abstract Domains
   AbstractBool,
@@ -55,6 +56,8 @@ export
   prob,
   prob_bfs,
   sample_mean,
+  cond_prob_mh,
+  cond_prob_bfs,
   cond_sample,
   cond_sample_mh,
   cond_sample_bfs,
@@ -107,9 +110,10 @@ export
   add_KL!,
   add_KL_church!
 
+include("common.jl")
 include("domains.jl")
 include("randvar.jl")
-include("common.jl")
+include("lift.jl")
 include("controlflow.jl")
 include("util.jl")
 include("omega.jl")

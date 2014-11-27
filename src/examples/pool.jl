@@ -126,7 +126,7 @@ end
 
 function draw_lines(lines...)
   all_lines = apply(vcat,lines)
-  x = map(l->(context(units=UnitBox(0, 0, 10, 10)),
+  x = map(l->(context(units=UnitHyperBox(0, 0, 10, 10)),
               l,
               linewidth(.5mm),
               stroke(rand_color()),
