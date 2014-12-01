@@ -4,6 +4,13 @@
 ## Be able to subdivide parameterised on which dimensions, split_point et
 
 function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
+  samples = [rand(o) for i = 1:n]
+  for sample in samples
+    if call(Y,sample)
+      @show sample
+      error("stop right there")
+    end
+  end
   count(identity, [call(Y,rand(o)) for i = 1:n])/n
 end
 
@@ -101,6 +108,7 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
   end
 
   if node.status == SAT
+    @show "stopped at initial sat"
     return node.data, logq
   elseif node.status == PARTIALSAT
     # Add children if none there
@@ -109,7 +117,7 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 
     # Start again
     if isempty(children)
-#       @show "starting again"
+      @show "children empty, starting again at root"
       node = root(t)
       @goto start
     end
@@ -147,11 +155,11 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #     end
 
     if child.status == SAT
-#       @show "Found SAT"
+      @show "Found SAT child"
       return child.data, logq
     elseif child.status == PARTIALSAT
       node = child
-#       @show "Found PARTIALSAT"
+      @show "Found PARTIALSAT"
       @goto start
     elseif child.status == UNSAT
       @unexpected

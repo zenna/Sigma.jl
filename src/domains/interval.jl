@@ -42,7 +42,7 @@ isequal(x::Interval,y::Interval) = domaineq(x,y)
 
 # ==, != return values in AbstractBool
 function ==(x::Interval, y::Interval)
-  if x.u == y.u && x.l == y.l T
+  if x.u == y.u == x.l == y.l T
   elseif overlap(x,y) TF
   else F end
 end
