@@ -108,7 +108,7 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
   end
 
   if node.status == SAT
-    @show "stopped at initial sat"
+#     @show "stopped at initial sat"
     return node.data, logq
   elseif node.status == PARTIALSAT
     # Add children if none there
@@ -155,11 +155,11 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #     end
 
     if child.status == SAT
-      @show "Found SAT child"
+#       @show "Found SAT child"
       return child.data, logq
     elseif child.status == PARTIALSAT
       node = child
-      @show "Found PARTIALSAT"
+#       @show "Found PARTIALSAT"
       @goto start
     elseif child.status == UNSAT
       @unexpected
