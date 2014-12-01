@@ -27,48 +27,51 @@ end
 
 # REVIEW: add setindex(omega)
 # REVIEW: CLEAN UP OMEGA TYPE MESS
-
+## Measure
+## =======
 measure(o::Omega) = prod([measure(i) for i in values(o.intervals)])
-# measure(o::Omega{EnvVar}) = prod([measure(i) for i in values(o.intervals)])
-# function measure(o::Omega)
-#   prod([measure(i.worlds[noconstraints]) for i in values(o.intervals)])
-# end
-measure(os::Vector{Omega}) = [measure(o) for o in os]
+logmeasure(o::Omega) = sum([log(measure(i)) for i in values(o.intervals)])
 measure{T}(os::Vector{Omega{T}}) = [measure(o) for o in os]
-measure(os::Vector{Omega{EnvVar}}) = [measure(o) for o in os]
 
 ndims(o::Omega) = length(keys(o.intervals))
 
-to_disj_intervals(b::HyperBox) = [IntervalDisj(b.intervals[:,i]) for i = 1:ndims(b)]
-
-# REVIEW: IS THIS ORDERING THINGS CORRECTLY?
+## Split
+## =====
 function mid_split(o::Omega)
   ks = collect(keys(o.intervals))
   vs = collect(values(o.intervals))
+
+  # Convert to hyperbox and split
   box = convert(HyperBox,vs)
-  z = mid_split(box)
-  map(x->Omega(Dict(ks,convert(Vector{Interval},x))),z)
+  splits::Vector{HyperBox} = mid_split(box)
+
+  # For each HyperBox in resulting split, convert to set of Intervals
+  # Then recreate Omega using keys from parent.
+  map(x->Omega(Dict(ks,convert(Vector{Interval},x))),splits)
 end
 
-# REVIEW: REMOVE OR ENABLE
-# function mid_split(o::Omega{IntervalDisj})
-#   ks = collect(keys(o.intervals))
-#   vs = collect(values(o.intervals))
-#   box = convert(HyperBox,vs)
-#   z = mid_split(box)
-#   map(x->Omega(Dict(ks,to_disj_intervals(x))),z)
-# end
+# REMOVE REDUNDANC
+function mid_partial_split(o::Omega, dims::Vector{Int})
+  ks = collect(keys(o.intervals))
+  vs = collect(values(o.intervals))
 
-# function mid_split(o)
-#   ks = collect(keys(o.intervals))
-#   vs = map(x->x.worlds[noconstraints],collect(values(o.intervals)))
-#   box = convert(HyperBox,vs)
-#   boxes = mid_split(box)
-#   map(x->Omega(Dict(ks,convert(Vector{EnvVar},x))),boxes)
-# end
+  # Mapping from omega key to order created using collect
+  o_to_order = [ks[i] => i for i = 1:length(ks)]
+  newdims = [o_to_order[dim] for dim in dims]
+
+  # Convert to hyperbox and split
+  box = convert(HyperBox,vs)
+  splits::Vector{HyperBox} = mid_partial_split(box, newdims)
+
+  # For each HyperBox in resulting split, convert to set of Intervals
+  # Then recreate Omega using keys from parent.
+  map(x->Omega(Dict(ks,convert(Vector{Interval},x))),splits)
+end
 
 mid_split(os::Vector{Omega}) = map(mid_split, os)
 
+## Sampling
+## ========
 function rand(o::Omega)
   s = Dict{Int64,Float64}()
   for interval in o.intervals

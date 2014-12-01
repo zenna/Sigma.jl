@@ -25,7 +25,7 @@ call{T}(Xs::PureRandArray{T,2}, ω) = [call(Xs.array[i,j],ω) for i = 1:size(Xs.
 ## Array Access/Updating
 ## =====================
 getindex(Xs::PureRandVector, i::Int64) = Xs.array[i]
-getindex(Xs::PureRandVector, i::Int64, j::Int64) = Xs.array[i,j]
+getindex(Xs::PureRandMatrix, i::Int64, j::Int64) = Xs.array[i,j]
 
 setindex!{T}(X::PureRandVector,v::T,i::Int64) = X.array[i] = v
 setindex!{T}(X::PureRandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v

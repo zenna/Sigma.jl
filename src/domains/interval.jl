@@ -157,9 +157,12 @@ function isinf(x::Interval)
   end
 end
 
-function isapprox{T1<:Union(Float64,Interval), T2<:Union(Float64,Interval)}(x::T1, y::T2; epsilon::Real = 1E-5)
+function isapprox(x::Interval, y::Interval; epsilon::Real = 1E-5)
   ifelse(isinf(x) | isinf(y), x == y, abs(x - y) <= epsilon)
 end
+
+isapprox(x::Interval, y::Real) = isapprox(promote(x,y)...)
+isapprox(x::Real, y::Interval) = isapprox(promote(x,y)...)
 
 ## Merging
 ## =======

@@ -1,12 +1,15 @@
 ## Exact Sampling
 ## ==============
-function cond_sample_bfs(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
+
+cond_sample_bfs(X::RandVar, Y::RandVar{Bool}) = rand(cond_bfs(X,Y))
+
+function cond_sample_bfs(X::RandVar, Y::RandVar{Bool}, n::Int)
   C = cond_bfs(X,Y)
-  samples = [rand(C) for i=1:nsamples]
+  samples = [rand(C) for i=1:n]
 end
 
 function cond_prob_bfs_sampled(X::RandVar, Y::RandVar{Bool}; nsamples = 1000)
-  samples = cond_sample_bfs(X,Y; nsamples = nsamples)
+  samples = cond_sample_bfs(X, Y, nsamples)
   length(filter(x->x,samples))/length(samples)
 end
 
@@ -27,7 +30,7 @@ end
 ## MH Sampling
 ## ===========
 function cond_sample_mh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
-  Ypresamples = pre_mh(Y,T,Omega();pre_args...)
+  Ypresamples = pre_mh(Y,T,Omega();max_iters = nsamples, pre_args...)
   [call(X, rand(i)) for i in Ypresamples]
 end
 
