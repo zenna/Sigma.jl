@@ -91,12 +91,12 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 
   if niterations % 100 == 0
     if niterations > 40000
-      error("TOo many iterations")
+      error("Too many iterations")
     end
     @show length(t.nodes)
     @show niterations
-    if length(t.nodes) > 20000
-      error("TREE TOO BIG YO")
+    if length(t.nodes) > 100000
+      error("Tree is too big - will run out of memory")
     end
   end
 

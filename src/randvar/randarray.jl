@@ -1,3 +1,5 @@
+import Base.eltype
+
 type PureRandArray{T,N} <: RandVar{Array{T,N}}
   array::Array{RandVarSymbolic{T},N}
 end
@@ -18,7 +20,12 @@ PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
 convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
 convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
 
+convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{T,N}) =
+  PureRandArray{T,N}(map(a->convert(RandVarSymbolic{T},a),A))
+promote_rule{T,N}(::Type{PureRandArray{T,N}}, ::Type{Array{T,N}}) = PureRandArray{T,N}
+
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
+eltype(Xs::PureRandArray) = rangetype(Xs).parameters[1]
 call{T}(Xs::PureRandArray{T,1}, ω) = [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
 call{T}(Xs::PureRandArray{T,2}, ω) = [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
@@ -40,6 +47,16 @@ getindex(Xs::PureRandMatrix, is::UnitRange{Int64}, j::Int64) = PureRandArray(Xs.
 getindex(Xs::PureRandMatrix, is::UnitRange{Int64}, js::UnitRange{Int64}) = PureRandArray(Xs.array[is,js])
 getindex(Xs::PureRandVector, is::UnitRange{Int64}) = PureRandArray(Xs.array[is])
 
+function getindex(Xs::PureRandVector, is::StepRange)
+  Ys = PureRandArray(eltype(Xs),length(is))
+  j = 1
+  for i in is
+    Ys[j] = Xs[i]
+    j += 1
+  end
+  Ys
+end
+
 ## Primitive Array Functions
 ## =========================
 # PERF: anon function calls are slow
@@ -49,7 +66,12 @@ sum{T}(Xs::PureRandArray{T}, ω) = sum(call(Xs,ω))
 
 
 sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
-length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
+
+# In principle length(Xs) should return a Int-RandVar, but until
+# we support indexing on integer random variables it makes things hard
+# / inconvenient, so leave this commented
+# length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
+length(Xs::PureRandArray) = length(Xs.array)
 
 # PERF: use list comprehensions for speed
 rand{T}(Xs::PureRandArray{T}) = call(Xs,SampleOmega())
@@ -69,7 +91,7 @@ end
 # An alternative is to have a RandVarSymbolic which
 # Only when called with an omega will do the array computations on abstract values
 # this may be preferable
-for op = (:+, :-, :*, :/, :(==), :!=, :&, :|)
+for op = (:+, :-, :*, :/, :&, :|)
   @eval begin
     function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
       let op = $op
@@ -79,6 +101,22 @@ for op = (:+, :-, :*, :/, :(==), :!=, :&, :|)
 
 #     ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
 #     ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)
+  end
+end
+
+for op = (:(==), :!=, :isapprox)
+  @eval begin
+    function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
+      @assert length(X) == length(Y)
+      condition = true
+      for i = 1:length(X)
+        condition = condition & (X.array[i] == Y.array[i])
+      end
+      condition
+    end
+
+    ($op){T,D}(X::PureRandArray{T,D}, Y::Array{T,D}) = ($op)(promote(X,Y)...)
+    ($op){T,D}(X::Array{T,D}, Y::PureRandArray{T,D}) = ($op)(promote(X,Y)...)
   end
 end
 

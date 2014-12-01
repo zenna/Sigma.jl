@@ -15,6 +15,12 @@ Sigma is not yet in the official Julia Package repository.  You can still easily
 Pkg.clone("git@github.com:zenna/Sigma.jl.git")
 ```
 
+Sigma is then loaded with
+
+```julia
+using Sigma
+``` 
+
 # Basic Usage
 
 ## Random Variables
@@ -120,14 +126,12 @@ rand(X)
 will return a sample.
 
 More interestingly, we can __conditionally sample__.
-First we have to construct a ConditionalRandVar using `conditional`.
-We can sample from the conditional distribution simply using rand.
+This is done with `rand(X,Y)` or `rand(X,Y,nsamples)`.
 
 ```julia
 X = betarv(0.5,0.2)
 Y = normal(X,1.0)
-Z = conditional(Y, X > 0.5)
-rand(Z)
+tensamples = rand(Y,X>0.5,10)
 ```
 
 ### Query parameters
@@ -145,7 +149,7 @@ In the former category:
 ```julia
 normal(μ::Float64,σ::Float64)
 uniform(i::Int64,a::Float64,b::Float64)
-flip(weight)
+flip(weight::Float64)
 discreteuniform(a::Int64,b::Int64)
 ```
 
