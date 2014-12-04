@@ -31,6 +31,11 @@ end
 ## ===========
 function cond_sample_mh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
   Ypresamples = pre_mh(Y,T,Omega();max_iters = nsamples, pre_args...)
+#   @show Ypresamples
+#   @show call(Y,Ypresamples[1])
+#   r = rand(Ypresamples[1])
+#   @show r
+#   @show call(Y,r)
   [call(X, rand(i)) for i in Ypresamples]
 end
 

@@ -50,7 +50,7 @@ function plot_2d_boxes(bs::Vector{Vector{Interval}};
 
 
   plot(x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max,
-       color=rand(length(bs)),
+       color=linspace(0,1,length(bs)),
        Theme(line_width=10.0mm,highlight_width=20.0mm),
        Geom.rectbin,
        Scale.x_continuous(minvalue=abs_x_min, maxvalue=abs_y_max),
@@ -142,4 +142,41 @@ function plot_sat_distribution(t::Sigma.Tree)
   mixed_nodes = filter(x->x.status==PARTIALSAT,t.nodes)
   println("Relative counts of SAT UNSAT AND MIXED SAT are: ", map(length, Array[sat_nodes, unsat_nodes, mixed_nodes]))
   plot(y = map(length, Array[sat_nodes, unsat_nodes, mixed_nodes]), x = ["SAT", "UNSAT", "MIXED"], Geom.bar)
+end
+
+using Compose
+using Color
+
+## Drawing
+## =======
+function make_point_pairs(lines)
+  b = Array(Any, length(lines)-1)
+  for i = 1:length(lines) - 1
+    j = i + 1
+    b[i] = [lines[i][:,1] lines[j][:,1]]
+  end
+  b
+end
+
+pair(x) = x[1],x[2]
+
+function make_compose_lines(point_pairs)
+  [line([pair(o[:,1]), pair(o[:,2])]) for o in point_pairs]
+end
+
+function draw_lines(lines...)
+  all_lines = apply(vcat,lines)
+  x = map(l->(context(units=UnitBox(0, 0, 1, 1)),
+              l,
+              linewidth(.5mm),
+              stroke(rand_color()),
+              fill(nothing)),
+          all_lines)
+  apply(compose,vcat(context(), x))
+end
+
+rand_color() = RGB(rand(),rand(),rand())
+
+function to_lines(points)
+  [line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
 end

@@ -37,6 +37,8 @@ rangetype(X::RandVarSymbolic) = typeof(X).parameters[1]
 # A constant can be converted into a constant random variable
 # which is a surjection which maps everything to constant c
 convert{T}(::Type{RandVarSymbolic{T}}, c::T) = RandVarSymbolic(T,:($c))
+promote_rule{T1<:Real, T2<:Real}(::Type{T1}, ::Type{RandVarSymbolic{T2}}) =
+  RandVarSymbolic{promote_type(T1,T2)}
 
 promote_rule{T<:Real}(::Type{T}, ::Type{RandVarSymbolic{T}}) = RandVarSymbolic{T}
 promote_rule{T}(::Type{T}, ::Type{RandVarSymbolic{T}}) = RandVarSymbolic{T}
@@ -46,8 +48,7 @@ convert{T<:Real}(::Type{RandVarSymbolic{T}}, c::T) = RandVarSymbolic(T,:($c))
 convert{T1<:Real, T2<:Real}(::Type{RandVarSymbolic{T1}}, c::T2) =
   (T = promote_type(T1,T2); RandVarSymbolic(T,:($(convert(T,c)))) )
 
-promote_rule{T1<:Real, T2<:Real}(::Type{T1}, ::Type{RandVarSymbolic{T2}}) =
-  RandVarSymbolic{promote_type(T1,T2)}
+
 
 # Convert a random variable to a julia function by compiling the lambda
 convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)

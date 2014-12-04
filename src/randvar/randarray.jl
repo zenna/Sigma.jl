@@ -1,4 +1,5 @@
 import Base.eltype
+import Base.size
 
 type PureRandArray{T,N} <: RandVar{Array{T,N}}
   array::Array{RandVarSymbolic{T},N}
@@ -72,9 +73,14 @@ sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
 # / inconvenient, so leave this commented
 # length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
 length(Xs::PureRandArray) = length(Xs.array)
+size(Xs::PureRandArray) = size(Xs.array)
+size(Xs::PureRandArray,i::Int) = size(Xs.array, i)
 
 # PERF: use list comprehensions for speed
-rand{T}(Xs::PureRandArray{T}) = call(Xs,SampleOmega())
+function rand{T,N}(Xs::PureRandArray{T,N})
+  ret::Array{T,N} = call(Xs,SampleOmega())
+  return ret
+end
 
 ## Complex Array Functions
 ## =======================

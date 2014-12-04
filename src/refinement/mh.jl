@@ -5,12 +5,11 @@
 
 function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
   samples = [rand(o) for i = 1:n]
-  for sample in samples
-    if call(Y,sample)
-      @show sample
-      error("stop right there")
-    end
-  end
+#   for sample in samples
+#     if call(Y,sample)
+#       error("stop right there")
+#     end
+#   end
   count(identity, [call(Y,rand(o)) for i = 1:n])/n
 end
 
@@ -42,9 +41,10 @@ function weighted_partial_split(o::Omega, depth::Int)
 end
 
 # Randomly select a dimension
-function rand_partial_split(o::Omega, depth::Int)
+function rand_partial_split(o::Omega, depth::Int; ndims = 4)
   dimindices = collect(keys(o.intervals))
-  splitted = mid_partial_split(o::Omega, [rand_select(dimindices)])
+  randindices = unique([rand_select(dimindices) for i = 1:ndims])
+  splitted = mid_partial_split(o::Omega, randindices)
   transitionprob = 1/length(splitted)
   [(event, transitionprob) for event in splitted]
 end
@@ -86,10 +86,11 @@ end
 
 # Like greedy! but better named and smarter
 function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
-                                  split::Function = weighted_partial_split)
+                                  split::Function = rand_partial_split)
+  niterations = 0
+  @label restart
   node::Node{D} = root(t)
   depth = 0
-  niterations = 0
   logq = 0.0 # == log(1.0)
 
 
@@ -100,15 +101,15 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
     if niterations > 40000
       error("Too many iterations")
     end
-    @show length(t.nodes)
-    @show niterations
+#     @show length(t.nodes)
+#     @show niterations
     if length(t.nodes) > 100000
       error("Tree is too big - will run out of memory")
     end
   end
 
   if node.status == SAT
-#     @show "stopped at initial sat"
+    @show "stopped at initial sat"
     return node.data, logq
   elseif node.status == PARTIALSAT
     # Add children if none there
@@ -117,9 +118,9 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 
     # Start again
     if isempty(children)
-      @show "children empty, starting again at root"
+#       @show "children empty, starting again at root"
       node = root(t)
-      @goto start
+      @goto restart
     end
 
 #     children = getchildren(t,node)
@@ -140,10 +141,10 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #     @show niterations, depth
 
     af = fraction_sat(f,child.data,100)
-    if niterations % 100 == 0 || af > 0
-      @show af, depth
-    end
-    if af > 0 error("We got a point after $niterations niterations") end
+#     if niterations % 100 == 0 || af > 0
+#       @show af, depth
+#     end
+#     if af > 0 error("We got a point after $niterations niterations") end
 
     # Go a level deeper in tree
     depth += 1
@@ -155,7 +156,7 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #     end
 
     if child.status == SAT
-#       @show "Found SAT child"
+      @show "Found SAT child"
       return child.data, logq
     elseif child.status == PARTIALSAT
       node = child
@@ -179,7 +180,6 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
   box, logq = proposebox!(f,Y,X,t)
   logp = logmeasure(box)
   println("Initial satisfying point found!, starting MH chain\n")
-
 
   naccepted = 0
   nsteps = 0
