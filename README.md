@@ -19,7 +19,7 @@ Sigma is then loaded with
 
 ```julia
 using Sigma
-``` 
+```
 
 # Basic Usage
 
@@ -33,9 +33,9 @@ To create a random variable uniformly distributed between 0 and 1, use:
 X = uniform(0.0,1.0)
 ```
 
-RandVar constructors return values of the RandVar type, and not samples from distributions - i.e., it's not the same as `rand()` in Julia.Base, nor python's `random.uniform(0,1)`.
-All RandVars have a range type; we say for example that `uniform` returns a `Float64`-valued RandVar, `poission` returns a `Int64`-valued RandVar and `flip` returns a `Bool`-valued RandVar.
-The range type can be access with `rangetype`, e.g. `rangetype(flip())` will return `Bool`.
+RandVar constructors return values of the `RandVar` type, and not samples from distributions - i.e., it's not the same as `rand()` in Julia.Base.
+All RandVars have a range type; we say for example that `uniform` returns a `Float64`-valued RandVar, `poisson` returns a `Int64`-valued RandVar and `flip` returns a `Bool`-valued RandVar.
+The range type can be accessed with `rangetype`, e.g. `rangetype(flip())` will return `Bool`.
 
 Applying functions to RandVars returns new RandVars.  In the following, `X`, `Y` and `Z` are all RandVars, with rangetypes `Float64`,`Float64`, and `Bool` respectively.
 

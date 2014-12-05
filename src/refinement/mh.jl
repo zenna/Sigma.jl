@@ -179,6 +179,7 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
   # We use log for numercal stability
   box, logq = proposebox!(f,Y,X,t)
   logp = logmeasure(box)
+  push!(boxes,box)
   println("Initial satisfying point found!, starting MH chain\n")
 
   naccepted = 0
@@ -189,17 +190,6 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
 
     loga = nextlogp + logq - logp - nextlogq
     a = exp(loga)
-
-#     @show exp(logp)
-#     if true
-#       @show a, loga
-#       @show  box
-#       @show logp, exp(logp), logq, exp(logq)
-#       @show nextbox
-#       @show  nextlogp, exp(nextlogp), nextlogq, exp(nextlogq)
-#       println("tree vertices: $(length(t.nodes))")
-#       println("")
-#     end
 
     # MH accept/reject step
     if a >= 1 || rand() < a
