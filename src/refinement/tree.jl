@@ -26,6 +26,8 @@ end
 ## ============
 
 typealias NodeWeight (Int, Float64)
+getnodeid(nw::NodeWeight) = nw[1]
+getweight(nw::NodeWeight) = nw[2]
 
 type WeightedTree <: Tree
   id_counter::Int
@@ -78,6 +80,20 @@ has_children(t::Tree, n::Node) = !isempty(t.children[n.id])
 node_from_id(t::Tree, node_id::Int) = t.nodes[node_id]
 children_ids(t::Tree, n::Node) = t.children[n.id]
 getchildren(t::Tree, n::Node) = t.children[n.id]
+getchild(t::Tree, n::Node, i::Int) = t.children[n.id][i]
+
+# All weights of a child should sum to 1
+function normalize_children!(t::Tree, n::Node)
+  weights = Float64[]
+  for (child,weight) in getchildren(t, n)
+    push!(weights, weight)
+  end
+
+  pnormalize!(weights)
+  for i = 1:length(weights)
+    t.children[n.id][i] = (t.children[n.id][i][1], weights[i])
+  end
+end
 
 ## SAT STUFF
 ## =========

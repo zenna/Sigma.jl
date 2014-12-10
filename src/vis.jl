@@ -26,6 +26,21 @@ function plot_preimage(os::Vector{Omega{Interval}}, dims::Vector)
   plot_2d_boxes(intervals)
 end
 
+# Returns mathematica function
+function plot_preimage3D(X::RandVar{Bool};prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, T, Omega();prob_args...)
+  plot_preimage3D(satsets,mixedsets)
+end
+
+function plot_preimage3D(satos::Vector{Omega{Interval}}, mixedos::Vector{Omega{Interval}})
+  satintervals = Vector{Interval}[convert(Vector{Interval},o) for o in satos]
+  mixedintervals = Vector{Interval}[convert(Vector{Interval},o) for o in mixedos]
+
+  satcuboids = ["Cuboid[{$(box[1].l), $(box[2].l), $(box[3].l)}, {$(box[1].u), $(box[2].u), $(box[3].u)}]" for box in satintervals]
+  mixedos = ["Cuboid[{$(box[1].l), $(box[2].l), $(box[3].l)}, {$(box[1].u), $(box[2].u), $(box[3].u)}]" for box in mixedintervals]
+  "Graphics3D[{Green, Opacity[1.0],$(join(satcuboids, ",")),Blue, Opacity[1.0],$(join(mixedos, ","))}]"
+end
+
 # Take as argument canvas range
 function plot_2d_boxes(bs::Vector{Vector{Interval}};
                        abs_x_min = 0.0, abs_y_min = 0.0,

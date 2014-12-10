@@ -28,6 +28,6 @@ end
 for finame in ["tree.jl",
                "bfs.jl",
                "mh.jl",
-               "idr.jl",]
+               "rrr.jl"]
     include(joinpath("refinement", finame))
 end

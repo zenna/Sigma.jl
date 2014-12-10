@@ -162,3 +162,9 @@ macro noexpand(dtype, fcall)
     RandVarSymbolic($dtype, pipeexpr)
   end
 end
+
+function in(X::RandVarSymbolic{Float64}, i::Vector{Float64})
+  @assert length(i) == 2
+  @assert i[1] <= i[2]
+  (X >= i[1]) & (X <= i[2])
+end

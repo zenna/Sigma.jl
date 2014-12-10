@@ -1,9 +1,8 @@
-tests = [
-    "bool",
-    "controlflow",
-    "randvar",
-    "hyperbox"
-    "query"]
+tests = ["bool",
+         "controlflow",
+         "randvar",
+         "hyperbox",
+         "query"]
 
 println("Running tests:")
 
