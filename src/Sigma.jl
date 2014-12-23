@@ -36,6 +36,7 @@ export
 
   Lifted,
   liftedarray,
+  LiftedArray,
 
   # Preimages
   pre_recursive,
@@ -111,15 +112,17 @@ export
   add_KL_church!
 
 include("common.jl")
+include("joins.jl")
 include("domains.jl")
+include("omega.jl")
 include("randvar.jl")
 include("lift.jl")
 include("controlflow.jl")
 include("util.jl")
-include("omega.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
+include("dreal.jl")
 include("relation.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")

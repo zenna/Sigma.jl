@@ -20,11 +20,11 @@
 # TODO
 function shouldstop(niterations, t::WeightedTree)
   if niterations % 1 == 0
-    if niterations > 100000
+    if niterations > 1000000
       warn("Too many iterations - $niterations")
       return true
     end
-    if length(t.nodes) > 10000
+    if length(t.nodes) > 1000000
       warn("Tree is too big $(length(t.nodes)) - will run out of memory")
       return true
     end
@@ -152,7 +152,6 @@ function refinetree!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
     end
   end
 end
-
 
 # Output is a set of abstractions
 # f:X → Y

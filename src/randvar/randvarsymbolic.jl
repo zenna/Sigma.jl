@@ -26,7 +26,7 @@ end
 call(X::RandVarSymbolic, ω) = (compile!(X); X.λ(ω))
 callnocheck(X::RandVarSymbolic, ω) = X.λ(ω)
 
-# Will need to deprecate this in v4.
+# Will need to deprecate this in Julia v4.
 call(f::Function, a) = f(a)
 
 rangetype(X::RandVarSymbolic) = typeof(X).parameters[1]
@@ -57,7 +57,7 @@ convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)
 ast(X::RandVarSymbolic) = X.ast
 
 # Binary functions, with Real output
-for op = (:+, :-, :*, :/, :(==), :!=)
+for op = (:+, :-, :*, :/)
   @eval begin
     function ($op){T1<:Real, T2<:Real}(X::RandVarSymbolic{T1}, Y::RandVarSymbolic{T2})
       let op = $op

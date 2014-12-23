@@ -1,51 +1,8 @@
 ## Interface to dReal non-linear SMT solver
 ## ========================================
 
-id(X::Var) = X.id
-id(x::Int) = x
-id(x::Real) = x
-id(x::Bool) = x
-
-isequal(X::Var, Y::Var) = X.id == Y.id && X.asserts == Y.asserts
-
-# S-Expr in string form
-immutable LispExpr e::ASCIIString end
-
-declare(X::Var) = LispExpr("(declare-fun $(X.id) () $(rangetype(X))")
-
-function asserts(X::Var)
-  declareset = Set{LispExpr}()
-  push!(declareset, declare(X))
-
-  assertset = Set{LispExpr}()
-  for a in X.asserts
-    expandedargs = [id(arg) for arg in fargs(a)]
-    argstring = join(expandedargs," ")
-    push!(assertset, LispExpr("(assert ($(fsymbol(a)) $argstring)"))
-  end
-  declareset, assertset
-end
-
-# Defualt behaviour for non-Vars is to return empty list
-asserts_recursive(X) = Set{LispExpr}(), Set{LispExpr}()
-
-function asserts_recursive(X::Var)
-  declareset, assertset = asserts(X)
-  for a in X.asserts
-    for arg in fargs(a)
-      new_declareset, new_assertset = asserts_recursive(arg)
-      declareset = union(declareset,new_declareset)
-      assertset  = union(assertset, new_assertset)
-    end
-  end
-  declareset, assertset
-end
-
-fsymbol(e::Expr) = e.args[1]
-fargs(e::Expr) = e.args[2:end]
-
-
-
+## Parsing Output of dReal (TODO: Interface directly through API)
+## ==============================================================
 parse_sat_status(satstatus::String) = ["sat" => SAT, "unsat" => UNSAT][strip(satstatus)]
 
 # Parse a floatingpoint/integer from a string
@@ -65,12 +22,12 @@ function parse_model_file(model)
   modeldict
 end
 
-function checksat(program::String)
+function checksatdReal(program::SExpr)
   fname = randstring()
   withext = "$fname.smt2"
   @show withext
   f = open(withext,"w")
-  write(f,program)
+  write(f,program.e)
   close(f)
   satstatus = parse_sat_status(readall(`dReal -model $withext`))
   if satstatus == SAT

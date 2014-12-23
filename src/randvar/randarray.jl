@@ -34,6 +34,7 @@ call{T}(Xs::PureRandArray{T,2}, ω) = [call(Xs.array[i,j],ω) for i = 1:size(Xs.
 ## =====================
 getindex(Xs::PureRandVector, i::Int64) = Xs.array[i]
 getindex(Xs::PureRandMatrix, i::Int64, j::Int64) = Xs.array[i,j]
+getindex(Xs::PureRandMatrix, i::Int64) = ((c,r) = divrem(i-1,size(Xs,1)); Xs.array[r+1,c+1])
 
 setindex!{T}(X::PureRandVector,v::T,i::Int64) = X.array[i] = v
 setindex!{T}(X::PureRandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
@@ -105,6 +106,9 @@ for op = (:+, :-, :*, :/, :&, :|)
       end
     end
 
+    ($op){T,D}(X::PureRandArray{T,D}, Y::Array{T,D}) = ($op)(promote(X,Y)...)
+    ($op){T,D}(X::Array{T,D}, Y::PureRandArray{T,D}) = ($op)(promote(X,Y)...)
+
 #     ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
 #     ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)
   end
@@ -126,6 +130,14 @@ for op = (:(==), :!=, :isapprox)
   end
 end
 
+# Unary Functions
+for op = (:abs,)
+  @eval begin
+  function ($op){T,D}(X::PureRandArray{T,D})
+    PureRandArray{T,D}(map($op,X.array)) #PERF
+  end
+  end
+end
 ## Generators
 ## ==========
 
@@ -144,3 +156,10 @@ function iid(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0
   vector::Vector{RandVarSymbolic{T}} = [constructor(i + offset) for i = 1:nrows]
   PureRandVector{T}(vector)
 end
+
+multivariate_uniform(i::Int, j::Int) = iid(Float64, c->uniform(c,0,1),i,j)
+multivariate_uniform(i::Int) = iid(Float64, c->uniform(c,0,1),i)
+multivariate_normal(i::Int, j::Int) = iid(Float64, c->normal(c,0,1),i,j)
+multivariate_normal(i::Int) = iid(Float64, c->normal(c,0,1),i)
+
+MultivariateNormal

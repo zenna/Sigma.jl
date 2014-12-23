@@ -15,6 +15,7 @@ rangetype(x) = typeof(x)
 
 
 for finame in ["randvarsymbolic.jl",
+               "randvarsmt.jl",
                "randarray.jl",
                "conditionalrandvar.jl",]
     include(joinpath("randvar", finame))

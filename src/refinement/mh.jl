@@ -141,10 +141,10 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #     @show niterations, depth
 
     af = fraction_sat(f,child.data,100)
-#     if niterations % 100 == 0 || af > 0
-#       @show af, depth
-#     end
-#     if af > 0 error("We got a point after $niterations niterations") end
+    if niterations % 100 == 0 || af > 0
+      @show af, depth
+    end
+    if af > 0 error("We got a point after $niterations niterations") end
 
     # Go a level deeper in tree
     depth += 1

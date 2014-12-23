@@ -16,6 +16,8 @@ function getindex{T}(o::Omega{T}, key::Int64)
   end
 end
 
+setindex!{T}(o::Omega{T}, val::Interval, key::Int64) = o.intervals[key] = val
+
 ## Conversion
 ## ===========
 convert(::Type{Vector{Interval}}, o::Omega) = collect(values(o.intervals))
