@@ -130,7 +130,7 @@ end
 
 ## Functions on interval abstraction itself
 ## =======================================
-flip(x::Interval) = Interval(-x.l,-x.u)
+reflect(x::Interval) = Interval(-x.l,-x.u)
 makepos(x::Interval) = Interval(max(x.l,0), max(x.u,0))
 mid(x::Interval) = (x.u - x.l) / 2 + x.l
 
@@ -139,7 +139,7 @@ mid(x::Interval) = (x.u - x.l) / 2 + x.l
 function abs(x::Interval)
   if x.l >= 0.0 && x.u >= 0.0 x
   elseif x.u >= 0.0 Interval(0,max(abs(x.l), abs(x.u)))
-  else makepos(flip(x))
+  else makepos(reflect(x))
   end
 end
 

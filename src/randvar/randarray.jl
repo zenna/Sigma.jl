@@ -106,8 +106,23 @@ for op = (:+, :-, :*, :/, :&, :|)
       end
     end
 
+    # Interop with 'normal arrays' promote them to RandArrays
     ($op){T,D}(X::PureRandArray{T,D}, Y::Array{T,D}) = ($op)(promote(X,Y)...)
     ($op){T,D}(X::Array{T,D}, Y::PureRandArray{T,D}) = ($op)(promote(X,Y)...)
+
+    # Point wise arithmetic against rand variable (first arg)
+    function ($op){T,D,T2<:Real}(Y::RandVar{T2}, X::PureRandArray{T,D})
+      let op = $op
+        PureRandArray{T,D}(map(x->($op)(Y,x), X.array))
+      end
+    end
+
+    # Point wise arithmetic against rand variable (second arg)
+    function ($op){T,D,T2<:Real}(X::PureRandArray{T,D}, Y::RandVar{T2})
+      let op = $op
+        PureRandArray{T,D}(map(x->($op)(x,Y), X.array))
+      end
+    end
 
 #     ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
 #     ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)

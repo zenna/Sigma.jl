@@ -16,11 +16,12 @@ sexpr_parse(e::Expr) = convert(SExpr, e).e
 combine(exprs::Vector{SExpr}) = SExpr(join([expr.e for expr in exprs],"\n"))
 
 function convert(::Type{SExpr}, e::Expr)
+  @assert e.head == :call
   expr_string = [sexpr_parse(a) for a in e.args]
-  @show expr_string
   SExpr("($(join(expr_string, " ")))")
 end
 
+# Add extra SMT2 information to complete program
 function headerfooter(program::Vector{SExpr})
   SExpr[SExpr("(set-logic QF_NRA)"),
         program...,
@@ -39,20 +40,21 @@ function call(X::RandVarSMT{Bool}, ω::Omega)
   # Check both whether there exists a point which satisfies constraints
   satcase = convert(SExpr,:(assert($(X.ast))))
   program = combine(headerfooter([sexprs, satcase]))
-  @show program.e
   issatpoints, model = checksatdReal(program)
 
   # And whether there exists a point which satisfies negation of constraints
   unsatcase = convert(SExpr,:(assert(not($(X.ast)))))
-  program = combine(headerfooter([sexprs, unsatcase]))
-  @show program.e
-  isunsatpoints, model = checksatdReal(program)
+  negprogram = combine(headerfooter([sexprs, unsatcase]))
+  isunsatpoints, model = checksatdReal(negprogram)
 
   # If both are true, return {T,F}
   if (issatpoints == SAT) & (isunsatpoints == SAT) TF
   elseif issatpoints == SAT T
   elseif isunsatpoints == SAT F
-  else error("Query or its negation must be true")
+  else
+    @show program.e
+    @show negprogram.e
+    error("Query or its negation must be true")
   end
 end
 
