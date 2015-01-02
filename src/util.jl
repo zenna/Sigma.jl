@@ -55,3 +55,5 @@ function tomixedboxes(pre)
   mixed =  Sigma.mixedsat_tree_data(pre)
   map(x->convert(Sigma.HyperBox,collect(values(x.intervals))),mixed)
 end
+
+pnormalize{T <: Real}(v::Vector{T}) = (v/sum(v))::Vector{Float64}
