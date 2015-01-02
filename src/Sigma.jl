@@ -1,6 +1,7 @@
 module Sigma
 
 using Distributions
+using JuMP
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -75,6 +76,8 @@ export
   geometric,
   discreteuniform,
   iid,
+
+  dirichlet,
 
   # Relation
   Var,

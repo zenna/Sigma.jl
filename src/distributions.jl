@@ -48,8 +48,48 @@ betarvai(i::Int64,a::Float64,b::Float64) =
   RandVarSymbolic(Float64,:(quantile(Beta($a,$b),ω[$i])))
 betarvai(a,b) = betarvai(genint(),a,b)
 
+# Categorical
 categoricalai(i::Int64,weights::Vector{Float64}) =
-  RandVarSymbolic(Float64,:(quantile(Categorical($weights),ω[$i])))
+  RandVarSymbolic(Int64,:(quantile(Categorical($weights),ω[$i])))
+
+# function solve_quantile_argmin()
+#   for j = 1:n
+#     m = Model()
+
+#     # Weights must be between 0 and 1
+#     @defVar(m, 0 <= x[1:n] <= 1)
+
+#     # Weights are constrained by weight parameter
+#     for i = 1:n
+#       @addConstraint(m, weights[i].l <= x[i] <= weights[i].u)
+#     end
+
+#     # Weights must sum to 1
+#     @addConstraint(m, sum{x[i], i = 1:n} == 1)
+
+#     @addConstraint(m, sum{x[i], i = 1:j} >= p.l)
+#     status = solve(m)
+#     if status == :Optimal
+#       println(getValue(x))
+#       return j
+#     elseif status != :Infeasible
+#       errror("status: $status unexpected")
+#     end
+#   end
+# end
+
+# function quantile_categorical(weights::Vector{Interval}, p::Interval)
+#   # Find min
+#   n = length(weights)
+#   local b_l
+# end
+
+quantile_categorical(weights::Vector{Float64}, p::Float64) =
+  quantile(Categorical(weights), p)
+
+categoricalai{T<:Real}(i::Int64, weights::RandArray{T}) =
+  RandVarSymbolic(Int, :(quantile_categorical(call($weights,ω), ω[$i])))
+
 categoricalai(weights) = categoricalai(genint(),weights)
 
 geometricai(i::Int64,weight::Float64) =
@@ -66,7 +106,7 @@ poissonai(i::Int64,lambda::Float64) =
   RandVarSymbolic(Int64,:(quantile(Poisson($lambda),ω[$i])))
 poissonai(lambda) = poissonai(genint(), lambda)
 
-## Multivariabe Distributions
+## Multivariate Distributions
 ## ==========================
 
 # dirichlet distribution

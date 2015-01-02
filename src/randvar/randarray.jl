@@ -27,8 +27,17 @@ promote_rule{T,N}(::Type{PureRandArray{T,N}}, ::Type{Array{T,N}}) = PureRandArra
 
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
 eltype(Xs::PureRandArray) = rangetype(Xs).parameters[1]
-call{T}(Xs::PureRandArray{T,1}, ω) = [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
-call{T}(Xs::PureRandArray{T,2}, ω) = [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
+call{T}(Xs::PureRandArray{T,1}, ω) =
+  [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
+call{T}(Xs::PureRandArray{T,2}, ω) =
+  [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
+
+# Hacks to return correct type when ω is SampleOmega
+# Julia 0.4 should make this unnecessary due to better type inference
+call{T}(Xs::PureRandArray{T,1}, ω::SampleOmega) =
+  T[call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
+call{T}(Xs::PureRandArray{T,2}, ω::SampleOmega) =
+  T[call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
 ## Array Access/Updating
 ## =====================
@@ -58,6 +67,16 @@ function getindex(Xs::PureRandVector, is::StepRange)
   end
   Ys
 end
+
+## Array Access - Int-RandVar indices
+## ==================================
+
+access{T}(X::PureRandVector{T},i::Int,ω) = call(X[i],ω)
+access{T}(X::PureRandVector{T},i::Interval,ω) =
+  ⊔([call(X[j],ω) for j = int(i.l):int(i.u)])
+
+getindex{T}(Xs::PureRandVector{T}, I::RandVarSymbolic{Int}) =
+  RandVarSymbolic{T}(:(access($Xs,call($I,ω),ω)))
 
 ## Primitive Array Functions
 ## =========================
