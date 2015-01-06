@@ -25,9 +25,11 @@ using Sigma
 
 If you would just like to use Sigma jump to the Basic Usage section.
 To help you understand the theory and mechanics of Sigma, I hope to add a series of IJulia notebooks which describe the various components.
-Be advised: the current list is very incomplete, and within each notebook there are parts still to do:
+
+__Be warned__: the current list is very incomplete, and each notebook is itself incomplete:
 
 [Distributions](http://nbviewer.ipython.org/github/zenna/Sigma.jl/blob/master/notebooks/Distributions.ipynb)
+
 [Sampling](http://nbviewer.ipython.org/github/zenna/Sigma.jl/blob/master/notebooks/Sampling.ipynb)
 
 # Basic Usage
