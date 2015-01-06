@@ -175,6 +175,7 @@ end
 ⊔(a::Interval, b::ConcreteReal) = ⊔(promote(a,b)...)
 ⊔(b::ConcreteReal, a::Interval) = ⊔(promote(b,a)...)
 ⊔(a::Interval) = a
+⊔(a::Vector{Interval}) = reduce(⊔,a)
 
 ## Vector Interop
 ## ==============

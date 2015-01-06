@@ -89,6 +89,7 @@ export
   rand_select,
   sqr,
   ≊,
+  pnormalize,
 
   #Plotting
   loadvis,
