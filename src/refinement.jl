@@ -26,6 +26,7 @@ function checksat(f::Callable, Y, X::Domain)
 end
 
 for finame in ["tree.jl",
+               "split.jl",
                "bfs.jl",
                "mh.jl",
                "rrr.jl",

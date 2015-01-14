@@ -23,7 +23,8 @@ using Sigma
 
 # Usage
 
-If you would just like to use Sigma jump to the Basic Usage section.
+If you would just like to use Sigma jump to the Basic Usage section.  Following that, you can look at the numerous simple examples in the `src/examples` directory.
+
 To help you understand the theory and mechanics of Sigma, I hope to add a series of IJulia notebooks which describe the various components.
 
 __Be warned__: the current list is very incomplete, and each notebook is itself incomplete:

@@ -117,7 +117,7 @@ end
 # An alternative is to have a RandVarSymbolic which
 # Only when called with an omega will do the array computations on abstract values
 # this may be preferable
-for op = (:+, :-, :*, :/, :&, :|)
+for op = (:+, :-, :*, :.*, :/, :&, :|)
   @eval begin
     function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
       let op = $op

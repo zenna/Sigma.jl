@@ -2,7 +2,8 @@ tests = ["bool",
          "controlflow",
          "randvar",
          "hyperbox",
-         "query"]
+         "query",
+         "randvarsmt"]
 
 println("Running tests:")
 

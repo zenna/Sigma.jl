@@ -7,8 +7,8 @@ rand(X::RandVar) = call(X,SampleOmega())
 rand{T}(X::RandVar{T},nsamples::Int) = T[call(X,SampleOmega()) for i= 1:nsamples]
 
 # default aliases
-rand(X::RandVar,Y::RandVar{Bool}) = cond_sample_bfs(X,Y)
-rand(X::RandVar,Y::RandVar{Bool},nsamples::Int) = cond_sample_bfs(X,Y,nsamples)
+rand(X::RandVar,Y::RandVar{Bool};pre_args...) = cond_sample_bfs(X,Y;pre_args...)
+rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,Y,nsamples;pre_args...)
 
 # Catch all
 rangetype(x) = typeof(x)

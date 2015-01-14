@@ -157,7 +157,7 @@ function isinf(x::Interval)
   end
 end
 
-function isapprox(x::Interval, y::Interval; epsilon::Real = 1E-5)
+function isapprox(x::Interval, y::Interval; epsilon::Real = .1)
   ifelse(isinf(x) | isinf(y), x == y, abs(x - y) <= epsilon)
 end
 

@@ -2,6 +2,7 @@ module Sigma
 
 using Distributions
 using JuMP
+using Window
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -116,6 +117,7 @@ export
   add_KL_church!
 
 include("common.jl")
+include("smtsolver.jl")
 include("joins.jl")
 include("domains.jl")
 include("omega.jl")
@@ -126,7 +128,6 @@ include("util.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
-include("dreal.jl")
 include("relation.jl")
 # include("benchmarks/benchmark.jl")
 # include("lazy.jl")
@@ -134,5 +135,6 @@ include("relation.jl")
 # Hack to avoid loading G= adfly each time
 vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
 loadvis() = include(vispath)
+mainmod = ccall(:jl_get_current_module, Any, ())::Module
 
 end

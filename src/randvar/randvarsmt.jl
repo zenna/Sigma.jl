@@ -1,3 +1,8 @@
+## Random Variables with SMT2 representation
+## =========================================
+# RandVarSMT creates a representation which can be directly sent to SMT2 solvers,
+# such as dReal or Z3.
+
 type RandVarSMT{T} <: RandVar{T}
   ast
   assert_gens::Set{Function} # Generate dynamic asserts as function of Omega
@@ -10,7 +15,6 @@ ast(X::RandVarSMT) = X.ast
 gensmtsym(prefix::String) = symbol("$prefix$(genint())")
 
 # A string representation of an S-Expr
-immutable SExpr e::ASCIIString end
 sexpr_parse(e) = string(e)
 sexpr_parse(e::Expr) = convert(SExpr, e).e
 combine(exprs::Vector{SExpr}) = SExpr(join([expr.e for expr in exprs],"\n"))
@@ -21,16 +25,8 @@ function convert(::Type{SExpr}, e::Expr)
   SExpr("($(join(expr_string, " ")))")
 end
 
-# Add extra SMT2 information to complete program
-function headerfooter(program::Vector{SExpr})
-  SExpr[SExpr("(set-logic QF_NRA)"),
-        program...,
-        SExpr("(check-sat)"),
-        SExpr("(exit)")]
-end
-
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega)
+function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = dreal)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -39,13 +35,13 @@ function call(X::RandVarSMT{Bool}, ω::Omega)
 
   # Check both whether there exists a point which satisfies constraints
   satcase = convert(SExpr,:(assert($(X.ast))))
-  program = combine(headerfooter([sexprs, satcase]))
-  issatpoints, model = checksatdReal(program)
+  program = combine(solver.template([sexprs, satcase]))
+  issatpoints, model = solver.checksat(program)
 
   # And whether there exists a point which satisfies negation of constraints
   unsatcase = convert(SExpr,:(assert(not($(X.ast)))))
-  negprogram = combine(headerfooter([sexprs, unsatcase]))
-  isunsatpoints, model = checksatdReal(negprogram)
+  negprogram = combine(solver.template([sexprs, unsatcase]))
+  isunsatpoints, model = solver.checksat(negprogram)
 
   # If both are true, return {T,F}
   if (issatpoints == SAT) & (isunsatpoints == SAT) TF
@@ -80,7 +76,6 @@ end
 
 ## RandVarSMT Arithmetic
 ## =====================
-
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/)
   @eval begin

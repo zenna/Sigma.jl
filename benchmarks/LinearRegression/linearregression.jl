@@ -1,6 +1,11 @@
+## Bayesian Linear Regression
+## ==========================
+
 using Sigma
+using Distributions
 
 Σ_1 = 2 * eye(5,5)
+# Zero mean
 μ = MvNormal(zeros(5), Σ_1)
 Σ_2 = eye(5,5)
 Σ_prior = Wishart(5,Σ_2)

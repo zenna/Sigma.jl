@@ -1,7 +1,5 @@
 ## Metropolis Hastings querying
-
-## TODO:
-## Be able to subdivide parameterised on which dimensions, split_point et
+## ============================
 
 function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
   samples = [rand(o) for i = 1:n]
@@ -11,42 +9,6 @@ function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
 #     end
 #   end
   count(identity, [call(Y,rand(o)) for i = 1:n])/n
-end
-
-## Splitting Strategies
-## ====================
-
-# This splits along all dimensions, ignores the depth
-function weighted_mid_split(o::Omega, depth::Int)
-  splitted = mid_split(o::Omega)
-  transitionprob = 1/length(splitted)
-  [(event, transitionprob) for event in splitted]
-end
-
-# This splits along the 1st dimension in for the first split
-# The second dimension for the second split, then cycles
-function weighted_partial_split(o::Omega, depth::Int)
-  dimindices = collect(keys(o.intervals))
-  ndims = length(dimindices)
-
-  if (depth % length(dimindices)) + 1 > length(dimindices)
-    @show depth
-    @show dimindices
-  end
-
-  dimtosplit = dimindices[(depth % length(dimindices)) + 1]
-  splitted = mid_partial_split(o::Omega, [dimtosplit])
-  transitionprob = 1/length(splitted)
-  [(event, transitionprob) for event in splitted]
-end
-
-# Randomly select a dimension
-function rand_partial_split(o::Omega, depth::Int; ndims = 4)
-  dimindices = collect(keys(o.intervals))
-  randindices = unique([rand_select(dimindices) for i = 1:ndims])
-  splitted = mid_partial_split(o::Omega, randindices)
-  transitionprob = 1/length(splitted)
-  [(event, transitionprob) for event in splitted]
 end
 
 # Add weighted children
@@ -88,79 +50,52 @@ end
 function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
                                   split::Function = rand_partial_split)
   niterations = 0
-  @label restart
+  @label restart # If we reach a spurrious unsat child, jump back here
   node::Node{D} = root(t)
   depth = 0
   logq = 0.0 # == log(1.0)
 
-
   @label start
   niterations += 1
 
-  if niterations % 100 == 0
-    if niterations > 40000
-      error("Too many iterations")
-    end
-#     @show length(t.nodes)
-#     @show niterations
-    if length(t.nodes) > 100000
-      error("Tree is too big - will run out of memory")
-    end
-  end
+  window(:pre_refine, niterations, t)
 
-  if node.status == SAT
+  if node.status == SAT # Condition is certain
     @show "stopped at initial sat"
     return node.data, logq
-  elseif node.status == PARTIALSAT
+  elseif node.status == PARTIALSAT # Condition is certain
     # Add children if none there
     children = if !has_children(t,node) add_children!(f, Y, t, node, depth, split)
-              else getchildren(t,node) end
+               else getchildren(t,node) end
 
-    # Start again
+    # Start again if a node has no children
     if isempty(children)
-#       @show "children empty, starting again at root"
+      @show "children empty, starting again at root"
       node = root(t)
       @goto restart
     end
 
-#     children = getchildren(t,node)
     # FIXME: HANDLE Case all children are unsat!
     transitionprobs = Float64[child[2] for child in children]
     @assert isapprox(sum(transitionprobs),1.0)
 
-    # sample a PARTIALSAT / SAT child
+    # Sample a PARTIALSAT / SAT child
     # PERF: Instead of recreating this categorical, each iteration, store it!
     cindex = rand(Categorical(transitionprobs))
     childid, q = children[cindex]
     child = node_from_id(t, childid)
-#     @show length(children)
-#     @show child
-#     @show cindex
-#     @show child.data
-#     @show measure(child.data)
-#     @show niterations, depth
-
-    af = fraction_sat(f,child.data,100)
-    if niterations % 100 == 0 || af > 0
-      @show af, depth
-    end
-    if af > 0 error("We got a point after $niterations niterations") end
 
     # Go a level deeper in tree
     depth += 1
     logq += log(q)
-#     if depth > 0
-#       @show length(children)
-#       @show depth, child.status
-#       @show child.data
-#     end
+    window(:pre_child_expand, child, depth, length, child, niterations)
 
     if child.status == SAT
-      @show "Found SAT child"
+#       @show "Found SAT child"
       return child.data, logq
     elseif child.status == PARTIALSAT
-      node = child
 #       @show "Found PARTIALSAT"
+      node = child
       @goto start
     elseif child.status == UNSAT
       @unexpected
@@ -199,10 +134,7 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
       logq = nextlogq
     end
 
-    println("naccepted = $naccepted, nsteps = $(nsteps +1) ratio: $(naccepted/(nsteps+1))")
-
-    # Statistics
-#     if nsteps % 50 == 1
+    window(:post_accept,naccepted,nsteps,box,logp,logq)
 
     # Store current state every stepspersample-th timestep
     if nsteps % stepspersample == 0
@@ -212,3 +144,31 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
   end
   boxes
 end
+
+## Filters
+## =======
+
+mh_stats(naccepted, nsteps, box, logp, logq) =
+  println("naccepted = $naccepted, nsteps = $(nsteps +1) ratio: $(naccepted/(nsteps+1))")
+
+function check_bounds(niterations::Int, t::Tree)
+  if niterations % 100 == 0
+    if niterations > 40000
+      error("Too many iterations")
+    end
+    if length(t.nodes) > 100000
+      error("Tree is too big - will run out of memory")
+    end
+  end
+end
+
+function check_samples()
+  af = fraction_sat(f,child.data,100)
+  if niterations % 100 == 0 || af > 0
+    @show af, depth
+  end
+  if af > 0 error("We got a point after $niterations niterations") end
+end
+
+register!(:post_accept, :mh_stats, mh_stats)
+register!(:pre_refine, :check_bounds, check_bounds)
