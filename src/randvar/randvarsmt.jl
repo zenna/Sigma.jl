@@ -26,7 +26,7 @@ function convert(::Type{SExpr}, e::Expr)
 end
 
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = dreal)
+function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -36,12 +36,12 @@ function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = dreal)
   # Check both whether there exists a point which satisfies constraints
   satcase = convert(SExpr,:(assert($(X.ast))))
   program = combine(solver.template([sexprs, satcase]))
-  issatpoints, model = solver.checksat(program)
+  issatpoints = solver.checksat(program)
 
   # And whether there exists a point which satisfies negation of constraints
   unsatcase = convert(SExpr,:(assert(not($(X.ast)))))
   negprogram = combine(solver.template([sexprs, unsatcase]))
-  isunsatpoints, model = solver.checksat(negprogram)
+  isunsatpoints = solver.checksat(negprogram)
 
   # If both are true, return {T,F}
   if (issatpoints == SAT) & (isunsatpoints == SAT) TF

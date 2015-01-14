@@ -38,6 +38,17 @@ function checksat(program::SExpr)
   f = open(withext,"w")
   write(f,program.e)
   close(f)
+  satstatus = parse_sat_status(readall(`dReal $withext`))
+  rm(withext)
+  satstatus
+end
+
+function checksat_with_model(program::SExpr)
+  fname = randstring()
+  withext = "$fname.smt2"
+  f = open(withext,"w")
+  write(f,program.e)
+  close(f)
   satstatus = parse_sat_status(readall(`dReal -model $withext`))
   rm(withext)
   if satstatus == SAT
