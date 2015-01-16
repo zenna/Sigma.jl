@@ -25,6 +25,18 @@ function convert(::Type{SExpr}, e::Expr)
   SExpr("($(join(expr_string, " ")))")
 end
 
+# (Mostly) To visualise the expression to be sent to solver
+function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = z3)
+  # Generate Variable Names
+  sexprs = SExpr[]
+  for gen in X.assert_gens
+    [push!(sexprs, e) for e in gen(ω)]
+  end
+
+  satcase = convert(SExpr,:(assert($(X.ast))))
+  combine(solver.template([sexprs, satcase]))
+end
+
 # Will need to instantiate ω values
 function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3)
   # Generate Variable Names
@@ -76,7 +88,7 @@ end
 
 ## RandVarSMT Arithmetic
 ## =====================
-# Binary functions, with Real output
+# Real × Real -> Real
 for op = (:+, :-, :*, :/)
   @eval begin
     function ($op){T1<:Real, T2<:Real}(X::RandVarSMT{T1}, Y::RandVarSMT{T2})
@@ -87,7 +99,42 @@ for op = (:+, :-, :*, :/)
                             union(X.dims, Y.dims))
       end
     end
+
+    function ($op){T1<:Real, T2<:Real}(X::RandVarSMT{T1}, c::T2)
+      let op = $op
+        RETURNT = promote_type(T1, T2)
+        newast = :($op($(ast(X)),$c))
+        RandVarSMT{RETURNT}(newast, X.assert_gens,X.dims)
+      end
+    end
+
+    function ($op){T1<:Real, T2<:Real}(c::T1, X::RandVarSMT{T2})
+      let op = $op
+        RETURNT = promote_type(T1, T2)
+        newast = :($op($c,$(ast(X))))
+        RandVarSMT{RETURNT}(newast, X.assert_gens,X.dims)
+      end
+    end
   end
+end
+
+for op = (:abs,)
+  @eval begin
+    function ($op){T1<:Real}(X::RandVarSMT{T1})
+      let op = $op
+        newast = :($op($(ast(X))))
+        RandVarSMT{T1}(newast, X.assert_gens,X.dims)
+      end
+    end
+  end
+end
+
+# Map between Julia functions and smt2 symbol representation
+function julia2smt(x::Function)
+  julia2smts = Dict([(&) => :and, (|) => :or, (!) => :not, (==) => :(=),
+                     (>) => :>, (>=) => :>=, (<) => :<, (<=) => :<=,
+                     isapprox => :isapprox])
+  julia2smts[x]
 end
 
 # Real × Real -> Bool
@@ -95,9 +142,50 @@ for op = (:>, :>=, :<=, :<, :(==), :!=, :isapprox)
   @eval begin
     function ($op){T1<:Real, T2<:Real}(X::RandVarSMT{T1}, Y::RandVarSMT{T2})
       let op = $op
-        newast = :($op($(ast(X)),$(ast(Y))))
+        newast = :($(julia2smt(op))($(ast(X)),$(ast(Y))))
         RandVarSMT{Bool}(newast, union(X.assert_gens, Y.assert_gens),
                                  union(X.dims, Y.dims))
+      end
+    end
+
+    function ($op){T1<:Real, T2<:Real}(X::RandVarSMT{T1}, c::T2)
+      let op = $op
+        newast = :($(julia2smt(op))($(ast(X)),$c))
+        RandVarSMT{Bool}(newast, X.assert_gens,X.dims)
+      end
+    end
+
+    function ($op){T1<:Real, T2<:Real}(c::T1, X::RandVarSMT{T2})
+      let op = $op
+        newast = :($(julia2smt(op))($c,$(ast(X))))
+        RandVarSMT{Bool}(newast, X.assert_gens,X.dims)
+      end
+    end
+  end
+end
+
+# Real × Real -> Bool
+for op = (:&, :|)
+  @eval begin
+    function ($op)(X::RandVarSMT{Bool}, Y::RandVarSMT{Bool})
+      let op = $op
+        newast = :($(julia2smt(op))($(ast(X)),$(ast(Y))))
+        RandVarSMT{Bool}(newast, union(X.assert_gens, Y.assert_gens),
+                                 union(X.dims, Y.dims))
+      end
+    end
+
+    function ($op)(X::RandVarSMT{Bool}, c::Bool)
+      let op = $op
+        newast = :($(julia2smt(op))($(ast(X)),$c))
+        RandVarSMT{Bool}(newast, X.assert_gens,X.dims)
+      end
+    end
+
+    function ($op)(c::Bool, X::RandVarSMT{Bool})
+      let op = $op
+        newast = :($(julia2smt(op))($c,$(ast(X))))
+        RandVarSMT{Bool}(newast, X.assert_gens,X.dims)
       end
     end
   end

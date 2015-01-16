@@ -109,7 +109,7 @@ export
   parse_output,
   run_church,
   stat_line_layer,
-    stat_ribbon_layer,
+  stat_ribbon_layer,
   stat_errorbar_layer,
   plot_cond_performance,
   plot_prob_performance,
@@ -129,8 +129,6 @@ include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
 include("relation.jl")
-# include("benchmarks/benchmark.jl")
-# include("lazy.jl")
 
 # Hack to avoid loading G= adfly each time
 vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")

@@ -27,6 +27,8 @@ function add_children!(f::Callable, Y, t::WeightedTree, node::Node, depth::Int, 
     end
   end
 
+  window(:post_child_split, node, children, childnodes, f)
+
   # rescale the weights to account for fact that UNSAT are removed
   pnormalize!(weights)
 
@@ -88,7 +90,7 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
     # Go a level deeper in tree
     depth += 1
     logq += log(q)
-    window(:pre_child_expand, child, depth, length, child, niterations)
+    window(:pre_child_expand, child, depth, length, child, niterations, node)
 
     if child.status == SAT
 #       @show "Found SAT child"
@@ -172,3 +174,17 @@ end
 
 register!(:post_accept, :mh_stats, mh_stats)
 register!(:pre_refine, :check_bounds, check_bounds)
+
+function why_z3_imprecise(node, children, childnodes, f)
+  if length(childnodes) == 0
+    println("node expression")
+    print(convert(SExpr, f, node.data).e)
+    println("\n $(length(children)) Children")
+    for child in children
+      println("\n\nChild")
+      print(convert(SExpr, f, child[1]).e)
+    end
+  end
+end
+
+register!(:post_child_split, :z3, why_z3_imprecise)
