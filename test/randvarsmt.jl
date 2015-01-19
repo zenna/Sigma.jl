@@ -10,7 +10,7 @@ using Base.Test
 ## Bayesian Linear Regresion
 ## =========================
 
-ndatapoints = 5
+ndatapoints = 2
 xs = rand(ndatapoints)*10
 ys = [2*x + 0.5 + rand(Distributions.Uniform(0,1)) for x in xs]
 # plot(x = xs, y = ys)
@@ -24,6 +24,10 @@ for i = 1:length(xs)
   observations &= t([xs[i],1.0],weights) ≊ ys[i]
 end
 
-cond_sample_mh(weights[1],observations,10)
+ndims(observations)
 
-rand(weights[1],observations)
+@time Sigma.pre_tlmh(observations, T, Omega())
+
+# cond_sample_mh(weights[1],observations,10)
+# @show prob(observations)
+# rand(weights[1],observations)
