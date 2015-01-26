@@ -12,8 +12,8 @@ function prob_bfs(X::RandVar{Bool}; pre_args...)
 end
 
 function cond_prob_bfs(X::RandVar{Bool}, Y::RandVar{Bool}; pre_args...)
-  XYsatsets, XYmixedsets = pre_bfs(X & Y, T, Omega(), pre_args...)
-  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(), pre_args...)
+  XYsatsets, XYmixedsets = pre_bfs(X & Y, T, Omega(); pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
   prob_bounds(XYsatsets, XYmixedsets) / prob_bounds(Ysatsets, Ymixedsets)
 end
 
