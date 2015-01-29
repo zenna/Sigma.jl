@@ -38,7 +38,7 @@ function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = z3)
 end
 
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3)
+function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = dreal)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -203,3 +203,10 @@ function normalsmt(i::Int64,μ::Real,σ::Real)
              Set([ω->normalasserts(o,i,name,Normal(μ,σ))]),
              Set(i))
 end
+
+## ===========================
+## Printing
+string(x::RandVarSMT{Bool}) = convert(SExpr, s, Omega()).e
+print(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
+show(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
+showcompact(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))

@@ -1,28 +1,28 @@
 import Base.eltype
 import Base.size
 
-type PureRandArray{T,N} <: RandVar{Array{T,N}}
-  array::Array{RandVarSymbolic{T},N}
+type PureRandArray{T,N,R <: RandVar} <: RandVar{Array{T,N}}
+  array::Array{R,N}
 end
 
-typealias PureRandVector{T} PureRandArray{T,1}
-typealias PureRandMatrix{T} PureRandArray{T,2}
+typealias PureRandVector{T,R} PureRandArray{T,1,R}
+typealias PureRandMatrix{T,R} PureRandArray{T,2,R}
 
 ## Constructors
 ## ============
-PureRandArray{T,N}(xs::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(xs)
+rangetype{R<:RandVar}(xs::Array{R}) = rangetype(eltype(xs))
+PureRandArray{R<:RandVar,N}(xs::Array{R,N}) = PureRandArray{rangetype(xs),N,R}(xs)
 PureRandArray(T::DataType, nrows::Int64) =
-  PureRandArray{T,1}(Array(RandVarSymbolic{T},nrows))
+  PureRandArray{T,1}(Array(RandVar{T},nrows))
 PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
-  PureRandArray{T,2}(Array(RandVarSymbolic{T},nrows,ncols))
+  PureRandArray{T,2}(Array(RandVar{T},nrows,ncols))
 
 ## Conversion
 ## ==========
-convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
-convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
-
-convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{T,N}) =
-  PureRandArray{T,N}(map(a->convert(RandVarSymbolic{T},a),A))
+# convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
+# convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
+# convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{T,N}) =
+#   PureRandArray{T,N}(map(a->convert(RandVarSymbolic{T},a),A))
 promote_rule{T,N}(::Type{PureRandArray{T,N}}, ::Type{Array{T,N}}) = PureRandArray{T,N}
 
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
@@ -71,12 +71,20 @@ end
 ## Array Access - Int-RandVar indices
 ## ==================================
 
-access{T}(X::PureRandVector{T},i::Int,ω) = call(X[i],ω)
-access{T}(X::PureRandVector{T},i::Interval,ω) =
-  ⊔([call(X[j],ω) for j = int(i.l):int(i.u)])
+# access{T}(X::PureRandVector{T},i::Int,ω) = call(X[i],ω)
+# access{T}(X::PureRandVector{T},i::Interval,ω) =
+#   ⊔([call(X[j],ω) for j = int(i.l):int(i.u)])
 
-getindex{T}(Xs::PureRandVector{T}, I::RandVarSymbolic{Int}) =
-  RandVarSymbolic{T}(:(access($Xs,call($I,ω),ω)))
+# getindex{T}(Xs::PureRandVector{T}, I::RandVarSymbolic{Int}) =
+#   RandVarSymbolic{T}(:(access($Xs,call($I,ω),ω)))
+
+## Iteration
+import Base.start
+import Base.next
+import Base.done
+start(PureRandArray) = start(PureRandArray.array)
+next(PureRandArray, state) = next(PureRandArray.array, state)
+done(PureRandArray, state) = done(PureRandArray.array, state)
 
 ## Primitive Array Functions
 ## =========================
@@ -85,8 +93,9 @@ getindex{T}(Xs::PureRandVector{T}, I::RandVarSymbolic{Int}) =
 sum{T}(Xs::PureRandArray{T}, ω) = sum(call(Xs,ω))
 #   sum(map(x->call(x,ω), Xs.array))
 
-
-sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
+sum{T,N,R<:RandVarSymbolic}(Xs::PureRandArray{T,N,R}) =
+  RandVarSymbolic(T,:(sum($Xs,ω)))
+# sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
 
 # In principle length(Xs) should return a Int-RandVar, but until
 # we support indexing on integer random variables it makes things hard
@@ -97,17 +106,17 @@ size(Xs::PureRandArray) = size(Xs.array)
 size(Xs::PureRandArray,i::Int) = size(Xs.array, i)
 
 # PERF: use list comprehensions for speed
-function rand{T,N}(Xs::PureRandArray{T,N})
+function rand{T,N,R<:RandVarSymbolic}(Xs::PureRandArray{T,N,R})
   ret::Array{T,N} = call(Xs,SampleOmega())
   return ret
 end
 
 ## Complex Array Functions
 ## =======================
-function dot(A::PureRandVector,B::PureRandVector)
+function dot{T,R}(A::PureRandVector{T,R},B::PureRandVector{T,R})
   @assert length(A.array) == length(B.array)
   array = [A.array[i] * B.array[i] for i = 1:length(A.array)]
-  sum(array)::RandVarSymbolic{Float64}
+  sum(array)::R{Float64}
 end
 
 ## Arithmetic
@@ -178,22 +187,28 @@ end
 # Creates a RandArray where each element is returned by unary constructor
 # constructor expects integer arg, should correspond to component of ω, e.g. i->uniform(i,0.,1.)
 # i values start at offset + 1
-function iid(T::DataType, constructor::Function,
+function iidai(T::DataType, constructor::Function,
              nrows::Int64, ncols::Int64; offset::Int64 = 0)
   array::Array{RandVarSymbolic{T}} = [constructor(i+(j-1)*(nrows) + offset)
                                       for i = 1:nrows, j = 1:ncols]
-  PureRandArray{T,2}(array)
+  PureRandArray{T,2,RandVarSymbolic{T}}(array)
 end
 
 ## Create an iid vector
-function iid(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
+function iidai(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
   vector::Vector{RandVarSymbolic{T}} = [constructor(i + offset) for i = 1:nrows]
-  PureRandVector{T}(vector)
+  PureRandVector{T,RandVarSymbolic{T}}(vector)
 end
 
-multivariate_uniform(i::Int, j::Int) = iid(Float64, c->uniform(c,0,1),i,j)
-multivariate_uniform(i::Int) = iid(Float64, c->uniform(c,0,1),i)
-multivariate_normal(i::Int, j::Int) = iid(Float64, c->normal(c,0,1),i,j)
-multivariate_normal(i::Int) = iid(Float64, c->normal(c,0,1),i)
+function iidsmt(T::DataType, constructor::Function,
+             nrows::Int64, ncols::Int64; offset::Int64 = 0)
+  array::Array{RandVarSMT{T}} = [constructor(i+(j-1)*(nrows) + offset)
+                                      for i = 1:nrows, j = 1:ncols]
+  PureRandArray{T,2,RandVarSMT{T}}(array)
+end
 
-MultivariateNormal
+## Create an iid vector
+function iidsmt(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
+  vector::Vector{RandVarSMT{T}} = [constructor(i + offset) for i = 1:nrows]
+  PureRandVector{T,RandVarSMT{T}}(vector)
+end

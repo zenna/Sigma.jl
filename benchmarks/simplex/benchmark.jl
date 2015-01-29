@@ -8,9 +8,6 @@ using Window
 using Sigma
 using DataStructures
 
-mvuniform(a,b,n,p) = PureRandArray(RandVarSymbolic{Float64}[uniform(a,b) for i = 1:n, j =p])
-mvuniform(a,b,n) = PureRandArray(RandVarSymbolic{Float64}[uniform(a,b) for i = 1:n])
-
 # The vertex coordinates for an ndim simplex
 # From http://people.sc.fsu.edu/~jburkardt/m_src/simplex_coordinates/
 function simplex_coordinates(n::Int)
@@ -84,6 +81,9 @@ function benchmark(a::SigmaAI, b::SimplexBenchmark)
   b
 end
 
+B = simplex(4)
+
+# smtdistributions!()
 
 ## Do Benchmarking
 ## ==============

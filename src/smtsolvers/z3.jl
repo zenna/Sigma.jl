@@ -30,7 +30,7 @@ function checksat_z3(program::SExpr)
   try
     satstatus = parse_sat_status_z3(readall(`z3 $withext`))
   catch
-    @show program.e
+    print(program.e)
     error("Solver failed")
   end
   rm(withext)

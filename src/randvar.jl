@@ -10,8 +10,8 @@ rand{T}(X::RandVar{T},nsamples::Int) = T[call(X,SampleOmega()) for i= 1:nsamples
 rand(X::RandVar,Y::RandVar{Bool};pre_args...) = cond_sample_bfs(X,Y;pre_args...)
 rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,Y,nsamples;pre_args...)
 
-# Catch all
-rangetype(x) = typeof(x)
+rangetype{T<:RandVar}(::Type{T}) = T.parameters[1]
+rangetype(x) = typeof(x) # Catch all (TODO: Why does this exist?)
 
 
 for finame in ["randvarsymbolic.jl",
