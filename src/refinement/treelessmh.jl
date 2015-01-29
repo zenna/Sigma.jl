@@ -9,7 +9,7 @@
 
 # Proposes a box using refinement (without storing tree). # f:X → Y
 function proposebox_tl{D <: Domain}(f::Callable, Y, X::D, split::Function = rand_partial_split)
-  @show myid()
+#   @show myid()
   niters = 0 ; depth = 0 ; logq = 0.0 # == log(1.0)
   A::D = X
   status = checksat(f,Y,X)
@@ -77,4 +77,10 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D; niters = 100)
     nsteps += 1
   end
   boxes
+end
+
+function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
+  Ypresamples = pre_tlmh(Y,T,Omega();niters = nsamples, pre_args...)
+  r = rand(Ypresamples[1])
+  [call(X, rand(i)) for i in Ypresamples]
 end

@@ -45,20 +45,6 @@ function simplex(n::Int)
   box,(|)(conds...)
 end
 
-## Sanity check
-# model, condition = simplex(2)
-# samples = rand(model,condition, 1000)
-# xs = [s[1] for s in samples]
-# ys = [s[2] for s in samples]
-# plot(x = xs, y = ys)
-
-immutable SimplexBenchmark # <: Benchmark
-  ndims::Int
-end
-
-# KL Divergence
-KL{T}(P::Dict{T, Float64}, Q::Dict{T, Float64}) = sum([log(P[i]/Q[i]) * P[i] for i in keys(P)])
-
 # From a set of samples compute discrete distribution over the vertices
 function vertex_distribution(samples,n)
   vertexcoords = simplex_coordinates(n)
@@ -74,24 +60,42 @@ function vertex_distribution(samples,n)
   counts
 end
 
-function benchmark(b::SimplexBenchmark)
+## Algorithms
+## ==========
+immutable SimplexBenchmark <: Benchmark
+  ndims::Int
+  capture::Vector{Symbol}
+end
+
+function benchmark(a::SigmaAI, b::SimplexBenchmark)
+  global benchmarks
+  captures::Vector{Symbol} = vcat(a.capture,b.capture)
+  Window.register_benchmarks!(captures)
+
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
   model, condition = simplex(b.ndims)
-  samples = rand(model,condition, 1000)
+  samples = a.sampler(model,condition, 1000)
 
-  sample_counts = vertex_distribution(samples,b.ndims)
-  sample_distribution = [i => c/length(samples) for (i,c) in sample_counts]
-  @show groundtruth, sample_distribution
-  @show KL(groundtruth, sample_distribution)
+  window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth))
+    @show vertex_distribution(samples,b.ndims)
+  Window.disable_benchmarks!(captures)
+  b = benchmarks
+  Window.clear_benchmarks!()
+  b
 end
+
 
 ## Do Benchmarking
 ## ==============
-disable_all_filters!()
-b = SimplexBenchmark(3)
-benchmark(b)
+# using Gadfly
+# disable_all_filters!()
+# test_sigma1 = SigmaAI([],rand,1,sqr)
+# test_sigma2 = SigmaAI([],cond_sample_mh,1,sqr)
+# test_sigma3 = SigmaAI([],Sigma.cond_sample_tlmh,1,sqr)
 
-
-plot(y = [benchmark(SimplexBenchmark(i)) for i = 2:8], x = 2:10, Geom.line)
-# Measure KL divergence from true distribution
-#
+# test_benchmark = SimplexBenchmark(20,[:sample_distribution, :accumulative_KL])
+# # p1  = benchmark(test_sigma1, test_benchmark)
+# # p2  = benchmark(test_sigma2, test_benchmark)
+# p3  = benchmark(test_sigma3, test_benchmark)
+# plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),
+#      layer(y = p3[:accumulative_KL][1], x = 1:1000, Geom.line))
