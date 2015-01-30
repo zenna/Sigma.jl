@@ -15,6 +15,7 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D, split::Function = rand
   status = checksat(f,Y,X)
   while niters <= 1E5
     if status == SAT
+      window(:refinement_depth, depth)
       return A, logq
     elseif status == PARTIALSAT
       children::Vector{(Domain,Float64)} = split(A, depth)
@@ -56,7 +57,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D; niters = 100)
   stack = (D,Float64)[] #For parallelism
 
   naccepted = 0; nsteps = 0
-  while nsteps < niters
+  while nsteps < niters - 1
     window(:start_loop,time_ns())
     nextbox, nextlogq = proposebox_tl(f,Y,X)
 #     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack)

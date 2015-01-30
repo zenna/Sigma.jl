@@ -121,7 +121,7 @@ function pre_mh{D <: Domain} (f::Callable, Y, X::D; max_iters = 100, stepspersam
 
   naccepted = 0
   nsteps = 0
-  while nsteps < max_iters
+  while nsteps < max_iters - 1
     nextbox, nextlogq = proposebox!(f,Y,X,t)
     nextlogp = logmeasure(nextbox)
 

@@ -32,8 +32,7 @@ function point_near_region(p, region, halfwidth)
 end
 
 # Constrain a point to be within a region around the vertices of a simplex
-function simplex(n::Int)
-  box = mvuniform(-2,2,n)
+function simplex(n::Int, box)
   vertexcoords = simplex_coordinates(n)
   conds = RandVar{Bool}[]
   for i = 1:n+1
@@ -41,6 +40,9 @@ function simplex(n::Int)
   end
   box,(|)(conds...)
 end
+
+# Constrain a point to be within a region around the vertices of a simplex
+simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
 
 # From a set of samples compute discrete distribution over the vertices
 function vertex_distribution(samples,n)
@@ -65,18 +67,19 @@ immutable SimplexBenchmark <: Benchmark
   capture::Vector{Symbol}
 end
 
-function benchmark(a::SigmaAI, b::SimplexBenchmark)
+function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
+  Window.clear_benchmarks!()
   global benchmarks
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
   Window.register_benchmarks!(captures)
 
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
 
-  value, Δt, Δb, Δgc = @timed(simplex(b.ndims))
+  value, Δt, Δb, Δgc = @timed(simplex(b.ndims, m))
   model, condition = value
 
-  samples = a.sampler(model,condition, 10)
-
+  samples = a.sampler(model,condition, 1000)
+  @show length(samples)
   #Windows
   window(:total_time, Δt)
   window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth))
@@ -86,6 +89,38 @@ function benchmark(a::SigmaAI, b::SimplexBenchmark)
   @show samples
   copy(Window.benchmarks)
 end
+
+benchmark(a::SigmaAI, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
+benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformsmt(-2,2,b.ndims), b)
+
+## Do Benchmarking
+## ==============
+# using Gadfly
+# disable_all_filters!()
+# test_sigma1 = SigmaAI([],rand,1,sqr)
+
+mh_captures = [:start_loop, :refinement_depth]
+ai1 = SigmaAI(mh_captures,Sigma.cond_sample_tlmh,1,weighted_mid_split)
+smt1 = SigmaSMT(mh_captures,dreal,Sigma.cond_sample_tlmh,1,weighted_mid_split)
+b1 = SimplexBenchmark(5,[:sample_distribution, :accumulative_KL, :total_time,])
+
+res = benchmark(ai1, b1)
+plot(x = int(res[:refinement_depth]), Geom.histogram)
+
+b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])
+res = benchmark(ai1, b1)
+plot(x = int(res[:refinement_depth]), Geom.histogram)
+
+
+
+## Plotting
+## ========
+
+# p3  = benchmark(test_sigma3, test_benchmark)
+# plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),
+#      layer(y = p3[:accumulative_KL][1], x = 1:1000, Geom.line))
+# methods(check_bounds)
+
 # TODO
 # 1. Get out times
 # - Absolute runtime
@@ -98,24 +133,3 @@ end
 # B = simplex(3)[2]
 # prob(B)
 # # smtdistributions!()
-
-## Do Benchmarking
-## ==============
-# using Gadfly
-# disable_all_filters!()
-# test_sigma1 = SigmaAI([],rand,1,sqr)
-test_sigma2 = SigmaAI([],Sigma.cond_sample_tlmh,1,sqr)
-# test_sigma3 = SigmaAI([],Sigma.cond_sample_tlmh,1,sqr)
-
-test_benchmark = SimplexBenchmark(3,[:sample_distribution, :accumulative_KL, :start_loop, :total_time])
-# # p1  = benchmark(test_sigma1, test_benchmark)
-p2  = benchmark(test_sigma2, test_benchmark)
-# p2
-# clear_all_filters!()
-# Window.clear_benchmarks!()
-# clear_
-# Window.window_to_filters
-# p3  = benchmark(test_sigma3, test_benchmark)
-# plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),
-#      layer(y = p3[:accumulative_KL][1], x = 1:1000, Geom.line))
-# methods(check_bounds)

@@ -2,11 +2,6 @@
 using Sigma
 using Window
 
-include("solvers.jl")
-for dirname in ["simplex"]
-    include(joinpath(dirname, "benchmark.jl"))
-end
-
 ## Measures
 ## =======
 # KL Divergence is a measure of the information lost when Q is used to approximate P
@@ -111,4 +106,9 @@ function add_KL_church!(stats, groundtruth::Dict)
     s["kl"] = kl
   end
   stats
+end
+
+include("solvers.jl")
+for dirname in ["simplex"]
+    include(joinpath(dirname, "benchmark.jl"))
 end

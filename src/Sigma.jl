@@ -132,6 +132,9 @@ include("query.jl")
 include("distributions.jl")
 include("relation.jl")
 
+# Benchmarks
+include("benchmarks/benchmarks.jl")
+
 # Hack to avoid loading G= adfly each time
 vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
 loadvis() = include(vispath)
