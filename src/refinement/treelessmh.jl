@@ -57,8 +57,9 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D; niters = 100)
 
   naccepted = 0; nsteps = 0
   while nsteps < niters
-#     nextbox, nextlogq = proposebox_tl(f,Y,X)
-    nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack)
+    window(:start_loop,time_ns())
+    nextbox, nextlogq = proposebox_tl(f,Y,X)
+#     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack)
     nextlogp = logmeasure(nextbox)
 
     loga = nextlogp + logq - logp - nextlogq

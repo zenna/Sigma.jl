@@ -79,6 +79,8 @@ export
   iid,
 
   dirichlet,
+  mvnormal,
+  mvuniform,
 
   # Relation
   Var,

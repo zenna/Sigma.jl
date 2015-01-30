@@ -57,6 +57,7 @@ function vertex_distribution(samples,n)
   counts
 end
 
+value, Δt, Δb, Δgc = @timed(1+1)
 ## Algorithms
 ## ==========
 immutable SimplexBenchmark <: Benchmark
@@ -70,32 +71,51 @@ function benchmark(a::SigmaAI, b::SimplexBenchmark)
   Window.register_benchmarks!(captures)
 
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
-  model, condition = simplex(b.ndims)
-  samples = a.sampler(model,condition, 1000)
 
+  value, Δt, Δb, Δgc = @timed(simplex(b.ndims))
+  model, condition = value
+
+  samples = a.sampler(model,condition, 10)
+
+  #Windows
+  window(:total_time, Δt)
   window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth))
-    @show vertex_distribution(samples,b.ndims)
+
+  # cleanup
   Window.disable_benchmarks!(captures)
-  b = benchmarks
-  Window.clear_benchmarks!()
-  b
+  @show samples
+  copy(Window.benchmarks)
 end
+# TODO
+# 1. Get out times
+# - Absolute runtime
+# - Time per sample
 
-B = simplex(4)
+# 2. Do plotting
 
-# smtdistributions!()
+# 3. Add timeout and exception handling
+
+# B = simplex(3)[2]
+# prob(B)
+# # smtdistributions!()
 
 ## Do Benchmarking
 ## ==============
 # using Gadfly
 # disable_all_filters!()
 # test_sigma1 = SigmaAI([],rand,1,sqr)
-# test_sigma2 = SigmaAI([],cond_sample_mh,1,sqr)
+test_sigma2 = SigmaAI([],Sigma.cond_sample_tlmh,1,sqr)
 # test_sigma3 = SigmaAI([],Sigma.cond_sample_tlmh,1,sqr)
 
-# test_benchmark = SimplexBenchmark(20,[:sample_distribution, :accumulative_KL])
+test_benchmark = SimplexBenchmark(3,[:sample_distribution, :accumulative_KL, :start_loop, :total_time])
 # # p1  = benchmark(test_sigma1, test_benchmark)
-# # p2  = benchmark(test_sigma2, test_benchmark)
+p2  = benchmark(test_sigma2, test_benchmark)
+# p2
+# clear_all_filters!()
+# Window.clear_benchmarks!()
+# clear_
+# Window.window_to_filters
 # p3  = benchmark(test_sigma3, test_benchmark)
 # plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),
 #      layer(y = p3[:accumulative_KL][1], x = 1:1000, Geom.line))
+# methods(check_bounds)
