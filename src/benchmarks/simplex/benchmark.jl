@@ -99,17 +99,16 @@ benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformsmt(-
 # disable_all_filters!()
 # test_sigma1 = SigmaAI([],rand,1,sqr)
 
-mh_captures = [:start_loop, :refinement_depth]
-ai1 = SigmaAI(mh_captures,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-smt1 = SigmaSMT(mh_captures,dreal,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-b1 = SimplexBenchmark(5,[:sample_distribution, :accumulative_KL, :total_time,])
+# mh_captures = [:start_loop, :refinement_depth]
+# ai1 = SigmaAI(mh_captures,Sigma.cond_sample_tlmh,1,weighted_mid_split)
+# smt1 = SigmaSMT(mh_captures,dreal,Sigma.cond_sample_tlmh,1,weighted_mid_split)
+# b1 = SimplexBenchmark(5,[:sample_distribution, :accumulative_KL, :total_time,])
+# res = benchmark(ai1, b1)
+# plot(x = int(res[:refinement_depth]), Geom.histogram)
 
-res = benchmark(ai1, b1)
-plot(x = int(res[:refinement_depth]), Geom.histogram)
-
-b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])
-res = benchmark(ai1, b1)
-plot(x = int(res[:refinement_depth]), Geom.histogram)
+# b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])
+# res = benchmark(ai1, b1)
+# plot(x = int(res[:refinement_depth]), Geom.histogram)
 
 
 

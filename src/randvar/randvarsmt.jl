@@ -206,7 +206,7 @@ end
 
 ## ===========================
 ## Printing
-string(x::RandVarSMT{Bool}) = convert(SExpr, s, Omega()).e
+string(x::RandVarSMT{Bool}) = convert(SExpr, x, Omega()).e
 print(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 show(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 showcompact(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
