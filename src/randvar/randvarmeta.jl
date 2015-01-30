@@ -24,24 +24,8 @@ end
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
 call(X::RandVarMeta, o) = call(X.ai,o) # Default AI
 call(X::RandVarMeta{Bool}, o) = call(X.smt,o) # Default SMT
+call(X::RandVarMeta{Bool}, o::SampleOmega) = call(X.ai,o) # Default SMT
 checksat(f::RandVarSMT,Y,X) = checksat(f.smt,Y,X) # Default SMT
-
-# # Binary functions, with Real output
-# for op = (:+, :-, :*, :/)
-#   @eval begin
-#     function ($op){T1<:Real, T2<:Real}(X::RandVarMeta{T1}, Y::RandVarMeta{T2})
-#       let op = $op
-#         RETURNT = promote_type(T1, T2)
-#         RandVarMeta{RETURNT}(($op)(X.smt, Y.smt),($op)(X.ai, Y.ai))
-#       end
-#     end
-
-#     ($op){T1<:Real, T2<:Real}(X::RandVarMeta{T1}, c::T2) =
-#       RandVarMeta(($op)(X.smt,c),($op)(X.ai,c))
-#     ($op){T1<:Real, T2<:Real}(c::T1, X::RandVarMeta{T2}) =
-#       RandVarMeta(($op)(c,X.smt),($op)(c,X.ai,))
-#   end
-# end
 
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/, :>, :>=, :<=, :<, :(==), :!=, :isapprox, :&, :|, :(==), :!=)
