@@ -1,15 +1,19 @@
-using Compose
-using Color
+## Motion Planning Benchmark
+## =========================
 
-function point_in_poly(point, box)
+# Construct a path from the start region to the target region
+# which does not pass trhoug nay of the obstacles
+
+# Is the point in the box?
+function ispointinpoly(point, box)
   r = (point[1] >= box[1,1]) &
     (point[1] <= box[2,1]) &
     (point[2] >= box[1,2]) &
     (point[2] <= box[2,2])
-#   @show point[1], box[1,1]
   r
 end
 
+# Linear Check
 function avoid_obstacles(points, obs)
   observations = true
   for i = 1:size(points,2),ob in obs
@@ -19,61 +23,89 @@ function avoid_obstacles(points, obs)
   observations
 end
 
+# Where if anywhere, along p does it intersect segment
+function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
+  w = ppos - qpos
+  u = pdir
+  v = qdir
+  (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
+end
+
 function short_lines(points, length::Float64)
   true
 end
 
 function isvalid_path(points, obstacles, origin, dest)
   point_in_poly(points[:,1],origin) &
-    point_in_poly(points[:,end], dest) &
-    avoid_obstacles(points,obstacles) &
-    short_lines(points, .1)
+  ispointinpoly(points[:,end], dest) &
+  avoid_obstacles(points,obstacles) &
+  short_lines(points, .1)
 end
 
-## Example
-## =======
-points = iid(Float64,i->uniform(i,0,1),2,10)
-origin = [0.0 0.0
-         0.2 0.2]
-dest = [.9 .9
-        1.0 1.0]
+function linearplan(points)
+  origin = [0.0 0.0
+           0.2 0.2]
+  dest = [.9 .9
+          1.0 1.0]
 
-box1 = [.3  .1
-        .65 .7]
-box2 = [.05 .7
-        .25 .99]
+  box1 = [.3  .1
+          .65 .7]
+  box2 = [.05 .7
+          .25 .99]
 
-obstacles = Matrix[box1,box2]
-points = iid(Float64,i->uniform(i,0,1),2,3)
-good_path = isvalid_path(points,obstacles,origin,dest)
-samples = rand(points, good_path,10)
+  obstacles = Matrix[box1,box2]
+  good_path = isvalid_path(points,obstacles,origin,dest)
+  points,good_path
+end
 
-## Vis
-## ===
-function make_point_pairs(lines)
-  b = Array(Any, length(lines)-1)
-  for i = 1:length(lines) - 1
-    j = i + 1
-    b[i] = [lines[i][:,1] lines[j][:,1]]
+
+## Nonlinear
+## =========
+function isvalid_pathnl(points, obstacles, origin, dest)
+  ispointinpoly(points[:,1],origin) &
+  ispointinpoly(points[:,end], dest) &
+  avoid_obstacles_nl(points,obstacles) &
+  short_lines(points, .1)
+end
+
+# Nonlinear Check
+function avoid_obstacles_nl(points, obs)
+  observations = true
+  for i = 1:size(points,2)-1, ob in obs
+    p = points[:,i]
+    pdir = points[:,i+1] - points[:,i]
+
+    obpos = ob[:,1]
+    obdir = ob[:,2]
+    s = intersect_segments(p, pdir, obpos, obdir)
+    observations &= (s < 0) | (s > 1)
   end
-  b
+  observations
 end
 
-pair(x) = x[1],x[2]
-
-function make_compose_lines(point_pairs)
-  [line([pair(o[:,1]), pair(o[:,2])]) for o in point_pairs]
+function nonlinearplan(points)
+  origin = [0.0 0.0
+           0.2 0.2]
+  dest = [.9 .9
+          1.0 1.0]
+  obstacles = Array[[8.01 3.01; 1.02 9],
+                    [0.5 3.08; 2.02 9.04],
+                    [0.0 9.99; 3 5.04]]
+  obs = map(points_to_parametric, obstacles)
+  good_path = isvalid_pathnl(points,obs,origin,dest)
+  points,good_path
 end
 
-function draw_lines(lines...)
-  all_lines = apply(vcat,lines)
-  x = map(l->(context(units=UnitHyperBox(0, 0, 10, 10)),
-              l,
-              linewidth(.5mm),
-              stroke(rand_color()),
-              fill(nothing)),
-          all_lines)
-  apply(compose,vcat(context(), x))
-end
+# points = iidmeta(Float64,i->uniformmeta(i,0,10),2,4)
+# points, condition = nonlinearplan(points)
+# s = cond_sample_mh(points,condition,1)
 
-rand_color() = RGB(rand(),rand(),rand())
+# # ## Draw
+# obstacles = Array[[8.01 3.01; 1.02 9],
+#                   [0.5 3.08; 2.02 9.04],
+#                   [0.0 9.99; 3 5.04]]
+# a = make_compose_lines(obstacles)
+# points = s[1]
+# b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
+# b
+# draw_lines(a,b)

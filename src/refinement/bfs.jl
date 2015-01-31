@@ -1,3 +1,6 @@
+## Preimage refinement by breadth first search
+## ===========================================
+
 function update_approx!(f, X, Y, satsets, mixedsets)
   children = mid_split(X)
   for child in children

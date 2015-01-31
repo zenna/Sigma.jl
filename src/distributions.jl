@@ -50,4 +50,11 @@ function smtdistributions!()
   global iid = iidsmt
 end
 
+function metadistributions!()
+  global uniform = uniformmeta
+  global flip = flipmeta
+  global mvuniform = mvuniformmeta
+  global mvnormal = mvuniformmeta
+end
+
 aidistributions!() #Default to abstract interpretation

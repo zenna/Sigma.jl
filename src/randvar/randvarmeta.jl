@@ -24,8 +24,8 @@ end
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
 call(X::RandVarMeta, o) = call(X.ai,o) # Default AI
 call(X::RandVarMeta{Bool}, o) = call(X.smt,o) # Default SMT
-call(X::RandVarMeta{Bool}, o::SampleOmega) = call(X.ai,o) # Default SMT
-checksat(f::RandVarSMT,Y,X) = checksat(f.smt,Y,X) # Default SMT
+call(X::RandVarMeta, o::SampleOmega) = call(X.ai,o) # Default SMT
+checksat(f::RandVarMeta,Y,X) = checksat(f.smt,Y,X) # Default SMT
 
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/, :>, :>=, :<=, :<, :(==), :!=, :isapprox, :&, :|, :(==), :!=)
@@ -53,3 +53,9 @@ for op = (:!, :sqr,:abs, :sqrt, :round,)
     end
   end
 end
+
+mvuniformmeta(a,b, i::Int, j::Int) = iidmeta(Float64, c->uniformmeta(a,b),i,j)
+mvuniformmeta(a,b, i::Int) = iidmeta(Float64, c->uniformmeta(a,b),i)
+
+mvnormalmeta(μ,σ, i::Int, j::Int) = iidmeta(Float64, c->normalmeta(μ,σ),i,j)
+mvnormalmeta(μ,σ, i::Int) = iidmeta(Float64, c->normalmeta(μ,σ),i)

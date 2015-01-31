@@ -43,6 +43,17 @@ function checksat(program::SExpr)
   satstatus
 end
 
+function checksat_nra(program::SExpr)
+  fname = randstring()
+  withext = "$fname.smt2"
+  f = open(withext,"w")
+  write(f,program.e)
+  close(f)
+  satstatus = parse_sat_status(readall(`dReal_nra $withext`))
+  rm(withext)
+  satstatus
+end
+
 function checksat_with_model(program::SExpr)
   fname = randstring()
   withext = "$fname.smt2"
@@ -64,3 +75,4 @@ end
 
 # The solver itself
 const dreal = SMTSolver(headerfooter, checksat)
+const dreal_nra = SMTSolver(headerfooter, checksat_nra)

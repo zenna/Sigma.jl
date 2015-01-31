@@ -99,11 +99,6 @@ end
 #             println("condition is " , d)
 #             throw(DomainError())
 
-
-# using Sigma
-# Z = @If true flip(1,0.4) flip(2,0.4)
-# Z
-
 # Short circut version of ifelse, handles AbstractBool and RandVar
 macro If(condition, conseq, alt)
   local idtrue = singleton(gensym())

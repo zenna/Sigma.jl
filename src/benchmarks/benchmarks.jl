@@ -1,6 +1,4 @@
 ## Benchmarking to analyse performance of algorithms
-using Sigma
-using Window
 
 ## Measures
 ## =======
@@ -109,6 +107,7 @@ function add_KL_church!(stats, groundtruth::Dict)
 end
 
 include("solvers.jl")
-for dirname in ["simplex"]
-    include(joinpath(dirname, "benchmark.jl"))
-end
+include("geometry.jl")
+include("vis.jl")
+include("simplex/simplex.jl")
+include("motionplanning/motionplanning.jl")

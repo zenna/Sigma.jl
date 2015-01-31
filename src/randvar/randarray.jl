@@ -19,11 +19,12 @@ PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
 
 ## Conversion
 ## ==========
-# convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
-# convert{T,N}(::Type{PureRandArray}, A::Array{RandVarSymbolic{T},N}) = PureRandArray{T,N}(A)
-# convert{T,N}(::Type{PureRandArray{T,N}}, A::Array{T,N}) =
-#   PureRandArray{T,N}(map(a->convert(RandVarSymbolic{T},a),A))
-promote_rule{T,N}(::Type{PureRandArray{T,N}}, ::Type{Array{T,N}}) = PureRandArray{T,N}
+convert{T,N,R}(::Type{PureRandArray{T,N,R}}, A::Array{R,N}) = PureRandArray{T,N,R}(A)
+convert{T,N,R}(::Type{PureRandArray}, A::Array{R,N}) = PureRandArray{T,N,R}(A)
+convert{T,N,R}(::Type{PureRandArray{T,N,R}}, A::Array{T,N}) =
+  PureRandArray{T,N,R}(map(a->convert(R,a),A))
+promote_rule{T,N,R}(::Type{PureRandArray{T,N,R}}, ::Type{Array{T,N}}) =
+  PureRandArray{T,N,R}
 
 rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
 eltype(Xs::PureRandArray) = rangetype(Xs).parameters[1]
@@ -130,25 +131,28 @@ for op = (:+, :-, :*, :.*, :/, :&, :|)
   @eval begin
     function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
       let op = $op
-        PureRandArray{T,D}(($op)(X.array,Y.array))
+        PureRandArray(($op)(X.array,Y.array))
       end
     end
 
     # Interop with 'normal arrays' promote them to RandArrays
-    ($op){T,D}(X::PureRandArray{T,D}, Y::Array{T,D}) = ($op)(promote(X,Y)...)
-    ($op){T,D}(X::Array{T,D}, Y::PureRandArray{T,D}) = ($op)(promote(X,Y)...)
+    function ($op){T,D,R}(X::PureRandArray{T,D,R}, Y::Array{T,D})
+      a::Array{R} = ($op)(X.array,Y)
+      PureRandArray(a)
+    end
+    ($op){T,D,R}(X::Array{T,D}, Y::PureRandArray{T,D,R}) = PureRandArray(($op)(X,Y.array))
 
     # Point wise arithmetic against rand variable (first arg)
-    function ($op){T,D,T2<:Real}(Y::RandVar{T2}, X::PureRandArray{T,D})
+    function ($op){T,D,R,T2<:Real}(Y::RandVar{T2}, X::PureRandArray{T,D,R})
       let op = $op
-        PureRandArray{T,D}(map(x->($op)(Y,x), X.array))
+        PureRandArray(map(x->($op)(Y,x), X.array))
       end
     end
 
     # Point wise arithmetic against rand variable (second arg)
-    function ($op){T,D,T2<:Real}(X::PureRandArray{T,D}, Y::RandVar{T2})
+    function ($op){T,D,R,T2<:Real}(X::PureRandArray{T,D,R}, Y::RandVar{T2})
       let op = $op
-        PureRandArray{T,D}(map(x->($op)(x,Y), X.array))
+        PureRandArray(map(x->($op)(x,Y), X.array))
       end
     end
 
@@ -181,34 +185,26 @@ for op = (:abs,)
   end
   end
 end
-## Generators
-## ==========
 
-# Creates a RandArray where each element is returned by unary constructor
-# constructor expects integer arg, should correspond to component of ω, e.g. i->uniform(i,0.,1.)
-# i values start at offset + 1
-function iidai(T::DataType, constructor::Function,
+## Independent RandVars
+## ====================
+function iidall(T::DataType, R::DataType, c::Function,
              nrows::Int64, ncols::Int64; offset::Int64 = 0)
-  array::Array{RandVarSymbolic{T}} = [constructor(i+(j-1)*(nrows) + offset)
-                                      for i = 1:nrows, j = 1:ncols]
-  PureRandArray{T,2,RandVarSymbolic{T}}(array)
+  a::Array{R{T}} = [c(i+(j-1)*(nrows) + offset) for i = 1:nrows, j = 1:ncols]
+  PureRandArray{T,2,R{T}}(a)
 end
 
-## Create an iid vector
-function iidai(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
-  vector::Vector{RandVarSymbolic{T}} = [constructor(i + offset) for i = 1:nrows]
-  PureRandVector{T,RandVarSymbolic{T}}(vector)
+function iidall(T::DataType, R::DataType, c::Function, nrows::Int64; offset = 0)
+  v::Array{R{T}} = [c(i + offset) for i = 1:nrows]
+  PureRandVector{T,R{T}}(v)
 end
 
-function iidsmt(T::DataType, constructor::Function,
-             nrows::Int64, ncols::Int64; offset::Int64 = 0)
-  array::Array{RandVarSMT{T}} = [constructor(i+(j-1)*(nrows) + offset)
-                                      for i = 1:nrows, j = 1:ncols]
-  PureRandArray{T,2,RandVarSMT{T}}(array)
-end
+iidmeta(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarMeta, c, nrows, ncols; offset...)
+iidmeta(T::DataType, c, nrows; offset...) = iidall(T, RandVarMeta, c, nrows; offset...)
 
-## Create an iid vector
-function iidsmt(T::DataType, constructor::Function, nrows::Int64; offset::Int64 = 0)
-  vector::Vector{RandVarSMT{T}} = [constructor(i + offset) for i = 1:nrows]
-  PureRandVector{T,RandVarSMT{T}}(vector)
-end
+iidsmt(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSMT, c, nrows, ncols; offset...)
+iidsmt(T::DataType, c, nrows; offset...) = iidall(T, RandVarSMT, c, nrows; offset...)
+
+iidai(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSymbolic, c, nrows, ncols; offset...)
+iidai(T::DataType, c, nrows; offset...) = iidall(T, RandVarSymbolic, c, nrows; offset...)
+

@@ -4,10 +4,6 @@
 # Simplex. If the regions are of equal size then we should expect an equal
 # number of samples in each region.
 
-using Window
-using Sigma
-using DataStructures
-
 # The vertex coordinates for an ndim simplex
 # From http://people.sc.fsu.edu/~jburkardt/m_src/simplex_coordinates/
 function simplex_coordinates(n::Int)
@@ -78,7 +74,7 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
   value, Δt, Δb, Δgc = @timed(simplex(b.ndims, m))
   model, condition = value
 
-  samples = a.sampler(model,condition, 1000)
+  samples = a.sampler(model,condition, 3)
   @show length(samples)
   #Windows
   window(:total_time, Δt)
@@ -91,7 +87,9 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 end
 
 benchmark(a::SigmaAI, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
-benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformsmt(-2,2,b.ndims), b)
+benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
+
+metadistributions!()
 
 ## Do Benchmarking
 ## ==============
@@ -99,21 +97,19 @@ benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformsmt(-
 # disable_all_filters!()
 # test_sigma1 = SigmaAI([],rand,1,sqr)
 
-# mh_captures = [:start_loop, :refinement_depth]
+mh_captures = [:start_loop, :refinement_depth]
 # ai1 = SigmaAI(mh_captures,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-# smt1 = SigmaSMT(mh_captures,dreal,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-# b1 = SimplexBenchmark(5,[:sample_distribution, :accumulative_KL, :total_time,])
-# res = benchmark(ai1, b1)
-# plot(x = int(res[:refinement_depth]), Geom.histogram)
+smt1 = SigmaSMT(mh_captures,dreal_nra,Sigma.cond_sample_tlmh,1,weighted_mid_split)
+b1 = SimplexBenchmark(20,[:sample_distribution, :accumulative_KL, :total_time,])
+# res = benchmark(smt1, b1)
+## Plotting
+## ========
 
+# plot(x = int(res[:refinement_depth]), Geom.histogram)
 # b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])
 # res = benchmark(ai1, b1)
 # plot(x = int(res[:refinement_depth]), Geom.histogram)
 
-
-
-## Plotting
-## ========
 
 # p3  = benchmark(test_sigma3, test_benchmark)
 # plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),

@@ -2,6 +2,8 @@
 ## =========================================
 # RandVarSMT creates a representation which can be directly sent to SMT2 solvers,
 # such as dReal or Z3.
+using Color
+using Compose
 
 type RandVarSMT{T} <: RandVar{T}
   ast
@@ -26,7 +28,7 @@ function convert(::Type{SExpr}, e::Expr)
 end
 
 # (Mostly) To visualise the expression to be sent to solver
-function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = z3)
+function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = dreal_nra)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -38,7 +40,7 @@ function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = z3)
 end
 
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = dreal)
+function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -191,17 +193,16 @@ for op = (:&, :|)
   end
 end
 
-## Distributions
-## =============
-uniformsmt(i::Int64,a::Real,b::Real) =
-  RandVarSMT{Float64}(:(($b - $a) * $(ω_nth(i)) + $a),
-             Set([ω->ω_asserts(ω,i)]),Set(i))
-
-function normalsmt(i::Int64,μ::Real,σ::Real)
-  name = gensmtsym("normal$i")
-  RandVarSMT{Float64}(name,
-             Set([ω->normalasserts(o,i,name,Normal(μ,σ))]),
-             Set(i))
+# Bool -> Bool
+for op = (:!,)
+  @eval begin
+    function ($op)(X::RandVarSMT{Bool})
+      let op = $op
+        newast = :($(julia2smt(op))($(ast(X))))
+        RandVarSMT{Bool}(newast, X.assert_gens, X.dims)
+      end
+    end
+  end
 end
 
 ## ===========================
