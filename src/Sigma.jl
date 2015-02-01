@@ -120,7 +120,10 @@ export
   plot_cond_performance,
   plot_prob_performance,
   add_KL!,
-  add_KL_church!
+  add_KL_church!,
+  allbenchmarks,
+  allalgorithms,
+  runbenchmarks
 
 include("common.jl")
 include("smtsolver.jl")

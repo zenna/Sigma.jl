@@ -22,13 +22,13 @@ for (op,smtf, aif, args) = ((:flipmeta, :flipsmt, :flipai, :p),
 end
 
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
-call(X::RandVarMeta, o) = call(X.ai,o) # Default AI
+call(X::RandVarMeta, o;args...) = call(X.ai,o; args...) # Default AI
 
-call(X::RandVarMeta{Bool}, o::SampleOmega) = call(X.ai,o) # Default SMT
-call(X::RandVarMeta{Bool}, o) = call(X.smt,o) # Default SMT
-call(X::RandVarMeta, o::SampleOmega) = call(X.ai,o) # Default SMT
+call(X::RandVarMeta{Bool}, o::SampleOmega; args...) = call(X.ai,o; args...) # Default SMT
+call(X::RandVarMeta{Bool}, o;  args...) = call(X.smt,o;  args...) # Default SMT
+call(X::RandVarMeta, o::SampleOmega;  args...) = call(X.ai,o; args...) # Default SMT
 
-checksat(f::RandVarMeta,Y,X::Domain) = checksat(f.smt,Y,X) # Default SMT
+checksat(f::RandVarMeta,Y,X::Domain;  args...) = checksat(f.smt,Y,X;  args...) # Default SMT
 
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/, :>, :>=, :<=, :<, :(==), :!=, :isapprox, :&, :|, :(==), :!=)

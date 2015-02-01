@@ -40,7 +40,7 @@ function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = dre
 end
 
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3)
+function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3, args...)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
