@@ -39,11 +39,11 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
 end
 
 # Propose boxes in parallel
-function propose_parallel_tl(f,Y,X,stack; maxprocs = 1, args...)
-  numprocs = min(maxprocs, nprocs())
-  println("Using $numprocs cores")
+function propose_parallel_tl(f,Y,X,stack; ncores = 1, args...)
+  ncores = min(ncores, nprocs())
+  println("Using $ncores cores")
   if isempty(stack)
-    spawns = [@spawn proposebox_tl(f,Y,X;args...) for i = 1:numprocs]
+    spawns = [@spawn proposebox_tl(f,Y,X;args...) for i = 1:ncores]
     boxes = [fetch(s) for s in spawns]
     push!(stack,boxes...)
   end

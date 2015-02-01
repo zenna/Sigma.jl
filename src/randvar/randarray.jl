@@ -20,7 +20,7 @@ PureRandArray(T::DataType, nrows::Int64, ncols::Int64) =
 ## Conversion
 ## ==========
 convert{T,N,R}(::Type{PureRandArray{T,N,R}}, A::Array{R,N}) = PureRandArray{T,N,R}(A)
-convert{T,N,R}(::Type{PureRandArray}, A::Array{R,N}) = PureRandArray{T,N,R}(A)
+convert{T,N,R}(::Type{PureRandArray{T,N,R}}, A::Array{R,N}) = PureRandArray{T,N,R}(A)
 convert{T,N,R}(::Type{PureRandArray{T,N,R}}, A::Array{T,N}) =
   PureRandArray{T,N,R}(map(a->convert(R,a),A))
 promote_rule{T,N,R}(::Type{PureRandArray{T,N,R}}, ::Type{Array{T,N}}) =
@@ -80,12 +80,9 @@ end
 #   RandVarSymbolic{T}(:(access($Xs,call($I,ω),ω)))
 
 ## Iteration
-import Base.start
-import Base.next
-import Base.done
-start(PureRandArray) = start(PureRandArray.array)
-next(PureRandArray, state) = next(PureRandArray.array, state)
-done(PureRandArray, state) = done(PureRandArray.array, state)
+start(Xs::PureRandArray) = start(Xs.array)
+next(Xs::PureRandArray, state) = next(Xs.array, state)
+done(Xs::PureRandArray, state) = done(Xs.array, state)
 
 ## Primitive Array Functions
 ## =========================

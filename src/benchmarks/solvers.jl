@@ -5,7 +5,7 @@
 immutable SigmaAI <: Algorithm
   capture::Vector{Symbol}
   sampler::Function
-  nproc::Int
+  ncores::Int
   split::Function
 end
 

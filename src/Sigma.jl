@@ -11,6 +11,9 @@ import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
 import Base: ndims, endof
 import Base.isapprox
+import Base.start
+import Base.next
+import Base.done
 
 # import Base: call # Wait until 0.4
 

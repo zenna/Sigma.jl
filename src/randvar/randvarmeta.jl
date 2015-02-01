@@ -23,9 +23,12 @@ end
 
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
 call(X::RandVarMeta, o) = call(X.ai,o) # Default AI
+
+call(X::RandVarMeta{Bool}, o::SampleOmega) = call(X.ai,o) # Default SMT
 call(X::RandVarMeta{Bool}, o) = call(X.smt,o) # Default SMT
 call(X::RandVarMeta, o::SampleOmega) = call(X.ai,o) # Default SMT
-checksat(f::RandVarMeta,Y,X) = checksat(f.smt,Y,X) # Default SMT
+
+checksat(f::RandVarMeta,Y,X::Domain) = checksat(f.smt,Y,X) # Default SMT
 
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/, :>, :>=, :<=, :<, :(==), :!=, :isapprox, :&, :|, :(==), :!=)
