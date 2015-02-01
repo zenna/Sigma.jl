@@ -13,6 +13,6 @@ immutable SigmaSMT <: Algorithm
   capture::Vector{Symbol}
   solver::Sigma.SMTSolver
   sampler::Function
-  nproc::Int
+  ncores::Int
   split::Function
 end

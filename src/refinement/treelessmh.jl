@@ -57,7 +57,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   stack = (D,Float64)[] #For parallelism
 
 #   box, logq = proposebox_tl(f,Y,X; args...) # log for numercal stability
-  nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack; args...)
+  box, logq = propose_parallel_tl(f,Y,X,stack; args...)
   logp = logmeasure(box)
   push!(boxes,box)
   println("Initial satisfying point found!, starting MH chain\n")

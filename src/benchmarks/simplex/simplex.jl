@@ -74,7 +74,8 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
   value, Δt, Δb, Δgc = @timed(simplex(b.ndims, m))
   model, condition = value
 
-  samples = a.sampler(model,condition, 3)
+  samples = sample(a,model,condition,3)
+
   @show length(samples)
   #Windows
   window(:total_time, Δt)
@@ -89,21 +90,11 @@ end
 benchmark(a::SigmaAI, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
 benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
 
-metadistributions!()
+sample(a::SigmaSMT, model, condition, nsamples) =
+  a.sampler(model,condition, 3; ncores = a.ncores, split = a.split, solver = a.solver)
 
-## Do Benchmarking
-## ==============
-# using Gadfly
-# disable_all_filters!()
-# test_sigma1 = SigmaAI([],rand,1,sqr)
-
-mh_captures = [:start_loop, :refinement_depth]
-# ai1 = SigmaAI(mh_captures,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-smt1 = SigmaSMT(mh_captures,dreal_nra,Sigma.cond_sample_tlmh,1,weighted_mid_split)
-b1 = SimplexBenchmark(20,[:sample_distribution, :accumulative_KL, :total_time,])
-# res = benchmark(smt1, b1)
-## Plotting
-## ========
+sample(a::SigmaAI, model, condition, nsamples) =
+   a.sampler(model,condition, 3; ncores = a.ncores, split = a.split)
 
 # plot(x = int(res[:refinement_depth]), Geom.histogram)
 # b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])

@@ -3,6 +3,7 @@ module Sigma
 using Distributions
 using JuMP
 using Window
+using DataStructures
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
