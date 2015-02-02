@@ -28,7 +28,7 @@ function convert(::Type{SExpr}, e::Expr)
 end
 
 # (Mostly) To visualise the expression to be sent to solver
-function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = dreal_nra)
+function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = dreal3)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -135,7 +135,7 @@ end
 function julia2smt(x::Function)
   julia2smts = Dict([(&) => :and, (|) => :or, (!) => :not, (==) => :(=),
                      (>) => :>, (>=) => :>=, (<) => :<, (<=) => :<=,
-                     isapprox => :isapprox])
+                     isapprox => :isapprox, ifelse => :ite])
   julia2smts[x]
 end
 
@@ -161,6 +161,18 @@ for op = (:>, :>=, :<=, :<, :(==), :!=, :isapprox)
       let op = $op
         newast = :($(julia2smt(op))($c,$(ast(X))))
         RandVarSMT{Bool}(newast, X.assert_gens,X.dims)
+      end
+    end
+  end
+end
+
+for op = (:ifelse,)
+  @eval begin
+    function ($op){T}(A::RandVarSMT{Bool}, B::RandVarSMT{T}, C::RandVarSMT{T})
+      let op = $op
+        newast = :($(julia2smt(op))($(ast(A)),$(ast(B)),$(ast(C))))
+        RandVarSMT{Bool}(newast, union(A.assert_gens, B.assert_gens, C.assert_gens),
+                                 union(A.dims, B.dims, C.dims))
       end
     end
   end

@@ -83,7 +83,6 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 
   # cleanup
   Window.disable_benchmarks!(captures)
-  @show samples
   copy(Window.benchmarks)
 end
 

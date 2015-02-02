@@ -13,7 +13,7 @@ all_splits = [weighted_mid_split, weighted_partial_split, rand_partial_split]
 # SMT algorithms
 SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
   for nprocs = [1],
-      solver = [dreal,dreal_nra,z3],
+      solver = [dreal3,z3],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
@@ -27,12 +27,16 @@ allalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 
 # Run all the benchmarks with all teh algorithms and collect results
 function runbenchmarks{B<:Benchmark, A<:Algorithm}(benches::Vector{B},
-                                                   algos::Vector{A})
+           algos::Vector{A}; newseed = false)
   results = Dict{(Algorithm, Benchmark),Any}()
   runiter = 1; nruns = length(benches) * length(algos)
   nfailures = 0
   for j = 1:length(benches), i = 1:length(algos)
-    println("RUNNING $runiter of $nruns, $nfailures so far")
+    println("\nRUNNING $runiter of $nruns, $nfailures so far")
+    print("$(algos[i]) \n")
+    print("$(benches[j]) \n")
+    newseed && srand(345678) # Set Random Seed
+    restart_counter!()
     try
       results[(algos[i],benches[j])] = benchmark(algos[i], benches[j])
     catch er

@@ -23,7 +23,7 @@ end
 
 # Call is state changing, but I've omitted ! so that that we can
 # overload the () syntax.
-call(X::RandVarSymbolic, ω) = (compile!(X); X.λ(ω))
+call(X::RandVarSymbolic, ω; args...) = (compile!(X); X.λ(ω))
 callnocheck(X::RandVarSymbolic, ω) = X.λ(ω)
 
 # Will need to deprecate this in Julia v4.

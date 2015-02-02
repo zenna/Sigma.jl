@@ -49,7 +49,7 @@ function checksat_nra(program::SExpr)
   f = open(withext,"w")
   write(f,program.e)
   close(f)
-  satstatus = parse_sat_status(readall(`dReal_nra $withext`))
+  satstatus = parse_sat_status(readall(`dReal3 $withext`))
   rm(withext)
   satstatus
 end
@@ -75,4 +75,4 @@ end
 
 # The solver itself
 const dreal = SMTSolver(headerfooter, checksat)
-const dreal_nra = SMTSolver(headerfooter, checksat_nra)
+const dreal3 = SMTSolver(headerfooter, checksat_nra)

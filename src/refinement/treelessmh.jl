@@ -16,14 +16,19 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
   A::D = X
   status = checksat(f,Y,X; args...)
   while niters <= 1E5
+    @show status
+    @show niters, depth
     if status == SAT
       window(:refinement_depth, depth)
       return A, logq
     elseif status == PARTIALSAT
       children::Vector{(Domain,Float64)} = split(A, depth)
       statuses = [checksat(f,Y,child[1]; args...) for child in children]
+      @show statuses
+      @show children
       weights = pnormalize([statuses[i] == UNSAT ? 0.0 : children[i][2] for i = 1:length(children)])
       rand_index = rand(Categorical(weights))
+      println("Selecting Child - $rand_index")
 
       # Randomly Sample Child
       A = children[rand_index][1]
@@ -55,7 +60,8 @@ end
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
   stack = (D,Float64)[] #For parallelism
-
+  @show "REMOVE ALL SRANDS"
+  srand(345678)
   box, logq = proposebox_tl(f,Y,X; args...) # log for numercal stability
 #   box, logq = propose_parallel_tl(f,Y,X,stack; args...)
   logp = logmeasure(box)
@@ -66,6 +72,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   naccepted = 0; nsteps = 0
   while nsteps < niters - 1
     window(:start_loop,time_ns())
+    srand(345678)
     nextbox, nextlogq = proposebox_tl(f,Y,X; args...)
 #     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack; args...)
     nextlogp = logmeasure(nextbox)
