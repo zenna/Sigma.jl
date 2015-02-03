@@ -1,16 +1,6 @@
 ## Metropolis Hastings querying
 ## ============================
 
-function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
-  samples = [rand(o) for i = 1:n]
-#   for sample in samples
-#     if call(Y,sample)
-#       error("stop right there")
-#     end
-#   end
-  count(identity, [call(Y,rand(o)) for i = 1:n])/n
-end
-
 # Add weighted children
 function add_children!(f::Callable, Y, t::WeightedTree, node::Node, depth::Int, split::Function)
   children::Vector{(Domain,Float64)} = split(node.data, depth)

@@ -32,7 +32,7 @@ function simplex(n::Int, box)
   vertexcoords = simplex_coordinates(n)
   conds = RandVar{Bool}[]
   for i = 1:n+1
-    push!(conds,point_near_region(box,vertexcoords[:,i],0.1))
+    push!(conds,point_near_region(box,vertexcoords[:,i],0.01))
   end
   box,(|)(conds...)
 end
@@ -46,7 +46,7 @@ function vertex_distribution(samples,n)
   counts =  DefaultDict(Int, Int, 0)
   for sample in samples
     for i = 1:n+1
-      if point_near_region(sample,vertexcoords[:,i], 0.1)
+      if point_near_region(sample,vertexcoords[:,i], 0.01)
         counts[i] += 1
         break
       end

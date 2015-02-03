@@ -25,6 +25,13 @@ function checksat(f::Callable, Y, X::Domain; args...)
   else UNSAT end
 end
 
+# What fraction of the samples are in the preiamge
+function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
+  samples = [rand(o) for i = 1:n]
+  nsat = count(identity, [call(Y,rand(o)) for i = 1:n])
+  nsat/n
+end
+
 for finame in ["tree.jl",
                "split.jl",
                "bfs.jl",

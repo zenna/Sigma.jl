@@ -9,17 +9,13 @@ type RandVarMeta{T} <: RandVar{T}
   ai::RandVarSymbolic{T}
 end
 
-## Primitive Distribution will create both an smt and an ai
-for (op,smtf, aif, args) = ((:flipmeta, :flipsmt, :flipai, :p),
-                            (:flipmeta, :flipsmt, :flipai, :i, :p),
-                            (:uniformmeta, :uniformsmt, :uniformai, :i, :a, :b),
-                            (:uniformmeta, :uniformsmt, :uniformai, :a, :b))
-  @eval begin
-    function ($op)($args...)
-      RandVarMeta(($smtf)($args...), ($aif)($args...))
-    end
-  end
-end
+## Distribution
+## ============
+flipmeta(i,p) = RandVarMeta(flipsmt(i,p),flipai(i,p))
+flipmeta(p) = (g = genint(); RandVarMeta(flipsmt(g,p),flipai(g,p)))
+
+uniformmeta(i,a,b) = RandVarMeta(uniformsmt(i,a,b),uniformai(i,a,b))
+uniformmeta(a,b) = (g = genint(); RandVarMeta(uniformsmt(g,a,b),uniformai(g,a,b)))
 
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
 call(X::RandVarMeta, o;args...) = call(X.ai,o; args...) # Default AI

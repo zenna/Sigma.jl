@@ -6,7 +6,7 @@
 SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
                                         :accumulative_KL,
                                         :total_time,])
-                   for i = 2:4]
+                   for i = 2:2]
 
 mh_captures = [:start_loop, :refinement_depth]
 all_splits = [weighted_mid_split, weighted_partial_split, rand_partial_split]

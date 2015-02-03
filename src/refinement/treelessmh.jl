@@ -7,33 +7,68 @@
 # recompute things we've done already.  This is a minor loss if we gain a great deal
 # in parallelism.
 
+# Adjust the proposal distribution
+# frac_in_preimage is the fraction of the event which must be in the preimage
+# Default 1 implies it must be a purely preimage sample
+# Ohterwise, adjust_proposal will convert events that are TF to T if their
+# percentage is greater than frac_in_preimage, determined by sampling
+function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
+                         children,f::Callable;
+                         frac_in_preimage::Float64 = 1.0,
+                         npre_tests::Int = 100, args...)
+  if frac_in_preimage < 1.0
+    # Compute preimage volume fractions
+    prevolfracs = Array(Float64,length(children))
+    for i = 1:length(children)
+      if statuses[i] == T
+        prevolfracs[i] = 1.0
+      elseif statuses[i] == F
+        prevolfracs[i] = 0.0
+      else
+        prevolfracs[i] = fraction_sat(f, children[i][1], npre_tests)
+      end
+    end
+    # Change statuses of children whose have a fraction of preimage greater
+    # than frac_in_reimage
+    statuses = [(statuses[i] == TF) && (prevolfracs[i] > frac_in_preimage) ? T : statuses[i]
+      for i = 1:length(statuses)]
+    statuses,weights, prevolfracs
+  else
+    statuses,weights, ones(Float64,length(statuses))
+  end
+end
+
 # Proposes a box using refinement (without storing tree). # f:X → Y
 function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
-                                    split::Function = weighted_partial_split, args...)
+                                    split::Function = weighted_partial_split,
+                                    args...)
 #   @show myid()
 #   split = args[:split]
   niters = 0 ; depth = 0 ; logq = 0.0 # == log(1.0)
+  prevolfrac = 1.0
   A::D = X
   status = checksat(f,Y,X; args...)
   while niters <= 1E5
-    @show status
-    @show niters, depth
+#     @show status
+#     @show niters, depth
     if status == SAT
       window(:refinement_depth, depth)
-      return A, logq
+        return A, logq, prevolfrac
     elseif status == PARTIALSAT
       children::Vector{(Domain,Float64)} = split(A, depth)
       statuses = [checksat(f,Y,child[1]; args...) for child in children]
-      @show statuses
-      @show children
+#       @show statuses
+#       @show children
       weights = pnormalize([statuses[i] == UNSAT ? 0.0 : children[i][2] for i = 1:length(children)])
+      statuses, weights, prevolfracs = adjust_proposal(statuses, weights, children, f; args...)
       rand_index = rand(Categorical(weights))
-      println("Selecting Child - $rand_index")
+#       println("Selecting Child - $rand_index")
 
       # Randomly Sample Child
       A = children[rand_index][1]
       status = statuses[rand_index]
       logq += log(weights[rand_index])
+      prevolfrac = prevolfracs[rand_index]
 
       depth += 1; niters += 1
     elseif status == UNSAT # Condition is unsatisfiable
@@ -60,11 +95,9 @@ end
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
   stack = (D,Float64)[] #For parallelism
-  @show "REMOVE ALL SRANDS"
-  srand(345678)
-  box, logq = proposebox_tl(f,Y,X; args...) # log for numercal stability
+  box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
 #   box, logq = propose_parallel_tl(f,Y,X,stack; args...)
-  logp = logmeasure(box)
+  logp = logmeasure(box) + log(prevolfrac)
   push!(boxes,box)
   println("Initial satisfying point found!, starting MH chain\n")
 
@@ -72,10 +105,9 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   naccepted = 0; nsteps = 0
   while nsteps < niters - 1
     window(:start_loop,time_ns())
-    srand(345678)
-    nextbox, nextlogq = proposebox_tl(f,Y,X; args...)
+    nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
 #     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack; args...)
-    nextlogp = logmeasure(nextbox)
+    nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
     loga = nextlogp + logq - logp - nextlogq
     a = exp(loga)
@@ -98,10 +130,29 @@ end
 
 ## Sampling
 ## ========
+function rejection_presample(Y::RandVar, preimgevents; maxtries = 5)
+  local j; local preimgsample
+  local k
+  for j = 1:maxtries
+    preimgsample =  rand(preimgevents)
+    @show preimgevents
+    @show preimgsample
+    k = call(Y, preimgsample)
+    k && break
+  end
+  @show j, k
+  if j == maxtries error("Couldn't get sample from rejection") end
+  preimgsample
+end
+
+# Sample nsample points from X conditioned on Y being true
 function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
   Ypresamples = pre_tlmh(Y,T,Omega(),nsamples; pre_args...)
-  r = rand(Ypresamples[1])
-  [call(X, rand(i)) for i in Ypresamples]
+  samples = Array(rangetype(X),nsamples)
+  for i = 1:length(Ypresamples)
+    samples[i] = call(X,rejection_presample(Y,Ypresamples[i]))
+  end
+  samples
 end
 
 loop_stats(X...) = print(X)
