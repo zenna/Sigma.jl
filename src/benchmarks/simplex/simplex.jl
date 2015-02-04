@@ -71,10 +71,9 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
 
-  value, Δt, Δb, Δgc = @timed(simplex(b.ndims, m))
-  model, condition = value
+  model, condition = simplex(b.ndims, m)
 
-  samples = sample(a,model,condition,3)
+  samples, Δt, Δb = @timed(sample(a,model,condition,1))
 
   @show length(samples)
   #Windows

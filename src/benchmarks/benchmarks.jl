@@ -21,6 +21,7 @@ function accumulative_KL(samples, n, groundtruth)
     sample_distribution = [j => c/length(samples[1:i]) for (j,c) in sample_counts]
     kls[i] = KLsafe(groundtruth,sample_distribution)
   end
+  kls
 end
 
 ## Visualisation (TODO: move to Figure)

@@ -1,4 +1,4 @@
 ## Run ALL OF THE BENCHMARKS
 using Sigma
-results = runbenchmarks(allbenchmarks, allalgorithms, newseed = true)
+results = runbenchmarks(allalgorithms,allbenchmarks, newseed = true)
 @show results

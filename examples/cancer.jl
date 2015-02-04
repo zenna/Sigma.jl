@@ -19,8 +19,17 @@ plot_sample_histogram(cancer_base_rate,10000)
 breast_cancer = flip(1,cancer_base_rate)
 positive_mammogram = ifelse(breast_cancer,flip(2, 0.8),flip(3,0.096))
 
+@show positive_mammogram
+
 # Queries
 prob(positive_mammogram)
 prob_sampled(positive_mammogram,nsamples = 100000)
 cond_prob(breast_cancer, positive_mammogram, box_budget = 1E5, max_iters = 1E5)
 cond_prob_sampled(breast_cancer, positive_mammogram)
+
+## SMT version
+## ===========
+cancer_base_rate = 0.01
+breast_cancer = flipsmt(1,cancer_base_rate)
+positive_mammogram = ifelse(breast_cancer,flipsmt(2, 0.8),flipsmt(3,0.096))
+prob(positive_mammogram, box_budget = 500)

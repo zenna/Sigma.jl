@@ -14,7 +14,7 @@
 # percentage is greater than frac_in_preimage, determined by sampling
 function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
                          children,f::Callable;
-                         frac_in_preimage::Float64 = 1.0,
+                         frac_in_preimage::Float64 = 0.20,
                          npre_tests::Int = 100, args...)
   if frac_in_preimage < 1.0
     # Compute preimage volume fractions
@@ -28,11 +28,12 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
         prevolfracs[i] = fraction_sat(f, children[i][1], npre_tests)
       end
     end
-    # Change statuses of children whose have a fraction of preimage greater
-    # than frac_in_reimage
-    statuses = [(statuses[i] == TF) && (prevolfracs[i] > frac_in_preimage) ? T : statuses[i]
-      for i = 1:length(statuses)]
-    statuses,weights, prevolfracs
+
+    # Those with preimage vol fration higher than threshold are turned
+    # to SAT
+    newstatuses =
+      [(statuses[i] == PARTIALSAT) && (prevolfracs[i] > frac_in_preimage) ? SAT : statuses[i] for i = 1:length(statuses)]
+    newstatuses,weights, prevolfracs
   else
     statuses,weights, ones(Float64,length(statuses))
   end
@@ -95,6 +96,7 @@ end
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
   stack = (D,Float64)[] #For parallelism
+  window(:start_loop,time_ns())
   box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
 #   box, logq = propose_parallel_tl(f,Y,X,stack; args...)
   logp = logmeasure(box) + log(prevolfrac)
@@ -103,8 +105,8 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
 
 
   naccepted = 0; nsteps = 0
+  window(:start_loop,time_ns())
   while nsteps < niters - 1
-    window(:start_loop,time_ns())
     nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
 #     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack; args...)
     nextlogp = logmeasure(nextbox) + log(prevolfrac)
@@ -123,6 +125,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
 
     window(:loop_stats, naccepted/niters, nsteps)
 #     window(:post_accept,naccepted,nsteps,box,logp,logq)
+    window(:start_loop,time_ns())
     nsteps += 1
   end
   boxes
@@ -130,7 +133,7 @@ end
 
 ## Sampling
 ## ========
-function rejection_presample(Y::RandVar, preimgevents; maxtries = 5)
+function rejection_presample(Y::RandVar, preimgevents; maxtries = 1000)
   local j; local preimgsample
   local k
   for j = 1:maxtries
