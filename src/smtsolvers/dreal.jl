@@ -49,6 +49,8 @@ function checksat_nra(program::SExpr)
   f = open(withext,"w")
   write(f,program.e)
   close(f)
+  @show "SHIT FACE"
+    @show readall(`dReal $withext`)
   satstatus = parse_sat_status(readall(`dReal3 $withext`))
   rm(withext)
   satstatus

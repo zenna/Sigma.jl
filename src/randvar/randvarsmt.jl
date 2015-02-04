@@ -166,16 +166,29 @@ for op = (:>, :>=, :<=, :<, :(==), :!=, :isapprox)
   end
 end
 
-for op = (:ifelse,)
-  @eval begin
-    function ($op){T}(A::RandVarSMT{Bool}, B::RandVarSMT{T}, C::RandVarSMT{T})
-      let op = $op
-        newast = :($(julia2smt(op))($(ast(A)),$(ast(B)),$(ast(C))))
-        RandVarSMT{Bool}(newast, union(A.assert_gens, B.assert_gens, C.assert_gens),
-                                 union(A.dims, B.dims, C.dims))
-      end
-    end
-  end
+# ifelse
+
+function ifelse{T}(A::RandVarSMT{Bool}, B::RandVarSMT{T}, C::RandVarSMT{T})
+  newast = :(ite($(ast(A)),$(ast(B)),$(ast(C))))
+  RandVarSMT{T}(newast, union(A.assert_gens, B.assert_gens, C.assert_gens),
+                   union(A.dims, B.dims, C.dims))
+end
+
+function ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::T1, C::T1)
+  newast = :(ite($(ast(A)),$B,$C))
+  RandVarSMT{T1}(newast, A.assert_gens, A.dims)
+end
+
+function ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::T1, C::RandVarSMT)
+  newast = :(ite($(ast(A)),$B,$(ast(C))))
+  RandVarSMT{T1}(newast, union(A.assert_gens, C.assert_gens),
+                   union(A.dims, C.dims))
+end
+
+function ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::RandVarSMT, C::T1)
+  newast = :(ite($(ast(A)),$(ast(B)),$C))
+  RandVarSMT{T1}(newast, union(A.assert_gens, B.assert_gens),
+                   union(A.dims, B.dims))
 end
 
 # Real × Real -> Bool

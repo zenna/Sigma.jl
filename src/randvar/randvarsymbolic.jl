@@ -168,3 +168,10 @@ function in(X::RandVarSymbolic{Float64}, i::Vector{Float64})
   @assert i[1] <= i[2]
   (X >= i[1]) & (X <= i[2])
 end
+
+## Control Flow
+# When cond is a random variable, @If and ifelse return a random variable
+# Which also 'pipes' ω into x and y if they are random variables
+function ifelse{T1<:Real,T2<:Real}(c::RandVarSymbolic{Bool},x::T1,y::T2)
+  RandVarSymbolic(rangetype(x),:(ifelse(call($c,ω),pipeomega($x,ω),pipeomega($y,ω))))
+end

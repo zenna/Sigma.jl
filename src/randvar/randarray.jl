@@ -178,7 +178,7 @@ end
 for op = (:abs,)
   @eval begin
   function ($op){T,D}(X::PureRandArray{T,D})
-    PureRandArray{T,D}(map($op,X.array)) #PERF
+    PureRandArray(map($op,X.array)) #PERF
   end
   end
 end

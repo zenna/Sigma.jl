@@ -42,8 +42,8 @@ for op = (:+, :-, :*, :/, :>, :>=, :<=, :<, :(==), :!=, :isapprox, :&, :|, :(==)
   end
 end
 
-# Binary functions
-for op = (:!, :sqr,:abs, :sqrt, :round,)
+# Unary functions
+for op = (:!, :sqr,:abs, :sqrt, :round)
   @eval begin
     function ($op)(X::RandVarMeta)
       let op = $op
@@ -53,8 +53,34 @@ for op = (:!, :sqr,:abs, :sqrt, :round,)
   end
 end
 
+ifelse
+for op = (:ifelse,)
+  @eval begin
+    function ($op)(A::RandVarMeta,B,C)
+      let op = $op
+        RandVarMeta(($op)(A.smt,B,C),($op)(A.ai,B,C))
+      end
+    end
+  end
+end
+
+# Interop with RandVarSMT
+function ifelse(A::RandVarSMT, B::RandVarMeta, C::RandVarMeta)
+  @assert rangetype(B) == rangetype(C)
+  newast = :(ite($(ast(A)),$(ast(B.smt)),$(ast(C.smt))))
+  RandVarSMT{rangetype(B)}(newast, union(A.assert_gens, B.smt.assert_gens, C.smt.assert_gens),
+                   union(A.dims, B.smt.dims, C.smt.dims))
+end
+
+function ifelse(c::RandVarSymbolic{Bool},x::RandVarMeta,y::RandVarMeta)
+  @assert rangetype(x) == rangetype(y)
+  RandVarSymbolic(rangetype(x),:(ifelse(call($c,ω),pipeomega($(x.ai),ω),pipeomega($(y.ai),ω))))
+end
+
 mvuniformmeta(a,b, i::Int, j::Int) = iidmeta(Float64, c->uniformmeta(a,b),i,j)
 mvuniformmeta(a,b, i::Int) = iidmeta(Float64, c->uniformmeta(a,b),i)
 
 mvnormalmeta(μ,σ, i::Int, j::Int) = iidmeta(Float64, c->normalmeta(μ,σ),i,j)
 mvnormalmeta(μ,σ, i::Int) = iidmeta(Float64, c->normalmeta(μ,σ),i)
+
+rangetype(X::RandVarMeta) = typeof(X).parameters[1]

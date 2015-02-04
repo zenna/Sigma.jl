@@ -10,11 +10,6 @@ function ifelse(c::AbstractBool, x, y)
   end
 end
 
-# When cond is a random variable, @If and ifelse return a random variable
-# Which also 'pipes' ω into x and y if they are random variables
-function ifelse{T}(c::RandVar{Bool},x::T,y::T)
-  RandVarSymbolic(rangetype(x),:(ifelse(call($c,ω),pipeomega($x,ω),pipeomega($y,ω))))
-end
 
 # function makeif(condition::Expr, conseq::Expr, alt::Expr)
 #   quote
