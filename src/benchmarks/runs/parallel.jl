@@ -25,7 +25,7 @@ SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
       sampler = [cond_sample_tlmh]][:]
 
 AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [1],
+  for nprocs = [1:40],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
