@@ -15,7 +15,7 @@ end
 
 function flipsmt(i::Int64, p::Real)
   @assert 0 <= p <= 1
-  RandVarSMT{Bool}(:((>=)($(ω_nth(i)),$p)),
+  RandVarSMT{Bool}(:((>=)($p,$(ω_nth(i)))),
                    Set([ω->ω_asserts(ω,i)]),
                    Set(i))
 end

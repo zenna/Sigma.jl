@@ -16,10 +16,10 @@ uniformai{T1<:Real, T2<:Real}(i::Int64,a::RV{T1},b::RV{T2}) = (b - a) * uniforma
 uniformai(a,b) = uniformai(genint(),a,b)
 
 # Bernoulli
-flipai{T<:Real}(i::Int,p::RV{T}) = p > random(i)
-flipai(i::Int64) = 0.5 > random(i)
-flipai{T<:Real}(p::RV{T}) = p > random(genint())
-flipai() = 0.5 > random(genint())
+flipai{T<:Real}(i::Int,p::RV{T}) = p >= random(i)
+flipai(i::Int64) = 0.5 >= random(i)
+flipai{T<:Real}(p::RV{T}) = p >= random(genint())
+flipai() = 0.5 >= random(genint())
 
 # Discrete Uniform
 discreteuniformai(i::Int64,a::Int64,b::Int64) =

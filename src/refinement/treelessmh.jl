@@ -102,10 +102,10 @@ end
 # Uses metropolis hastings
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
-  stack = (D,Float64)[] #For parallelism
+  stack = (D,Float64,Float64)[] #For parallelism
   window(:start_loop,time_ns())
-  box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
-#   box, logq = propose_parallel_tl(f,Y,X,stack; args...)
+#   box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
+  box, logq, prevolfrac = propose_parallel_tl(f,Y,X,stack; args...)
   logp = logmeasure(box) + log(prevolfrac)
   push!(boxes,box)
   println("Initial satisfying point found!, starting MH chain\n")
@@ -114,8 +114,8 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   naccepted = 0; nsteps = 0
   window(:start_loop,time_ns())
   while nsteps < niters - 1
-    nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
-#     nextbox, nextlogq = propose_parallel_tl(f,Y,X,stack; args...)
+#     nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
+    nextbox, nextlogq, prevolfrac = propose_parallel_tl(f,Y,X,stack; args...)
     nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
     loga = nextlogp + logq - logp - nextlogq

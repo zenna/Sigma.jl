@@ -73,7 +73,7 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 
   model, condition = simplex(b.ndims, m)
 
-  samples, Δt, Δb = @timed(sample(a,model,condition,5))
+  samples, Δt, Δb = @timed(sample(a,model,condition,3))
 
   @show length(samples)
   #Windows
