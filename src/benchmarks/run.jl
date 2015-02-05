@@ -28,12 +28,13 @@ allalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 # Run all the benchmarks with all teh algorithms and collect results
 function runbenchmarks{A<:Algorithm, B<:Benchmark}(algos::Vector{A},
                                                    benches::Vector{B};
-                                                   newseed = false)
+                                                   newseed = false,
+                                                   runname::String = "")
   results = Dict{(Algorithm, Benchmark),Any}()
   runiter = 1; nruns = length(benches) * length(algos)
   nfailures = 0
 
-  thisrundir = joinpath(benchdir, "data", string(Dates.now()))
+  thisrundir = joinpath(benchdir, "data", "$(runname)-$(string(Dates.now()))")
   mkdir(thisrundir)
 
   for j = 1:length(benches), i = 1:length(algos)
