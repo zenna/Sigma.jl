@@ -66,4 +66,5 @@ end
 
 # prob(ifelse(flipsmt(.3),flipsmt(.8),true))
 m,c = test_abc()
-cond_sample_mh(m,c,1)
+@show c.smt
+# cond_sample_mh(m,c,1)

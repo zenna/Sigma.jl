@@ -26,7 +26,7 @@ function weighted_partial_split(o::Omega, depth::Int)
 end
 
 # Randomly select a dimension
-function rand_partial_split(o::Omega, depth::Int; ndims = 1)
+function rand_partial_split(o::Omega, depth::Int; ndims = 4)
   dimindices = collect(keys(o.intervals))
   randindices = unique([rand_select(dimindices) for i = 1:ndims])
   splitted = mid_partial_split(o::Omega, randindices)

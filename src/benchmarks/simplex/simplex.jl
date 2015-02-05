@@ -46,7 +46,7 @@ function vertex_distribution(samples,n)
   counts =  DefaultDict(Int, Int, 0)
   for sample in samples
     for i = 1:n+1
-      if point_near_region(sample,vertexcoords[:,i], 0.01)
+      if point_near_region(sample,vertexcoords[:,i], 0.1)
         counts[i] += 1
         break
       end
@@ -73,7 +73,7 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 
   model, condition = simplex(b.ndims, m)
 
-  samples, Δt, Δb = @timed(sample(a,model,condition,1))
+  samples, Δt, Δb = @timed(sample(a,model,condition,5))
 
   @show length(samples)
   #Windows
@@ -93,27 +93,3 @@ sample(a::SigmaSMT, model, condition, nsamples) =
 
 sample(a::SigmaAI, model, condition, nsamples) =
    a.sampler(model,condition, 3; ncores = a.ncores, split = a.split)
-
-# plot(x = int(res[:refinement_depth]), Geom.histogram)
-# b1 = SimplexBenchmark(10,[:sample_distribution, :accumulative_KL, :total_time,])
-# res = benchmark(ai1, b1)
-# plot(x = int(res[:refinement_depth]), Geom.histogram)
-
-
-# p3  = benchmark(test_sigma3, test_benchmark)
-# plot(#layer(y = p1[:accumulative_KL][1], x = 1:1000, Geom.line),
-#      layer(y = p3[:accumulative_KL][1], x = 1:1000, Geom.line))
-# methods(check_bounds)
-
-# TODO
-# 1. Get out times
-# - Absolute runtime
-# - Time per sample
-
-# 2. Do plotting
-
-# 3. Add timeout and exception handling
-
-# B = simplex(3)[2]
-# prob(B)
-# # smtdistributions!()

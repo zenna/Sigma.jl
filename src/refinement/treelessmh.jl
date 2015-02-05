@@ -14,7 +14,7 @@
 # percentage is greater than frac_in_preimage, determined by sampling
 function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
                          children,f::Callable;
-                         frac_in_preimage::Float64 = 0.20,
+                         frac_in_preimage::Float64 = 0.01,
                          npre_tests::Int = 100, args...)
   if frac_in_preimage < 1.0
     # Compute preimage volume fractions
@@ -29,6 +29,9 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
       end
     end
 
+    @show prevolfracs
+    @show statuses
+
     # Those with preimage vol fration higher than threshold are turned
     # to SAT
     newstatuses =
@@ -39,9 +42,13 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
   end
 end
 
+## Stop functions
+## ==============
+
 # Proposes a box using refinement (without storing tree). # f:X → Y
 function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
                                     split::Function = weighted_partial_split,
+                                    maxdepth::Int = 1000,
                                     args...)
 #   @show myid()
 #   split = args[:split]
@@ -49,9 +56,9 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
   prevolfrac = 1.0
   A::D = X
   status = checksat(f,Y,X; args...)
-  while niters <= 1E5
+  while (niters <= 1E5) && (depth <= maxdepth)
 #     @show status
-#     @show niters, depth
+    @show niters, depth
     if status == SAT
       window(:refinement_depth, depth)
         return A, logq, prevolfrac
@@ -133,7 +140,7 @@ end
 
 ## Sampling
 ## ========
-function rejection_presample(Y::RandVar, preimgevents; maxtries = 1000)
+function rejection_presample(Y::RandVar, preimgevents; maxtries = 10000)
   local j; local preimgsample
   local k
   for j = 1:maxtries

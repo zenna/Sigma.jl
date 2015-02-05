@@ -4,6 +4,22 @@
 # Construct a path from the start region to the target region
 # which does not pass trhoug nay of the obstacles
 
+
+typealias Point Lifted{Vector{Float64}}
+typealias Vec Lifted{Vector{Float64}}
+typealias Mat Lifted{Matrix{Float64}}
+typealias PointPair Lifted{Matrix{Float64}}
+typealias Edge Lifted{Matrix{Float64}}  #Parametric form of line is p1 + (p2 - p1)
+typealias Scalar Lifted{Float64}
+
+points_to_vec(p1::Point, p2::Point) = p1 - p2
+points_to_vec(edge::PointPair) = points_to_vec(edge[:,1], edge[:,2])
+
+# Parametric form of line is p1 + (p2 - p1)
+points_to_parametric(p1::Point,p2::Point) = liftedarray([p1 points_to_vec(p2,p1)])
+points_to_parametric(edge::PointPair) = points_to_parametric(edge[:,1], edge[:,2])
+parametric_to_point(p::Edge, s::Scalar) = p[:,1] + s * p[:,2]
+
 # Is the point in the box?
 function ispointinpoly(point, box)
   r = (point[1] >= box[1,1]) &
@@ -96,9 +112,10 @@ function nonlinearplan(points)
   points,good_path
 end
 
-# points = iidmeta(Float64,i->uniformmeta(i,0,10),2,4)
-# points, condition = nonlinearplan(points)
-# s = cond_sample_mh(points,condition,1)
+points = iidmeta(Float64,i->uniformmeta(i,0,10),2,6)
+points, condition = nonlinearplan(points)
+@show condition.smt
+# s = cond_sample_tlmh(points,condition,1)
 
 # # ## Draw
 # obstacles = Array[[8.01 3.01; 1.02 9],

@@ -32,6 +32,10 @@ function runbenchmarks{A<:Algorithm, B<:Benchmark}(algos::Vector{A},
   results = Dict{(Algorithm, Benchmark),Any}()
   runiter = 1; nruns = length(benches) * length(algos)
   nfailures = 0
+
+  thisrundir = joinpath(benchdir, "data", string(Dates.now()))
+  mkdir(thisrundir)
+
   for j = 1:length(benches), i = 1:length(algos)
     println("\nRUNNING $runiter of $nruns, $nfailures so far")
     print("$(algos[i]) \n")
@@ -40,6 +44,7 @@ function runbenchmarks{A<:Algorithm, B<:Benchmark}(algos::Vector{A},
     restart_counter!()
     try
       results[(algos[i],benches[j])] = benchmark(algos[i], benches[j])
+      dumpbenchmark(thisrundir,results)
     catch er
       nfailures += 1
       @show er
@@ -50,5 +55,14 @@ function runbenchmarks{A<:Algorithm, B<:Benchmark}(algos::Vector{A},
     runiter += 1
   end
   println("$nfailures failures")
+  dumpbenchmark(thisrundir,results,"all")
   results
+end
+
+function dumpbenchmark(thisrundir,x,suffix::String = "")
+  fname = "$(string(Dates.now()))-$suffix"
+  path = joinpath(thisrundir, fname)
+  f = open(path,"w")
+  serialize(f,x)
+  close(f)
 end

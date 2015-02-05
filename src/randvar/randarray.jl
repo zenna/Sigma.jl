@@ -69,6 +69,13 @@ function getindex(Xs::PureRandVector, is::StepRange)
   Ys
 end
 
+## Concats
+hcat(Xs::PureRandArray, Ys::PureRandArray) =
+  PureRandArray(hcat(Xs.array, Ys.array))
+
+vcat(Xs::PureRandArray, Ys::PureRandArray) =
+  PureRandArray(hcat(Xs.array, Ys.array))
+
 ## Array Access - Int-RandVar indices
 ## ==================================
 

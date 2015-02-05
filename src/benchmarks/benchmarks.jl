@@ -107,8 +107,9 @@ function add_KL_church!(stats, groundtruth::Dict)
 end
 
 include("solvers.jl")
-include("geometry.jl")
+# include("geometry.jl")
 include("vis.jl")
 include("simplex/simplex.jl")
-include("motionplanning/motionplanning.jl")
+# include("motionplanning/motionplanning.jl")
+include("mp2d/mp2d.jl")
 include("run.jl")

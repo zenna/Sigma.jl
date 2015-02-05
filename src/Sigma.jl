@@ -4,6 +4,8 @@ using Distributions
 using JuMP
 using Window
 using DataStructures
+using DataFrames
+using Dates
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -142,8 +144,10 @@ include("relation.jl")
 # Benchmarks
 include("benchmarks/benchmarks.jl")
 
-# Hack to avoid loading G= adfly each time
+# Hack to avoid loading Gadfly each time
 vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
+benchdir = joinpath(homedir(),".julia","v0.3","Sigma","src","benchmarks")
+
 loadvis() = include(vispath)
 mainmod = ccall(:jl_get_current_module, Any, ())::Module
 
