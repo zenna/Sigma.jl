@@ -19,7 +19,7 @@ all_splits = [weighted_partial_split]
 
 # SMT algorithms
 SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
-  for nprocs = [1:16],
+  for nprocs = [1:40],
       solver = [dreal],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
@@ -33,4 +33,4 @@ dimbenchmarks = SplitBenchmarks
 dimalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 
 
-runbenchmarks(SMTAlgorithms,dimbenchmarks)
+runbenchmarks(dimalgorithms,dimbenchmarks)
