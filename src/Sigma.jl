@@ -128,6 +128,7 @@ export
   runbenchmarks
 
 include("common.jl")
+include("pmaplm.jl")
 include("smtsolver.jl")
 include("joins.jl")
 include("domains.jl")

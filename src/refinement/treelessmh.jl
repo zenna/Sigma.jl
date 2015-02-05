@@ -98,14 +98,27 @@ function propose_parallel_tl(f,Y,X,stack; ncores = 1, args...)
   return pop!(stack)
 end
 
+function genstack(f,Y,X,nsamples;ncores = 1,args...)
+  println("Using $ncores cores")
+  g = _ -> proposebox_tl(f,Y,X;args...)
+  lst = [i for i = 1:nsamples]
+  pmaplm(g, lst;ncores = min(nprocs(),ncores))
+end
+
+# Propose boxes in parallel
+function propose_pmap_tl(f,Y,X,stack; ncores = 1, args...)
+  pop!(stack)
+end
+
 # Uniform sample of subset of preimage of Y under f unioned with X.
 # Uses metropolis hastings
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
-  stack = (D,Float64,Float64)[] #For parallelism
+#   stack = (D,Float64,Float64)[] #For parallelism
+  stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
   window(:start_loop,time_ns())
 #   box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
-  box, logq, prevolfrac = propose_parallel_tl(f,Y,X,stack; args...)
+  box, logq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
   logp = logmeasure(box) + log(prevolfrac)
   push!(boxes,box)
   println("Initial satisfying point found!, starting MH chain\n")
@@ -115,7 +128,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   window(:start_loop,time_ns())
   while nsteps < niters - 1
 #     nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
-    nextbox, nextlogq, prevolfrac = propose_parallel_tl(f,Y,X,stack; args...)
+    nextbox, nextlogq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
     nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
     loga = nextlogp + logq - logp - nextlogq
@@ -145,8 +158,8 @@ function rejection_presample(Y::RandVar, preimgevents; maxtries = 10000)
   local k
   for j = 1:maxtries
     preimgsample =  rand(preimgevents)
-    @show preimgevents
-    @show preimgsample
+#     @show preimgevents
+#     @show preimgsample
     k = call(Y, preimgsample)
     k && break
   end
