@@ -11,7 +11,7 @@ import Sigma: runbenchmarks
 
 SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
                                         :accumulative_KL,
-                                        :total_time,])
+                                        :total_time,],5,0.1)
                    for i = 2:10:62]
 
 mh_captures = [:start_loop, :refinement_depth]

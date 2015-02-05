@@ -28,11 +28,11 @@ function point_near_region(p, region, halfwidth)
 end
 
 # Constrain a point to be within a region around the vertices of a simplex
-function simplex(n::Int, box)
+function simplex(n::Int, box, holesize)
   vertexcoords = simplex_coordinates(n)
   conds = RandVar{Bool}[]
   for i = 1:n+1
-    push!(conds,point_near_region(box,vertexcoords[:,i],0.01))
+    push!(conds,point_near_region(box,vertexcoords[:,i],holesize))
   end
   box,(|)(conds...)
 end
@@ -41,12 +41,12 @@ end
 simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
 
 # From a set of samples compute discrete distribution over the vertices
-function vertex_distribution(samples,n)
+function vertex_distribution(samples,n,holesize)
   vertexcoords = simplex_coordinates(n)
   counts =  DefaultDict(Int, Int, 0)
   for sample in samples
     for i = 1:n+1
-      if point_near_region(sample,vertexcoords[:,i], 0.1)
+      if point_near_region(sample,vertexcoords[:,i], holesize)
         counts[i] += 1
         break
       end
@@ -61,6 +61,8 @@ value, Δt, Δb, Δgc = @timed(1+1)
 immutable SimplexBenchmark <: Benchmark
   ndims::Int
   capture::Vector{Symbol}
+  nsamples::Int
+  holesize::Float64
 end
 
 function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
@@ -71,14 +73,14 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
 
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
 
-  model, condition = simplex(b.ndims, m)
+  model, condition = simplex(b.ndims, m, b.holesize)
 
-  samples, Δt, Δb = @timed(sample(a,model,condition,640))
+  samples, Δt, Δb = @timed(sample(a,model,condition,b.nsamples))
 
   @show length(samples)
   #Windows
   window(:total_time, Δt)
-  window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth))
+  window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth, b.holesize))
 
   # cleanup
   Window.disable_benchmarks!(captures)

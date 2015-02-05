@@ -3,27 +3,27 @@
 
 # Consider all valid combinations of options and collate resultss
 
-SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
-                                        :accumulative_KL,
-                                        :total_time,])
-                   for i = 2:2:20]
+# SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
+#                                         :accumulative_KL,
+#                                         :total_time,])
+#                    for i = 2:2:20]
 
 mh_captures = [:start_loop, :refinement_depth]
 all_splits = [weighted_mid_split, weighted_partial_split, rand_partial_split]
-# SMT algorithms
-SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
-  for nprocs = [1],
-      solver = [dreal3,z3,dreal],
-      split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
+# # SMT algorithms
+# SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
+#   for nprocs = [1],
+#       solver = [dreal3,z3,dreal],
+#       split = all_splits,
+#       sampler = [cond_sample_tlmh]][:]
 
-AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [1],
-      split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
+# AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
+#   for nprocs = [1],
+#       split = all_splits,
+#       sampler = [cond_sample_tlmh]][:]
 
-allbenchmarks = SplitBenchmarks
-allalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
+# allbenchmarks = SplitBenchmarks
+# allalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 
 # Run all the benchmarks with all teh algorithms and collect results
 function runbenchmarks{A<:Algorithm, B<:Benchmark}(algos::Vector{A},
