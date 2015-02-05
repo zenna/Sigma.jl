@@ -19,13 +19,13 @@ all_splits = [weighted_partial_split, rand_partial_split]
 
 # SMT algorithms
 SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
-  for nprocs = [6],
+  for nprocs = [2],
       solver = [dreal3,z3],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
 AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [6],
+  for nprocs = [2],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
