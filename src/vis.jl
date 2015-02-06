@@ -38,7 +38,7 @@ function plot_preimage3D(satos::Vector{Omega{Interval}}, mixedos::Vector{Omega{I
 
   satcuboids = ["Cuboid[{$(box[1].l), $(box[2].l), $(box[3].l)}, {$(box[1].u), $(box[2].u), $(box[3].u)}]" for box in satintervals]
   mixedos = ["Cuboid[{$(box[1].l), $(box[2].l), $(box[3].l)}, {$(box[1].u), $(box[2].u), $(box[3].u)}]" for box in mixedintervals]
-  "Graphics3D[{Green, Opacity[1.0],$(join(satcuboids, ",")),Blue, Opacity[1.0],$(join(mixedos, ","))},{Axes->True},{PlotRange -> {{0, 1}, {0, 1}, {0, 1}}}, {AxesLabel->{ω1,ω2,ω3}}]"
+  "Graphics3D[{Green, Opacity[0.3],$(join(satcuboids, ",")),Blue, Opacity[1.0],$(join(mixedos, ","))},{Axes->True},{PlotRange -> {{0, 1}, {0, 1}, {0, 1}}}, {AxesLabel->{ω1,ω2,ω3}}, {ViewPoint -> Dynamic[vp]}]"
 end
 
 # Take as argument canvas range

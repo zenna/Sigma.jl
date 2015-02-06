@@ -30,6 +30,18 @@ cond_prob_sampled(breast_cancer, positive_mammogram)
 ## SMT version
 ## ===========
 cancer_base_rate = 0.01
-breast_cancer = flipsmt(1,cancer_base_rate)
-positive_mammogram = ifelse(breast_cancer,flipsmt(2, 0.8),flipsmt(3,0.096))
-prob(positive_mammogram, box_budget = 500)
+breast_cancer = flipmeta(1,cancer_base_rate)
+positive_mammogram = ifelse(breast_cancer,flipmeta(2, 0.8),flipmeta(3,0.096))
+prob(positive_mammogram, box_budget = 51)
+print(plot_preimage3D(positive_mammogram;box_budget = 200))
+
+bds = [cond_prob(breast_cancer, positive_mammogram;box_budget = i) for i in [0,1,10,50,200,500]]
+
+pres =pre_tlmh(positive_mammogram, T, Omega(), 500; frac_in_preimage=1.0)
+
+plot_preimage3D()
+mhpics = [plot_preimage3D(pres[1:i],Omega{Interval}[]) for i in [1,6,10,50,200,500]]
+print(mhpics[6])
+pics2 = [plot_preimage3D(breast_cancer & positive_mammogram;box_budget = i) for i in [0,1,10,50,200,500]]
+print(pics[5])
+print(pics2[6])
