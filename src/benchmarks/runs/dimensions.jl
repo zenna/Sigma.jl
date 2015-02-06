@@ -33,7 +33,7 @@ dimbenchmarks = SplitBenchmarks
 dimalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 
 
-runbenchmarks(AIAlgorithms,dimbenchmarks;runname = "dimensions")
+runbenchmarks(SMTAlgorithms,dimbenchmarks;runname = "dimensions")
 
 # using Gadfly
 
