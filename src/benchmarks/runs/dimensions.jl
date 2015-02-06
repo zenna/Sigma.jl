@@ -11,7 +11,7 @@ import Sigma: runbenchmarks
 
 SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
                                         :accumulative_KL,
-                                        :total_time,],5,0.1)
+                                        :total_time,],1,0.1)
                    for i = 2:10:62]
 
 mh_captures = [:start_loop, :refinement_depth]
@@ -20,7 +20,7 @@ all_splits = [weighted_partial_split, rand_partial_split]
 # SMT algorithms
 SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
   for nprocs = [2],
-      solver = [dreal3,z3],
+      solver = [z3],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
@@ -33,19 +33,19 @@ dimbenchmarks = SplitBenchmarks
 dimalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
 
 
-runbenchmarks(dimalgorithms,dimbenchmarks;runname = "dimensions")
+runbenchmarks(AIAlgorithms,dimbenchmarks;runname = "dimensions")
 
 # using Gadfly
 
 # function extractdata(data)
-#   xs = Int64[]
-#   ys = Float64[]
-#   for (key,value) in data
-#     if isa(key[1],Sigma.SigmaAI) & (key[1].split == Sigma.rand_partial_split) & !(isa(value,Exception))
-#       push!(xs,key[2].ndims)
-#       push!(ys,value[:total_time][1])
-#     end
-#   end
+  xs = Int64[]
+  ys = Float64[]
+  for (key,value) in data
+    if isa(key[1],Sigma.SigmaAI) & (key[1].split == Sigma.rand_partial_split) & !(isa(value,Exception))
+      push!(xs,key[2].ndims)
+      push!(ys,value[:total_time][1])
+    end
+  end
 # end
 
 # # Rand split SMT

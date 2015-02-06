@@ -29,8 +29,8 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
       end
     end
 
-    @show prevolfracs
-    @show statuses
+#     @show prevolfracs
+#     @show statuses
 
     # Those with preimage vol fration higher than threshold are turned
     # to SAT
