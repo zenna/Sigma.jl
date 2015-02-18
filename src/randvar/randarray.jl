@@ -7,6 +7,7 @@ end
 
 typealias PureRandVector{T,R} PureRandArray{T,1,R}
 typealias PureRandMatrix{T,R} PureRandArray{T,2,R}
+typealias LA{T,N,R} Union(Array{T,N}, PureRandArray{T,N,R}) #Lifted
 
 ## Constructors
 ## ============
@@ -144,7 +145,12 @@ for op = (:+, :-, :*, :.*, :/, :&, :|)
       a::Array{R} = ($op)(X.array,Y)
       PureRandArray(a)
     end
-    ($op){T,D,R}(X::Array{T,D}, Y::PureRandArray{T,D,R}) = PureRandArray(($op)(X,Y.array))
+
+    function ($op){T,D,R}(Y::Array{T,D}, X::PureRandArray{T,D,R})
+      a::Array{R} = ($op)(Y,X.array)
+      PureRandArray(a)
+    end
+#     ($op){T,D,R}(X::Array{T,D}, Y::PureRandArray{T,D,R}) = PureRandArray(($op)(X,Y.array))
 
     # Point wise arithmetic against rand variable (first arg)
     function ($op){T,D,R,T2<:Real}(Y::RandVar{T2}, X::PureRandArray{T,D,R})
@@ -167,17 +173,20 @@ end
 
 for op = (:(==), :!=, :isapprox)
   @eval begin
-    function ($op){T,D}(X::PureRandArray{T,D}, Y::PureRandArray{T,D})
-      @assert length(X) == length(Y)
-      condition = true
-      for i = 1:length(X)
-        condition = condition & (X.array[i] == Y.array[i])
-      end
-      condition
+    function ($op){T,D,R}(X::PureRandArray{T,D,R}, Y::PureRandArray{T,D,R})
+      @assert size(X) == size(Y)
+      all([X.array[i] == Y.array[i] for i = 1:length(X)])
     end
 
-    ($op){T,D}(X::PureRandArray{T,D}, Y::Array{T,D}) = ($op)(promote(X,Y)...)
-    ($op){T,D}(X::Array{T,D}, Y::PureRandArray{T,D}) = ($op)(promote(X,Y)...)
+    function ($op){T,D,R}(X::PureRandArray{T,D,R}, Y::Array{T,D})
+      @assert size(X) == size(Y)
+      all([X.array[i] == Y[i] for i = 1:length(X)])
+    end
+
+    function ($op){T,D,R}(Y::Array{T,D}, X::PureRandArray{T,D,R})
+      @assert size(X) == size(Y)
+      all([X.array[i] == Y[i] for i = 1:length(X)])
+    end
   end
 end
 

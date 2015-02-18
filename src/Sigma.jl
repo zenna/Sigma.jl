@@ -2,7 +2,7 @@ module Sigma
 
 using Distributions
 using JuMP
-using Window
+using Lens
 using DataStructures
 using DataFrames
 using Dates
@@ -37,11 +37,9 @@ export
 
   # Abstract Domains
   AbstractBool,
-  T, F, TF,
-  @If,
-  @While,
   rangetype,
 
+  LA,
   Lifted,
   liftedarray,
   LiftedArray,

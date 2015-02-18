@@ -70,7 +70,7 @@ end
 ## Example
 ## =======
 
-Xs = iid(Float64, i->uniform(i,0,1),2,10)
+Xs = mvuniformmeta(0,1,2,10)
 Y = isintersectionfree(Xs)
-samples = cond_sample_mh(Xs,Y,0)
+samples = cond_sample_mh(Xs,Y,1                                            )
 draw_lines(to_lines(samples[1]))

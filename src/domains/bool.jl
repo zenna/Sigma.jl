@@ -1,5 +1,5 @@
-# Abstract Boolean Types
-
+## Abstract Boolean Types: {{true},{false}.{true,false}}
+## =====================================================
 immutable AbstractBool <: Domain{Bool}
   v::Uint8
   AbstractBool(v::Uint8) = (@assert v == 0x1 || v == 0x2 || v== 0x3; new(v))
@@ -25,7 +25,9 @@ function !(b::AbstractBool)
   end
 end
 
-(==)(x::AbstractBool, y::AbstractBool) = x === TF || y === TF ? TF : x === T && y === T || x === F && y === F
+(==)(x::AbstractBool, y::AbstractBool) = 
+  x === TF || y === TF ? TF : x === T && y === T || x === F && y === F
+
 function (==)(x::AbstractBool, y::AbstractBool)
   if x === TF || y === TF TF
   elseif x === T && y === T T

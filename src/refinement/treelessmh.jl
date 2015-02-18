@@ -60,7 +60,7 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
 #     @show status
     @show niters, depth
     if status == SAT
-      window(:refinement_depth, depth)
+      lens(:refinement_depth, depth)
         return A, logq, prevolfrac
     elseif status == PARTIALSAT
       children::Vector{(Domain,Float64)} = split(A, depth)
@@ -116,7 +116,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
 #   stack = (D,Float64,Float64)[] #For parallelism
   stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
-  window(:start_loop,time_ns())
+  lens(:start_loop,time_ns())
 #   box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
   box, logq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
   logp = logmeasure(box) + log(prevolfrac)
@@ -125,7 +125,7 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
 
 
   naccepted = 0; nsteps = 0
-  window(:start_loop,time_ns())
+  lens(:start_loop,time_ns())
   while nsteps < niters - 1
 #     nextbox, nextlogq, prevolfrac = proposebox_tl(f,Y,X; args...)
     nextbox, nextlogq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
@@ -143,9 +143,9 @@ function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
     end
     push!(boxes,box)
 
-    window(:loop_stats, naccepted/niters, nsteps)
-#     window(:post_accept,naccepted,nsteps,box,logp,logq)
-    window(:start_loop,time_ns())
+    lens(:loop_stats, naccepted/niters, nsteps)
+#     lens(:post_accept,naccepted,nsteps,box,logp,logq)
+    lens(:start_loop,time_ns())
     nsteps += 1
   end
   boxes
@@ -179,4 +179,4 @@ function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args.
 end
 
 loop_stats(X...) = print(X)
-register!(:loop_stats, :loop_stats, loop_stats)
+register!(loop_stats, :loop_stats, :loop_stats)

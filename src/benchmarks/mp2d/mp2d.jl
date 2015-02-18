@@ -5,24 +5,23 @@ typealias Point Lifted{Vector{Float64}}
 typealias Vec Lifted{Vector{Float64}}
 typealias Mat Lifted{Matrix{Float64}}
 # Use for functions which should take a normal or equivalently typed randarray
-typealias L{T,N,R} Union(Array{T,N}, PureRandArray{T,N,R})
 
 # A geometric entity of N dimensions
 abstract Entity{N}
 
 immutable Rectangle <: Entity{2}
-  bounds::L{Float64,2}
+  bounds::LA{Float64,2}
 end
 
 # ## Edges
 # ## =====
 # # Point Edge
 immutable Edge
-  points::L{Float64,2}
+  points::LA{Float64,2}
 end
 
 immutable ParametricEdge
-  coords::L{Float64,2}
+  coords::LA{Float64,2}
 end
 
 function parametric(e::Edge)
@@ -77,7 +76,7 @@ function validpath(points, obstacles, origin, dest)
 end
 
 function test_mp2d()
-  points = mvuniformmeta(0,10,2,6)
+  points = mvuniformmeta(0,10,2,4)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
   dest = Rectangle([.9 .9
@@ -94,7 +93,7 @@ end
 ## Test
 ## ====
 model, condition = test_mp2d()
-
+# cond_sample_tlmh(model,condition,1;solver=dreal3)
 
 # @show model[1,1].smt
 # o = Omega()
@@ -102,7 +101,7 @@ model, condition = test_mp2d()
 # o
 # call(condition,o)
 # ndims(o)
-# # cond_sample_tlmh(model,condition,1)
+# #
 
 # a = Array[[8.01 3.01; 1.02 9],
 #       [0.5 3.08; 2.02 9.04],
