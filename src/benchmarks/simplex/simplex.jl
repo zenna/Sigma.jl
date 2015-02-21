@@ -55,40 +55,28 @@ function vertex_distribution(samples,n,holesize)
   counts
 end
 
-value, Δt, Δb, Δgc = @timed(1+1)
-## Algorithms
-## ==========
-immutable SimplexBenchmark <: Benchmark
+## Benchmark
+## =========
+immutable Simplex <: Problem
   ndims::Int
   capture::Vector{Symbol}
   nsamples::Int
   holesize::Float64
 end
 
-function simplexbenchmark(a::Algorithm, m::RandVar, b::SimplexBenchmark)
-  Window.clear_benchmarks!()
-  global benchmarks
+function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
-  Window.register_benchmarks!(captures)
-
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
-
   model, condition = simplex(b.ndims, m, b.holesize)
 
-  samples, Δt, Δb = @timed(sample(a,model,condition,b.nsamples))
-
-  @show length(samples)
-  #Windows
-  window(:total_time, Δt)
-  window(:accumulative_KL,accumulative_KL(samples, b.ndims, groundtruth, b.holesize))
-
-  # cleanup
-  Window.disable_benchmarks!(captures)
-  copy(Window.benchmarks)
+  value, results = quickbench(()->@timed(sample(a,model,condition,b.nsamples)), captures)
+  samples, Δt, Δb = value
+  results[:total_time] = [Δt]
+  results
 end
 
-benchmark(a::SigmaAI, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
-benchmark(a::SigmaSMT, b::SimplexBenchmark) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
+benchmark(a::SigmaAI, b::Simplex) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
+benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
 
 sample(a::SigmaSMT, model, condition, nsamples) =
   a.sampler(model,condition, 3; ncores = a.ncores, split = a.split, solver = a.solver)

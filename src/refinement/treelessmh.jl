@@ -114,7 +114,7 @@ end
 # Uses metropolis hastings
 function pre_tlmh{D <: Domain} (f::Callable, Y, X::D, niters; args...)
   boxes = D[]
-#   stack = (D,Float64,Float64)[] #For parallelism
+  # stack = (D,Float64,Float64)[] #For parallelism
   stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
   lens(:start_loop,time_ns())
 #   box, logq, prevolfrac = proposebox_tl(f,Y,X; args...) # log for numercal stability
@@ -177,6 +177,3 @@ function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args.
   end
   samples
 end
-
-loop_stats(X...) = print(X)
-register!(loop_stats, :loop_stats, :loop_stats)

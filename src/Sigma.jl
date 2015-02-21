@@ -1,7 +1,6 @@
 module Sigma
 
 using Distributions
-using JuMP
 using Lens
 using DataStructures
 using DataFrames
@@ -16,6 +15,7 @@ import Base.isapprox
 import Base.start
 import Base.next
 import Base.done
+import Lens:benchmark
 
 # import Base: call # Wait until 0.4
 

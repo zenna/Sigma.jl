@@ -162,8 +162,8 @@ function check_samples()
   if af > 0 error("We got a point after $niterations niterations") end
 end
 
-register!(mh_stats, :post_accept, :mh_stats,)
-register!(check_bounds, :pre_refine, :check_bounds)
+# register!(mh_stats, :post_accept, :mh_stats,)
+# register!(check_bounds, :pre_refine, :check_bounds)
 
 function why_z3_imprecise(node, children, childnodes, f)
   if length(childnodes) == 0
