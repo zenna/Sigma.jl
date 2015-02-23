@@ -8,7 +8,7 @@ import Sigma: cond_sample_tlmh
 import Sigma: runbenchmarks, benchdir
 
 # Vary the size of the holes around the vertices of the simples
-holesizes = logspace(-1,-20,2)
+holesizes = logspace(-1,-10,2)
 problems = [Simplex(3,[:sample_distribution, :accumulative_KL,
                        :total_time,],5,h)
               for h = holesizes]
@@ -23,12 +23,12 @@ SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
       sampler = [cond_sample_tlmh]][:]
 
 AIalgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [1,2],
+  for nprocs = [1],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
 runbenchmarks(vcat(AIalgorithms),problems;
-              runname = "holesize",prefix=benchdir,savedb=true)
+              runname = "holesize",prefix=benchdir,savedb=true,exceptions=false)
 
 # # using Gadfly
 

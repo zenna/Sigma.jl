@@ -58,7 +58,7 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
   status = checksat(f,Y,X; args...)
   while (niters <= 1E5) && (depth <= maxdepth)
 #     @show status
-    @show niters, depth
+    # @show niters, depth
     if status == SAT
       lens(:refinement_depth, depth)
         return A, logq, prevolfrac

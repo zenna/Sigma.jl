@@ -71,7 +71,7 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
 
   value, results = quickbench(()->@timed(sample(a,model,condition,b.nsamples)), captures)
   samples, Δt, Δb = value
-  results[:total_time] = [Δt]
+  results.values[myid()] = [:total_time => [:x1 => [Δt]]]
   results
 end
 
