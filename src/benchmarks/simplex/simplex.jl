@@ -69,9 +69,7 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
   model, condition = simplex(b.ndims, m, b.holesize)
 
-  value, results = quickbench(()->@timed(sample(a,model,condition,b.nsamples)), captures)
-  samples, Δt, Δb = value
-  results.values[myid()] = [:total_time => [:x1 => [Δt]]]
+  value, results = quickbench(()->sample(a,model,condition,b.nsamples), captures)
   results
 end
 

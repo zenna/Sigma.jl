@@ -175,5 +175,6 @@ function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args.
   for i = 1:length(Ypresamples)
     samples[i] = call(X,rejection_presample(Y,Ypresamples[i]))
   end
+  lens(:samples, samples)
   samples
 end
