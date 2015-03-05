@@ -3,7 +3,6 @@ module Sigma
 using Distributions
 using Lens
 using DataStructures
-using DataFrames
 using FastAnonymous
 
 if VERSION < v"0.4.0-dev"
