@@ -4,7 +4,11 @@ using Distributions
 using Lens
 using DataStructures
 using DataFrames
-using Dates
+using FastAnonymous
+
+if VERSION < v"0.4.0-dev"
+    using Docile
+end
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -15,7 +19,8 @@ import Base.isapprox
 import Base.start
 import Base.next
 import Base.done
-import Lens:benchmark
+import Base: hash
+# import Lens:benchmark
 
 # import Base: call # Wait until 0.4
 
@@ -126,6 +131,7 @@ export
   runbenchmarks
 
 include("common.jl")
+include("util.jl")
 include("pmaplm.jl")
 include("smtsolver.jl")
 include("joins.jl")
@@ -134,20 +140,18 @@ include("omega.jl")
 include("randvar.jl")
 include("lift.jl")
 include("controlflow.jl")
-include("util.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
 include("relation.jl")
 
-# Benchmarks
-include("benchmarks/benchmarks.jl")
+# # Benchmarks
+# include("benchmarks/benchmarks.jl")
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
 benchdir = joinpath(homedir(),".julia","v0.3","Sigma","src","benchmarks")
 
 loadvis() = include(vispath)
-mainmod = ccall(:jl_get_current_module, Any, ())::Module
 
 end

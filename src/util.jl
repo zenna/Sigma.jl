@@ -1,3 +1,38 @@
+## General util TODO: Move to separate
+
+# Are a and b equal on these fields
+isequalon(a,b,fields::Vector{Symbol}) =
+  all([getfield(a,f) == getfield(b,f) for f in fields])
+
+issametype(a,b) = typeof(a) == typeof(b)
+
+equiv{T}(a::T,b::T) =
+  all([getfield(a,f) == getfield(b,f) for f in T.names])
+
+eq_f{T}(x::T,y::T) = T.names == () ? (==) : deepequiv
+
+function deepequiv{T}(a::T,b::T)
+  for f in T.names
+    if Base.isdefined(a,f) && Base.isdefined(b,f)
+      same = eq_f(getfield(a,f), getfield(b,f))(getfield(a,f),getfield(b,f))
+      !same && return false
+    elseif Base.isdefined(a,f) $ Base.isdefined(b,f)
+      return false
+    end
+  end
+  return true
+end
+
+function deephash{T}(x::T, h = zero(Uint))
+  h += uint(0x7f53e68ceb575e76)
+  for t in T.names
+    if Base.isdefined(x,t)
+      h = hash(getfield(x,t),h)
+    end
+  end
+  return h
+end
+
 type Counter
   X::Int64
 end
@@ -47,15 +82,5 @@ sqr{T <: Real}(x::T) = x * x
 
 rand_interval{T<:Real}(a::T, b::T) = a + (b - a) * rand()
 rand_select(v::Vector) = v[ceil(rand_interval(0,length(v)))]
-
-function tosatboxes(pre)
-  sat =  Sigma.sat_tree_data(pre)
-  map(x->convert(Sigma.HyperBox,collect(values(x.intervals))),sat)
-end
-
-function tomixedboxes(pre)
-  mixed =  Sigma.mixedsat_tree_data(pre)
-  map(x->convert(Sigma.HyperBox,collect(values(x.intervals))),mixed)
-end
 
 pnormalize{T <: Real}(v::Vector{T}) = (v/sum(v))::Vector{Float64}

@@ -37,6 +37,9 @@ function simplex(n::Int, box, holesize)
   box,(|)(conds...)
 end
 
+# Ground truth histrogram
+groundtruth(ndims) = [i::Int => (1/(ndims+1))::Float64 for i = 1:(ndims+1)]
+
 # Constrain a point to be within a region around the vertices of a simplex
 simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
 
@@ -64,12 +67,17 @@ immutable Simplex <: Problem
   holesize::Float64
 end
 
+==(a::Simplex, b::Simplex) = equiv(a,b)
+hash(s::Simplex, h::Uint) = deephash(s,h)
+
 function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
   model, condition = simplex(b.ndims, m, b.holesize)
+  @show b.nsamples
 
   value, results = quickbench(()->sample(a,model,condition,b.nsamples), captures)
+  @show length(value)
   results
 end
 
@@ -77,7 +85,7 @@ benchmark(a::SigmaAI, b::Simplex) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims
 benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
 
 sample(a::SigmaSMT, model, condition, nsamples) =
-  a.sampler(model,condition, 3; ncores = a.ncores, split = a.split, solver = a.solver)
+  a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split, solver = a.solver)
 
 sample(a::SigmaAI, model, condition, nsamples) =
-   a.sampler(model,condition, 3; ncores = a.ncores, split = a.split)
+   a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split)

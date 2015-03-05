@@ -1,5 +1,4 @@
 function pmaplm(f, lsts...; err_retry=true, err_stop=false, ncores = 1)
-    @show workers()[1:ncores]
     len = length(lsts)
 
     results = Dict{Int,Any}()

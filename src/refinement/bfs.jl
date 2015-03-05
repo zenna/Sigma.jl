@@ -1,10 +1,10 @@
 ## Preimage refinement by breadth first search
 ## ===========================================
 
-function update_approx!(f, X, Y, satsets, mixedsets)
+function update_approx!(f, X, Y, satsets, mixedsets; args...)
   children = mid_split(X)
   for child in children
-    childsatstatus = checksat(f,Y,child)
+    childsatstatus = checksat(f,Y,child;args...)
     if childsatstatus == SAT
       push!(satsets,child)
     elseif childsatstatus == PARTIALSAT
@@ -16,11 +16,11 @@ end
 # Preimage of Y under F, unioned with X
 #FIXME: Assumes X is PARTIALSAT
 function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
-                                                     max_iters = 1E3)
+                                                     max_iters = 1E3,args...)
   # Over and under approximation
   satsets = D[]
   local mixedsets
-  satstatus = checksat(f,Y,X)
+  satstatus = checksat(f,Y,X;args...)
   if satstatus == SAT return D[X],D[]
   elseif satstatus == UNSAT return D[],D[]
   else mixedsets = D[X]
@@ -44,7 +44,7 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
 
 #     println("Iteration $i : $length(boxes) boxes")
     Xsub = shift!(mixedsets)
-    update_approx!(f,Xsub,Y,satsets,mixedsets)
+    update_approx!(f,Xsub,Y,satsets,mixedsets;args...)
     i += 1
   end
 

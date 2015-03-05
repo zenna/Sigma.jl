@@ -16,3 +16,8 @@ immutable SigmaSMT <: Algorithm
   ncores::Int
   split::Function
 end
+
+==(a::SigmaAI,b::SigmaAI) = equiv(a,b)
+hash(a::SigmaAI, h::Uint) = deephash(a,h)
+==(a::SigmaSMT,b::SigmaSMT) = equiv(a,b)
+hash(a::SigmaSMT, h::Uint) = deephash(a,h)

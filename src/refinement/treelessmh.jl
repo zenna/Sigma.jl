@@ -42,9 +42,6 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
   end
 end
 
-## Stop functions
-## ==============
-
 # Proposes a box using refinement (without storing tree). # f:X → Y
 function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
                                     split::Function = weighted_partial_split,
@@ -158,12 +155,9 @@ function rejection_presample(Y::RandVar, preimgevents; maxtries = 10000)
   local k
   for j = 1:maxtries
     preimgsample =  rand(preimgevents)
-#     @show preimgevents
-#     @show preimgsample
     k = call(Y, preimgsample)
     k && break
   end
-  @show j, k
   if j == maxtries error("Couldn't get sample from rejection") end
   preimgsample
 end

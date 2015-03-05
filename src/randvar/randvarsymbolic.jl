@@ -1,5 +1,6 @@
-using FastAnonymous
-
+@doc """
+  A Random Variable for Abstract Interpretation
+  """ ->
 type RandVarSymbolic{T} <: RandVar{T}
   ast
   compiled::Bool
@@ -13,20 +14,23 @@ end
 ## Constructors
 RandVarSymbolic(T::DataType, e) = RandVarSymbolic{T}(e)
 
+@doc "construct an eval-able Lambda Expr from a RandVar" ->
 lambarise(X::RandVarSymbolic) = :(ω->$(ast(X)))
 
+@doc "Compile RandVar into `Function`, store function in RandVar" ->
 function compile!(X::RandVarSymbolic)
   if !X.compiled X.λ = eval(:(@anon $(lambarise(X)))) end
   X.compiled = true
   X
 end
 
+@doc "X(ω): apply X to ω." ->
 # Call is state changing, but I've omitted ! so that that we can
 # overload the () syntax.
 call(X::RandVarSymbolic, ω; args...) = (compile!(X); X.λ(ω))
 callnocheck(X::RandVarSymbolic, ω) = X.λ(ω)
 
-# Will need to deprecate this in Julia v4.
+# Will need to deprecate this in Julia v0.4.
 call(f::Function, a) = f(a)
 
 rangetype(X::RandVarSymbolic) = typeof(X).parameters[1]
@@ -48,13 +52,14 @@ convert{T<:Real}(::Type{RandVarSymbolic{T}}, c::T) = RandVarSymbolic(T,:($c))
 convert{T1<:Real, T2<:Real}(::Type{RandVarSymbolic{T1}}, c::T2) =
   (T = promote_type(T1,T2); RandVarSymbolic(T,:($(convert(T,c)))) )
 
-
-
 # Convert a random variable to a julia function by compiling the lambda
 convert{E}(::Type{Function}, X::RandVarSymbolic{E}) = (compile!(X); X.λ)
 
 ## Abstractions
 ast(X::RandVarSymbolic) = X.ast
+
+## Lifted Functions of Random Variables
+## ====================================
 
 # Binary functions, with Real output
 for op = (:+, :-, :*, :/)
@@ -150,8 +155,13 @@ for op = (:round,)
   end
 end
 
+@doc """
+  Do not expand a function call, just use its name.  e.g.
 
-macro noexpand(dtype, fcall)
+  X = uniform(0,1)
+  Y = @noexpand(f(X))
+  """ ->
+macro noexpand(rtype, fcall)
   @assert fcall.head == :call
   fname = fcall.args[1]
   fargs = fcall.args[2:end]
@@ -159,7 +169,7 @@ macro noexpand(dtype, fcall)
     pargs = vcat($(fargs...))
     callexpr = Expr(:call, $fname, pargs...)
     pipeexpr = Expr(:call, :pipeomega, callexpr, :ω)
-    RandVarSymbolic($dtype, pipeexpr)
+    RandVarSymbolic($rtype, pipeexpr)
   end
 end
 
@@ -175,3 +185,17 @@ end
 function ifelse{T1,T2}(c::RandVarSymbolic{Bool},x::T1,y::T2)
   RandVarSymbolic(rangetype(x),:(ifelse(call($c,ω),pipeomega($x,ω),pipeomega($y,ω))))
 end
+
+## Display
+## =======
+
+function string(X::RandVarSymbolic)
+  """$(typeof(X))
+  $(X.ast)
+  compiled: $(X.compiled)
+  """
+end
+
+print(io::IO, X::RandVarSymbolic) = print(io,string(X))
+show(io::IO, X::RandVarSymbolic) = print(io,string(X))
+showcompact(io::IO, X::RandVarSymbolic) = print(io,string(X))

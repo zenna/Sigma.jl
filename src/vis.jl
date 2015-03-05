@@ -1,4 +1,5 @@
 using Gadfly
+import Sigma:T,F
 # using Sigma
 # REVIEW - Decide whether plotting functions should return plot or layer
 # REVIEW - Add 3D preimages. Important, not just because the look cool
