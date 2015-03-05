@@ -1,31 +1,45 @@
-type ConditionalRandVar{T} <: RandVar{T}
-  Ypre_overapprox::Vector
-  c::Categorical
-  X::RandVar{T}
-  Y::RandVar{Bool}
-end
+@doc "A preimage representation efficient for sampling form"
+type SamplePreimage
+  both::Vector
+  lastunderapprox::Int
+  cat::Categorical
 
-function ConditionalRandVar{T}(Ypre_overapprox::Vector,X::RandVar{T},Y::RandVar{Bool})
-  measures::Vector{Float64} = measure(Ypre_overapprox)
-  pnormalize!(measures)
-  c = Categorical(measures, Distributions.NoArgCheck())
-  ConditionalRandVar{T}(Ypre_overapprox,c,X,Y)
-end
-
-function rand(C::ConditionalRandVar; maxtries = 1E7, countrejected = false)
-  nrejected = 0
-  ntried = 0
-  while true
-    omega = C.Ypre_overapprox[rand(C.c)]
-    sample = rand(omega)
-    if call(C.Y,sample)
-      return countrejected ? (call(C.X,sample), nrejected) : call(C.X,sample)
-    else
-      nrejected = nrejected + 1
-    end
-    ntried += 1
-    if ntried == maxtries
-      return nothing
-    end
+  function SamplePreimage(underapprox::Vector,overapprox::Vector)
+    both = vcat(underapprox,overapprox)
+    measures::Vector{Float64} = measure(both)
+    pnormalize!(measures)
+    c = Categorical(measures, Distributions.NoArgCheck())
+    new(both,length(underapprox,c))
   end
 end
+
+@doc "Point sample from preimage - may be invalid point due to approximations" ->
+function rand(P::SamplePreimage)
+  omega = P.both[rand(P.cat)]
+  sample = rand(omega)
+end
+
+@doc "Do refined rejection sampling from preimage" ->
+function reject_sample(P::SamplePreimage, Y::RandVar{Bool}; maxtries = 1E7)
+  nrejected = 0
+  ntried = 0
+  for i = 1:maxtries
+    sample = rand(p)
+    if call(Y,sample) return sample end
+  end
+  error("Could not get sample in $maxtries tries")
+end
+
+@doc "Point Sample the preimage" ->
+function pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
+  p = SamplePreimage(Ysatsets,Ymixedsets)
+  samples = reject_sample(p,n)
+end
+
+@doc "Point Sample from X given Y" ->
+function cond_sample_bfs(X::RandVar, Y::RandVar{Bool}, n::Int; pre_args...)
+  [call(X,s) for s in pre_sample_bfs(Y,n;pre_args...)]
+end
+
+cond_sample_bfs(X::RandVar, Y::RandVar{Bool}; pre_args...) = cond_sample_bfs(X,Y,1;pre_args...)[1]

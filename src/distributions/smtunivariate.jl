@@ -18,11 +18,21 @@ uniformsmt(a,b) = uniformsmt(genint(),a,b)
 function normalsmt(i::Int,μ::Real,σ::Real)
   d = Normal(μ,σ)
   name = symbol("normal$i")
-  asserts = Set([ω->other_asserts(ω,i,name,d)])
+  asserts = Set([ω->other_asserts(ω,i,name,d,Float64)])
   RandVarSMT{Float64}(name,Dict(),asserts,Set(i))
 end
 
 normalsmt(μ,σ) = normalsmt(genint(), μ, σ)
+
+## Discrete uniform
+function discreteuniformsmt(i::Int,a::Int,b::Int)
+  d = DiscreteUniform(a,b)
+  name = symbol("uniform$i")
+  asserts = Set([ω->other_asserts(ω,i,name,d,Int)])
+  RandVarSMT{Int}(name,Dict(),asserts,Set(i))
+end
+
+discreteuniformsmt(a,b) = discreteuniformsmt(genint(), a, b)
 
 ## Bernoulli
 function flipsmt(i::Int64, p::Real)

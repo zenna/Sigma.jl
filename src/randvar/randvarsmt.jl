@@ -142,8 +142,9 @@ end
 ω_asserts(o::Omega, i::Int) = ω_asserts(i,o[i].l,o[i].u)
 
 @doc "Creates dynamic assertions for non-uniform distributions" ->
-function other_asserts(o::Omega, i::Int, name::Symbol, dist::Distribution)
-  sexprs = SExpr[SExpr("(declare-fun $name () Real)")]
+function other_asserts(o::Omega, i::Int, name::Symbol, dist::Distribution,
+                       RT::DataType)
+  sexprs = SExpr[SExpr("(declare-fun $name () $(julia2smt(RT)))")]
   interval = o[i]
   quantile_l = quantile(dist, interval.l)
   quantile_u = quantile(dist, interval.u)
@@ -252,6 +253,12 @@ ifelse{T}(A::RandVarSMT{Bool}, B::RandVarSMT{T}, C::RandVarSMT{T}) =
   lift(ifelse,T,A,B,C)
 
 ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::T1, C::T1) =
+  lift(ifelse,T1,A,B,C)
+
+ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::RandVarSMT{T1}, C::T1) =
+  lift(ifelse,T1,A,B,C)
+
+ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::T1, C::RandVarSMT{T1}) =
   lift(ifelse,T1,A,B,C)
 
 ## Printing

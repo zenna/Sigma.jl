@@ -125,6 +125,25 @@ function dot{T,R}(A::PureRandVector{T,R},B::PureRandVector{T,R})
   sum(array)::R{Float64}
 end
 
+import Base:all
+@doc "Is every element in Xs true, returns Bool-valued RandVar" ->
+function all{N,R}(Xs::PureRandArray{Bool,N,R})
+  x = Xs[1]
+  for i = 2:length(Xs)
+    x &= Xs[i]
+  end
+  x
+end
+
+@doc "Is p(every element in Xs) true, returns Bool-valued RandVar" ->
+function all{T,N,R}(p::Function, Xs::PureRandArray{T,N,R})
+  x = p(Xs[1])
+  for i = 2:length(Xs)
+    x &= p(Xs[i])
+  end
+  x
+end
+
 ## Arithmetic
 ## ==========
 

@@ -13,11 +13,9 @@ rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,
 rangetype{T<:RandVar}(::Type{T}) = T.parameters[1]
 rangetype(x) = typeof(x) # Catch all (TODO: Why does this exist?)
 
-
 for finame in ["randvarsymbolic.jl",
                "randvarsmt.jl",
                "randarray.jl",
-               "conditionalrandvar.jl",
                "randvarmeta.jl",]
     include(joinpath("randvar", finame))
 end
