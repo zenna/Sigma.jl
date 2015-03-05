@@ -1,7 +1,7 @@
 ## Exact Sampling
 ## ==============
 
-@doc "A preimage representation efficient for sampling form" ->
+# @doc "A preimage representation efficient for sampling form" ->
 type SamplePreimage
   both::Vector
   lastunderapprox::Int
@@ -16,13 +16,13 @@ type SamplePreimage
   end
 end
 
-@doc "Point sample from preimage - may be invalid point due to approximations" ->
+# @doc "Point sample from preimage - may be invalid point due to approximations" ->
 function rand(P::SamplePreimage)
   omega = P.both[rand(P.cat)]
   sample = rand(omega)
 end
 
-@doc "Do refined rejection sampling from preimage" ->
+# @doc "Do refined rejection sampling from preimage" ->
 function reject_sample(p::SamplePreimage, Y::RandVar{Bool}; maxtries = 1E7)
   nrejected = 0
   ntried = 0
@@ -33,19 +33,29 @@ function reject_sample(p::SamplePreimage, Y::RandVar{Bool}; maxtries = 1E7)
   error("Could not get sample in $maxtries tries")
 end
 
-@doc "Point Sample the preimage" ->
+# @doc "Point Sample the preimage" ->
+function approx_pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
+  p = SamplePreimage(Ysatsets,Ymixedsets)
+  samples = [rand(p) for i = 1:n]
+end
+
+# @doc "Point Sample the preimage" ->
 function pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
   Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
   p = SamplePreimage(Ysatsets,Ymixedsets)
   samples = [reject_sample(p,Y) for i = 1:n]
 end
 
-@doc "Point Sample from X given Y" ->
+# @doc "Point Sample from X given Y" ->
 function cond_sample_bfs{T}(X::RandVar{T}, Y::RandVar{Bool}, n::Int; pre_args...)
   T[call(X,s) for s in pre_sample_bfs(Y,n;pre_args...)]
 end
 
 cond_sample_bfs(X::RandVar, Y::RandVar{Bool}; pre_args...) = cond_sample_bfs(X,Y,1;pre_args...)[1]
+
+## Statistics from samples
+## =======================
 
 # Conditional probability that X is true given Y is true
 function cond_prob_bfs_sampled(X::RandVar{Bool}, Y::RandVar{Bool}; nsamples = 1000, pre_args...)

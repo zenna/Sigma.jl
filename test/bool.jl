@@ -1,6 +1,7 @@
 using Sigma
 using Base.Test
 import Sigma: overlap, subsumes, ⊔, flip, abs
+import Sigma: T, F, TF
 
 @test T & F === F
 @test TF & F === F

@@ -1,9 +1,9 @@
+using Sigma
+
 tests = ["bool",
          "controlflow",
-         "randvar",
          "hyperbox",
-         "query",
-         "randvarsmt"]
+         "query"]
 
 println("Running tests:")
 

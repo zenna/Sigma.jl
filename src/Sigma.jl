@@ -7,8 +7,12 @@ using DataFrames
 using FastAnonymous
 
 if VERSION < v"0.4.0-dev"
-    using Docile
+  using Docile
 end
+
+# if VERSION < v"0.4.0-dev"
+#   @docstrings
+# end
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size

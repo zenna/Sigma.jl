@@ -35,7 +35,7 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
   i = 0
   while length(mixedsets) + length(satsets) <= box_budget &&
         length(mixedsets) > 0 && i < max_iters
-
+    @show i
     # debug
     if i % 200 == 0
       push!(ratios1, length(mixedsets))
