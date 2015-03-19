@@ -6,7 +6,7 @@
 
 type RandVarMeta{T} <: RandVar{T}
   smt::RandVarSMT{T}
-  ai::RandVarSymbolic{T}
+  ai::RandVarAI{T}
 end
 
 ## Distribution
@@ -72,9 +72,9 @@ function ifelse(A::RandVarSMT, B::RandVarMeta, C::RandVarMeta)
                    union(A.dims, B.smt.dims, C.smt.dims))
 end
 
-function ifelse(c::RandVarSymbolic{Bool},x::RandVarMeta,y::RandVarMeta)
+function ifelse(c::RandVarAI{Bool},x::RandVarMeta,y::RandVarMeta)
   @assert rangetype(x) == rangetype(y)
-  RandVarSymbolic(rangetype(x),:(ifelse(call($c,ω),pipeomega($(x.ai),ω),pipeomega($(y.ai),ω))))
+  RandVarAI(rangetype(x),:(ifelse(call($c,ω),pipeomega($(x.ai),ω),pipeomega($(y.ai),ω))))
 end
 
 mvuniformmeta(a,b, i::Int, j::Int) = iidmeta(Float64, c->uniformmeta(a,b),i,j)

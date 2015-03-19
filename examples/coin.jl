@@ -8,5 +8,5 @@ using Sigma
 # How does this depend on your prior belief about the coin?
 
 coinweight = betarv(1/2,1/2)
-fliprvs = RandVarSymbolic{Bool}[flip(i, coinweight) for i = 1:5]
+fliprvs = RandVarAI{Bool}[flip(i, coinweight) for i = 1:5]
 samples = cond_sample_mh(coinweight, fliprvs[1] & !fliprvs[2], 10, max_iters = 100)

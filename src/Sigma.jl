@@ -7,11 +7,14 @@ using FastAnonymous
 
 if VERSION < v"0.4.0-dev"
   using Docile
+  # call is in base in 0.4
+  export call
+  call(f::Function, x) = f(x)
+  juliadir = joinpath(homedir(),".julia","v0.3")
+else
+  import Base: call
+  juliadir = joinpath(homedir(),".julia","v0.4")
 end
-
-# if VERSION < v"0.4.0-dev"
-#   @docstrings
-# end
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -24,9 +27,6 @@ import Base.next
 import Base.done
 import Base: hash
 # import Lens:benchmark
-
-# import Base: call # Wait until 0.4
-
 import Distributions: quantile
 
 export
@@ -34,8 +34,7 @@ export
   RandVar,
   RandArray,
   PureRandArray,
-  RandVarSymbolic,
-  call, # Remove when 0.4
+  RandVarAI,
 
   # Omega
   Omega,
@@ -152,8 +151,9 @@ include("relation.jl")
 # include("benchmarks/benchmarks.jl")
 
 # Hack to avoid loading Gadfly each time
-vispath = joinpath(homedir(),".julia","v0.3","Sigma","src","vis.jl")
-benchdir = joinpath(homedir(),".julia","v0.3","Sigma","src","benchmarks")
+
+vispath = joinpath(juliadir, "Sigma","src","vis.jl")
+benchdir = joinpath(juliadir, "Sigma","src","benchmarks")
 
 loadvis() = include(vispath)
 

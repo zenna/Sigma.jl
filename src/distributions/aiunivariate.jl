@@ -1,17 +1,20 @@
 ## Abstract Interpretation Univariate Primitive Distribution
 ## =========================================================
 
+# random(i) = ω->ω[i]
+random(i::Int64) = RandVarAI(Float64, :(ω[$i]), i)
+
 ## Location Scale Distribution Families
 ## ====================================
 # Normal
 normalai(i::Int64,μ::Real,σ::Real) =
-  RandVarSymbolic(Float64,:(quantile(Normal($μ,$σ),ω[$i])))
+  RandVarAI(Float64,:(quantile(Normal($μ,$σ),ω[$i])), i)
 normalai{T1<:Real, T2<:Real}(i::Int64,μ::RV{T1},σ::RV{T2})= (normalai(i,0.,1.) * σ) + μ
 normalai(μ,σ) = normalai(genint(),μ, σ)
 
 # uniform
 uniformai(i::Int64,a::Real,b::Real) =
-  RandVarSymbolic(Float64,:(quantile(Uniform($a,$b),ω[$i])))
+  RandVarAI(Float64,:(quantile(Uniform($a,$b),ω[$i])), i)
 uniformai{T1<:Real, T2<:Real}(i::Int64,a::RV{T1},b::RV{T2}) = (b - a) * uniformai(i,0.,1.) + a
 uniformai(a,b) = uniformai(genint(),a,b)
 
@@ -23,7 +26,7 @@ flipai() = 0.5 >= random(genint())
 
 # Discrete Uniform
 discreteuniformai(i::Int64,a::Int64,b::Int64) =
-  RandVarSymbolic(Int64,:(quantile(DiscreteUniform($a,$b),ω[$i])))
+  RandVarAI(Int64,:(quantile(DiscreteUniform($a,$b),ω[$i])),i)
 discreteuniformai(i::Int64,a::RV{Int64},b::RV{Int64}) =
   (b - a) * discreteuniformai(i,0,1) + a
 discreteuniformai(a,b) = discreteuniformai(genint(),a,b)
@@ -31,16 +34,16 @@ discreteuniformai(a,b) = discreteuniformai(genint(),a,b)
 ## Not Location Scale
 ## =================
 gammaai(i::Int64,k::Float64,theta::Float64) =
-  RandVarSymbolic(Float64,:(quantile(Gamma($k,$theta),ω[$i])))
+  RandVarAI(Float64,:(quantile(Gamma($k,$theta),ω[$i])),i)
 gammaai(k,theta) = gammaai(genint(),k,theta)
 
 betarvai(i::Int64,a::Float64,b::Float64) =
-  RandVarSymbolic(Float64,:(quantile(Beta($a,$b),ω[$i])))
+  RandVarAI(Float64,:(quantile(Beta($a,$b),ω[$i])), i)
 betarvai(a,b) = betarvai(genint(),a,b)
 
 # Categorical
 categoricalai(i::Int64,weights::Vector{Float64}) =
-  RandVarSymbolic(Int64,:(quantile(Categorical($weights),ω[$i])))
+  RandVarAI(Int64,:(quantile(Categorical($weights),ω[$i])), i)
 
 # function solve_quantile_argmin()
 #   for j = 1:n
@@ -78,21 +81,20 @@ quantile_categorical(weights::Vector{Float64}, p::Float64) =
   quantile(Categorical(weights), p)
 
 categoricalai{T<:Real}(i::Int64, weights::RandArray{T}) =
-  RandVarSymbolic(Int, :(quantile_categorical(call($weights,ω), ω[$i])))
+  RandVarAI(Int, :(quantile_categorical(call($weights,ω), ω[$i])), i)
 
 categoricalai(weights) = categoricalai(genint(),weights)
 
 geometricai(i::Int64,weight::Float64) =
-  RandVarSymbolic(Int64,:(quantile(Geometric($weight),ω[$i])))
+  RandVarAI(Int64,:(quantile(Geometric($weight),ω[$i])), i)
 geometricai(weight) =  geometricai(genint(), weight)
 
 quantile_geometric(weight::Float64, p::Float64) = quantile(Geometric(weight), p)
 quantile_geometric(weight::Interval, p::Interval) =
   Interval(quantile(Geometric(weight.u),p.l), quantile(Geometric(weight.l),p.u))
 geometricai(i::Int, weight::RandVar{Float64}) =
-  RandVarSymbolic(Int, :(quantile_geometric(call($weight,ω), ω[$i])))
+  RandVarAI(Int, :(quantile_geometric(call($weight,ω), ω[$i])), i)
 
 poissonai(i::Int64,lambda::Float64) =
-  RandVarSymbolic(Int64,:(quantile(Poisson($lambda),ω[$i])))
+  RandVarAI(Int64,:(quantile(Poisson($lambda),ω[$i])), i)
 poissonai(lambda) = poissonai(genint(), lambda)
-

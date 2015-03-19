@@ -3,7 +3,8 @@ using Sigma
 tests = ["bool",
          "controlflow",
          "hyperbox",
-         "query"]
+         "query",
+         "randvarai"]
 
 println("Running tests:")
 

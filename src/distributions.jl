@@ -3,10 +3,6 @@
 
 typealias RV{T} Union(T, RandVar{T})
 
-# random(i) = ω->ω[i]
-random(i::Int64) = RandVarSymbolic(Float64, :(ω[$i]))
-
-
 for finame in ["aiunivariate.jl",
                "aimultivariate.jl",
                "smtunivariate.jl",

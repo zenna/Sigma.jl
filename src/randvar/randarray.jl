@@ -84,8 +84,8 @@ vcat(Xs::PureRandArray, Ys::PureRandArray) =
 # access{T}(X::PureRandVector{T},i::Interval,ω) =
 #   ⊔([call(X[j],ω) for j = int(i.l):int(i.u)])
 
-# getindex{T}(Xs::PureRandVector{T}, I::RandVarSymbolic{Int}) =
-#   RandVarSymbolic{T}(:(access($Xs,call($I,ω),ω)))
+# getindex{T}(Xs::PureRandVector{T}, I::RandVarAI{Int}) =
+#   RandVarAI{T}(:(access($Xs,call($I,ω),ω)))
 
 ## Iteration
 start(Xs::PureRandArray) = start(Xs.array)
@@ -96,23 +96,17 @@ done(Xs::PureRandArray, state) = done(Xs.array, state)
 ## =========================
 # PERF: anon function calls are slow
 # sum{T}(Xs::PureRandArray{T}, ω) = sum(map(x->call(x,ω), Xs.array))
-sum{T}(Xs::PureRandArray{T}, ω) = sum(call(Xs,ω))
-#   sum(map(x->call(x,ω), Xs.array))
-
-sum{T,N,R<:RandVarSymbolic}(Xs::PureRandArray{T,N,R}) =
-  RandVarSymbolic(T,:(sum($Xs,ω)))
-# sum{T}(Xs::PureRandArray{T}) = RandVarSymbolic(T,:(sum($Xs,ω)))
 
 # In principle length(Xs) should return a Int-RandVar, but until
 # we support indexing on integer random variables it makes things hard
 # / inconvenient, so leave this commented
-# length(Xs::PureRandArray) = RandVarSymbolic(Int64,:(length($Xs.array)))
+# length(Xs::PureRandArray) = RandVarAI(Int64,:(length($Xs.array)))
 length(Xs::PureRandArray) = length(Xs.array)
 size(Xs::PureRandArray) = size(Xs.array)
 size(Xs::PureRandArray,i::Int) = size(Xs.array, i)
 
 # PERF: use list comprehensions for speed
-function rand{T,N,R<:RandVarSymbolic}(Xs::PureRandArray{T,N,R})
+function rand{T,N,R<:RandVarAI}(Xs::PureRandArray{T,N,R})
   ret::Array{T,N} = call(Xs,SampleOmega())
   return ret
 end
@@ -148,7 +142,7 @@ end
 ## ==========
 
 # Here, we extract the arrays of both args and apply op
-# An alternative is to have a RandVarSymbolic which
+# An alternative is to have a RandVarAI which
 # Only when called with an omega will do the array computations on abstract values
 # this may be preferable
 for op = (:+, :-, :*, :.*, :/, :&, :|)
@@ -185,8 +179,8 @@ for op = (:+, :-, :*, :.*, :/, :&, :|)
       end
     end
 
-#     ($op){T<:ConcreteReal}(X::RandVarSymbolic{T}, c::T) = ($op)(promote(X,c)...)
-#     ($op){T<:ConcreteReal}(c::T, X::RandVarSymbolic{T}) = ($op)(promote(c,X)...)
+#     ($op){T<:ConcreteReal}(X::RandVarAI{T}, c::T) = ($op)(promote(X,c)...)
+#     ($op){T<:ConcreteReal}(c::T, X::RandVarAI{T}) = ($op)(promote(c,X)...)
   end
 end
 
@@ -237,6 +231,6 @@ iidmeta(T::DataType, c, nrows; offset...) = iidall(T, RandVarMeta, c, nrows; off
 iidsmt(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSMT, c, nrows, ncols; offset...)
 iidsmt(T::DataType, c, nrows; offset...) = iidall(T, RandVarSMT, c, nrows; offset...)
 
-iidai(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSymbolic, c, nrows, ncols; offset...)
-iidai(T::DataType, c, nrows; offset...) = iidall(T, RandVarSymbolic, c, nrows; offset...)
+iidai(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarAI, c, nrows, ncols; offset...)
+iidai(T::DataType, c, nrows; offset...) = iidall(T, RandVarAI, c, nrows; offset...)
 
