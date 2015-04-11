@@ -22,7 +22,7 @@ mid(b::HyperBox) = Float64[mid(b.intervals[:,i]) for i = 1:ndims(b)]
 # Splits a box at a split-point along all its dimensions into n^d boxes
 function findproduct(splits::Vector{Vector{Vector{Float64}}}, b::HyperBox)
   boxes = HyperBox[]
-  for subbox in apply(product, splits)
+  for subbox in product(splits...)
     z = Array(Float64,2,ndims(b))
     for i = 1:size(z,2)
       z[:,i] = subbox[i]
@@ -65,4 +65,4 @@ mid_partial_split(b::HyperBox, dims::Vector{Int}) =
 ## Sampling
 ## ========
 rand_interval(a::Float64, b::Float64) = a + (b - a) * rand()
-rand(b::HyperBox) = [apply(rand_interval,b.intervals[:,i]) for i = 1:ndims(b)]
+rand(b::HyperBox) = [rand_interval(b.intervals[:,i]...) for i = 1:ndims(b)]

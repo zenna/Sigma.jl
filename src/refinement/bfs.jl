@@ -48,7 +48,7 @@ function pre_bfs{D <: Domain} (f::Callable, Y, X::D; box_budget = 3E5,
     i += 1
   end
 
-  if i == max_iters println("Reached Max iterations - $i")
-  else println("Did $i iterations - max not reached") end
+  # if i == max_iters println("Reached Max iterations - $i")
+  # else println("Did $i iterations - max not reached") end
   satsets,mixedsets,ratios1,ratios2
 end

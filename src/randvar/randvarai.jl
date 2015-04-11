@@ -54,55 +54,77 @@ rangetype(X::RandVarAI) = typeof(X).parameters[1]
 ## Lifted Functions of Random Variables
 ## ====================================
 
-@doc """
-  Combine the lets for all the RandVars in the correct order.
-  e.g. A.lets: let x = rand(ω), y = sqrt(x)
-       B.lets: let y = sqrt(x), z = inc(y)
-
-  For some operation of A and B we need to combine them lets
-  in correct order so that dependencies are ok, e.g. the following would be bad
-  C = A + B
-  C.lets =  let y = sqrt(x), z = inc(y), x = rand(ω)
-""" ->
+# Just concat lets without duplicates
 function combinelets(randvars::RandVarAI...)
-  children = Dict{LetExpr,Vector{LetExpr}}()
-  nparents = Dict{LetExpr,Int}()
-
-  # Initialise empty dicts
-  for rv in randvars, alet in rv.lets
-    children[alet] = LetExpr[]
-    nparents[alet] = 0
-  end
-
-  # Create chain graph where each LetExpr is parent of next in list
-  # Nodes shared among randvars are parents of ALL nodes that follow them
+  seen = Set{LetExpr}()
+  lets = LetExpr[]
   for rv in randvars
-    for i = 1:length(rv.lets) - 1
-      push!(children[rv.lets[i]],rv.lets[i+1])
-      nparents[rv.lets[i+1]] += 1
-    end
-  end
-
-  # Running storage of nodes with no parents
-  noparents = LetExpr[]
-  for (alet, np) in nparents
-    np == 0 && push!(noparents, alet)
-  end
-
-  lets = LetExpr[] #final sequence of lets
-  while length(lets) != length(nparents)
-    currnode = pop!(noparents)
-    push!(lets, currnode)
-
-    # Break edge from that node to each of its children
-    for child in children[currnode]
-      np = nparents[child]
-      nparents[child] = np - 1
-      np - 1 == 0 && push!(noparents, child)
+    for alet in rv.lets
+      if !(alet in seen)
+        push!(seen,alet)
+        push!(lets,alet)
+      end
     end
   end
   lets
 end
+
+# @doc """
+#   Combine the lets for all the RandVars in the correct order.
+#   e.g. A.lets: let x = rand(ω), y = sqrt(x)
+#        B.lets: let y = sqrt(x), z = inc(y)
+
+#   For some operation of A and B we need to combine them lets
+#   in correct order so that dependencies are ok, e.g. the following would be bad
+#   C = A + B
+#   C.lets =  let y = sqrt(x), z = inc(y), x = rand(ω)
+# """ ->
+# function combinelets(randvars::RandVarAI...)
+#   children = Dict{LetExpr,Vector{LetExpr}}()
+#   nparents = Dict{LetExpr,Int}()
+
+#   # Initialise empty dicts
+#   for rv in randvars, alet in rv.lets
+#     children[alet] = LetExpr[]
+#     nparents[alet] = 0
+#   end
+
+#   # Create chain graph where each LetExpr is parent of next in list
+#   # Nodes shared among randvars are parents of ALL nodes that follow them
+#   for rv in randvars
+#     for i = 1:length(rv.lets) - 1
+#       push!(children[rv.lets[i]],rv.lets[i+1])
+#       nparents[rv.lets[i+1]] += 1
+#     end
+#   end
+
+#   # Running storage of nodes with no parents
+#   noparents = LetExpr[]
+#   for (alet, np) in nparents
+#     np == 0 && push!(noparents, alet)
+#   end
+#   println("Before," ,length(noparents))
+
+#   if length(noparents) == 0
+#     for rv in randvars
+#       println([alet[1] for alet in rv.lets])
+#     end
+#   end
+#   lets = LetExpr[] #final sequence of lets
+#   while length(lets) != length(nparents)
+#     length(noparents) == 0 && error("noparents empty $(length(lets)) - $(length(nparents))")
+#     currnode = pop!(noparents)
+#     push!(lets, currnode)
+
+#     # Break edge from that node to each of its children
+#     for child in children[currnode]
+#       np = nparents[child]
+#       nparents[child] = np - 1
+#       np - 1 == 0 && push!(noparents, child)
+#     end
+#   end
+#   lets
+# end
 
 ## RandVarSMT Algebra
 ## ==================

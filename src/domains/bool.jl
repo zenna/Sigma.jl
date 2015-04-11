@@ -25,7 +25,7 @@ function !(b::AbstractBool)
   end
 end
 
-(==)(x::AbstractBool, y::AbstractBool) = 
+(==)(x::AbstractBool, y::AbstractBool) =
   x === TF || y === TF ? TF : x === T && y === T || x === F && y === F
 
 function (==)(x::AbstractBool, y::AbstractBool)
@@ -35,8 +35,8 @@ function (==)(x::AbstractBool, y::AbstractBool)
   else F
   end
 end
-(==)(x::AbstractBool, y::Bool) = apply(==,promote(x,y))
-(==)(y::Bool,x::AbstractBool) = apply(==,promote(y,x))
+(==)(x::AbstractBool, y::Bool) = (==)(promote(x,y)...)
+(==)(y::Bool,x::AbstractBool) = (==)(promote(y,x)...)
 
 function (|)(x::AbstractBool, y::AbstractBool)
   if x === T || y === T T
