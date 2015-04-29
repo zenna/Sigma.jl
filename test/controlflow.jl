@@ -1,22 +1,14 @@
 using Base.Test
-import Sigma: Interval, TF, Omega, flip
+using Sigma
+import Sigma: Omega, flip
 
-# Should act like a normal if when cond is true
+# When condition is tf, we should explore and merge both branches
 begin
-  local x = 0
-  local a = ifelse(x > 0,false,true)
-  @test a
-  local b = ifelse(x == 0,true,false)
-  @test b
-end
-
-# When condition is TF, we should explore and merge both branches
-begin
-  local x = TF
+  local x = tf
   local a = ifelse(x,false,true)
-  @test a === TF
+  @test a === tf
   a = ifelse(x, false, true)
-  @test a === TF
+  @test a === tf
 
   local m = 0.0
   a = ifelse(true,m,(m += 1;m))
@@ -29,13 +21,13 @@ begin
   local a = ifelse(x,false,true)
   @show typeof(a)
   @test isa(a,Sigma.RandVar)
-  @test call(a,Omega()) === TF
+  @test call(a,Omega()) === tf
   @test call(a,[0.3]) == false
   @test call(a,[0.7]) == true
 
   a = ifelse(x,false,true)
   @test isa(a,Sigma.RandVar)
-  @test call(a,Omega()) === TF
+  @test call(a,Omega()) === tf
   @test call(a,[0.3]) == false
   @test call(a,[0.7]) == true
 end

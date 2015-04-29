@@ -1,10 +1,6 @@
-# Abstract domains represent sets of finite values
-abstract Domain{T}
+## Functions for abstract domains from AbstractDomains.jl for inference
+## ====================================================================
 
-for finame in ["bool.jl",
-               "hyperbox.jl",
-               "interval.jl",
-               "simpledisjunctive.jl",
-               "envvar.jl"]
+for finame in ["interval.jl"]
     include(joinpath("domains", finame))
 end

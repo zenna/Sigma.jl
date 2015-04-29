@@ -25,43 +25,42 @@ end
 ndims(X::RandVarSMT) = length(X.dims)
 ast(X::RandVarSMT) = X.ast
 
-
 ## Julia-SMT Compatibility
 ## =======================
 @doc """Maps primitive Julia function x to smt2 symbol representation.
   e.g. juliat2smt(ifelse) = :ite""" ->
 function julia2smt(x::Function)
   julia2smts =
-  Dict([(&) => :and,
-        (|) => :or,
-        (!) => :not,
-        (==) => :(=),
-        (>) => :>,
-        (>=) => :>=,
-        (<) => :<,
-        (<=) => :<=,
-        isapprox => :isapprox,
-        ifelse => :ite,
-        (+) => :+,
-        (-) => :-,
-        (*) => :*,
-        (/) => :/,
-        abs => :abs])
+  @compat Dict((&) => :and,
+               (|) => :or,
+               (!) => :not,
+               (==) => :(=),
+               (>) => :>,
+               (>=) => :>=,
+               (<) => :<,
+               (<=) => :<=,
+               isapprox => :isapprox,
+               ifelse => :ite,
+               (+) => :+,
+               (-) => :-,
+               (*) => :*,
+               (/) => :/,
+               abs => :abs)
   julia2smts[x]
 end
 
 function julia2smt(x::Symbol)
   julia2smts =
-  Dict([:(&) => :and,
-        :(|) => :or,
-        :(!) => :not,
-        :(==) => :(=),
-        :ifelse => :ite])
+  @compat Dict(:(&) => :and,
+               :(|) => :or,
+               :(!) => :not,
+               :(==) => :(=),
+               :ifelse => :ite)
   haskey(julia2smts, x) ? julia2smts[x] : x
 end
 
 julia2smt{T<:Union(String,Real,Bool)}(x::T) = x
-julia2smt(x::DataType) = Dict([Float64 => :Real, Int => :Int, Bool => :Bool])[x]
+@compat julia2smt(x::DataType) = Dict(Float64 => :Real, Int => :Int, Bool => :Bool)[x]
 
 ## Conversion from Expr to SExpr
 ## ============================

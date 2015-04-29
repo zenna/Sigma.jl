@@ -90,10 +90,10 @@ function proposebox!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
       node = child
       @goto start
     elseif child.status == UNSAT
-      @unexpected
+      error("Child should not be UNSAT")
     end
   else
-    @unexpected
+    error("Unexpected Child status $(child.status)")
   end
 end
 

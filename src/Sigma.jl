@@ -1,8 +1,10 @@
 module Sigma
 
 using Distributions
+using AbstractDomains
 using Lens
 using DataStructures
+using Compat
 
 if VERSION < v"0.4.0-dev"
   using Docile
