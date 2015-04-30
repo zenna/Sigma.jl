@@ -11,5 +11,4 @@ function same_birthday(birthdays)
 end
 
 rand(same_birthday(birthdays))
-
 prob_sampled(same_birthday(birthdays))
