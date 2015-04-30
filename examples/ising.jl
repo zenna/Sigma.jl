@@ -2,7 +2,6 @@ using Sigma
 
 ## 1D Ising Model
 ## ==============
-
 nbits = 10
 bits = RandVarAI{Bool}[flip() for i = 1:nbits]
 bits_randvar = PureRandArray(bits)

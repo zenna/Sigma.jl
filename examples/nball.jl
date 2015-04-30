@@ -1,6 +1,7 @@
-# See how preimage refinement scales with increasing d
+# Sigma can be used to approximate the volume of an n-dimensional ball
 using Sigma
-using Gadfly
+using Base.Test
+
 ## Ground Truth
 # unit n-sphere volume (n-ball surface area)
 S(n) = n == 0 ? 2 : 2π*V(n-1)
@@ -30,45 +31,7 @@ function unit_n_box(lenratio::Float64, num_dims::Integer)
   bigcube, smallcube_cond
 end
 
-# There are two ways to formulate this problem
-# The first is to say you have a set of unit random variables
-# And you want to know the probability that an element is within the enclosing ball
-function prob_error(dimrange::Range)
-  ncube, sphere = unit_n_ball(8)
-  ground = [ratio_V(i) for i = dimrange]
-  errors = [unit_n_ball(i) for i = dimrange]
-  plot(x=dimrange, y=ground, ymin=map(x->x[1],errors),
-       ymax=map(x->x[2],errors), Geom.point, Geom.errorbar)
+for dimrange = 1:5
+  bigcube, smallcube_cond = unit_n_box(lenratio,i)
+  sampler = rand(bigcube[1], smallcube_cond)
 end
-
-# The second way is to say you want to sample from a random variable conditioned
-# on it being within the unit sphere
-function nbox_sampler_error(dimrange::Range, lenratio::Float64; nsamples = 50000)
-  plots = Plot[]
-  for i in dimrange
-    bigcube, smallcube_cond = unit_n_box(lenratio,i)
-    sampler = cond_sample(bigcube[1], smallcube_cond)
-    samples = [sampler(1000) for i = 1:nsamples]
-    push!(plots, plot(x = map(x->x[2],samples), Geom.histogram))
-  end
-  plots
-end
-
-
-# The second way is to say you want to sample from a random variable conditioned
-# on it being within the unit sphere
-function nball_sampler_error(dimrange::Range; nsamples = 50000)
-  plots = Plot[]
-  for i in dimrange
-    ncube, sphere = unit_n_ball(i)
-    sampler = cond_sample(ncube[1], sphere)
-    samples = [sampler(1000) for i = 1:nsamples]
-    push!(plots, plot(x = map(x->x[2],samples), Geom.histogram))
-  end
-  plots
-end
-
-# Draw
-boxplots = nbox_sampler_error(3:5,.1)
-
-sample_plots = nball_sampler_error(3:8)
