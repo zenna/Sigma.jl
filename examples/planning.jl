@@ -56,14 +56,9 @@ dest_box = [5.01 5.02; 6.01 7.06]
 obstacles = Array[[3.01 4.01; 4.01 5.56]]
 path_box = gen_path(4)
 v = valid_path(start_box,dest_box, obstacles, path_box)
-d = cond_prob_deep(path_b$ox[2,2]>5, v, max_depth = 20)
-d
-println("whaa")
-d
-Sigma.measure(d[2])
+d = cond_prob_deep(path_box[2,2]>5, v, max_depth = 20)
 
 ## Vis
-
 rand_take_n(v::Vector, n::Int) = [v[rand(1:length(v))] for i in 1:n]
 
 function line_layer(b::HyperBox)

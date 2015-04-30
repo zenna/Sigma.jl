@@ -24,9 +24,9 @@ discreteuniformmeta(a,b) = discreteuniformmeta(genint(), a,b)
 rand(X::RandVarMeta) = rand(X.ai) # Default AI
 call(X::RandVarMeta, o;args...) = call(X.ai,o; args...) # Default AI
 
-call(X::RandVarMeta{Bool}, o::SampleOmega; args...) = call(X.ai,o; args...) # Default SMT
+call(X::RandVarMeta{Bool}, o::ConcreteOmega; args...) = call(X.ai,o; args...) # Default SMT
 call(X::RandVarMeta{Bool}, o;  args...) = call(X.smt,o;  args...) # Default SMT
-call(X::RandVarMeta, o::SampleOmega;  args...) = call(X.ai,o; args...) # Default SMT
+call(X::RandVarMeta, o::ConcreteOmega;  args...) = call(X.ai,o; args...) # Default SMT
 
 checksat(f::RandVarMeta,Y,X::Domain;  args...) = checksat(f.smt,Y,X;  args...) # Default SMT
 

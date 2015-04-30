@@ -33,7 +33,7 @@ prob(positive_mammogram, box_budget = 51)
 function plot_cancer()
   print(plot_preimage3D(positive_mammogram;box_budget = 200))
   bds = [cond_prob(breast_cancer, positive_mammogram;box_budget = i) for i in [0,1,10,50,200,500]]
-  pres =pre_tlmh(positive_mammogram, T, LazyOmega(), 500; frac_in_preimage=1.0)
+  pres =pre_tlmh(positive_mammogram, t, LazyOmega(), 500; frac_in_preimage=1.0)
   plot_preimage3D()
   mhpics = [plot_preimage3D(pres[1:i],Omega{Interval}[]) for i in [1,6,10,50,200,500]]
   print(mhpics[6])

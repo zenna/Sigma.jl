@@ -3,8 +3,8 @@ abstract RandVar{T}
 pipeomega(v, ω) = v
 pipeomega(v::RandVar, ω) = call(v,ω)
 
-rand(X::RandVar) = call(X,SampleLazyOmega())
-rand{T}(X::RandVar{T},nsamples::Int) = T[call(X,SampleLazyOmega()) for i= 1:nsamples]
+rand(X::RandVar) = call(X,LazyRandomVector(Float64))
+rand{T}(X::RandVar{T},nsamples::Int) = T[call(X,LazyRandomVector(Float64)) for i= 1:nsamples]
 
 # default aliases
 rand(X::RandVar,Y::RandVar{Bool};pre_args...) = cond_sample_bfs(X,Y;pre_args...)

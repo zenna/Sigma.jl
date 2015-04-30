@@ -1,5 +1,4 @@
 using Gadfly
-import Sigma:T,F
 # using Sigma
 # REVIEW - Decide whether plotting functions should return plot or layer
 # REVIEW - Add 3D preimages. Important, not just because the look cool
@@ -7,12 +6,12 @@ import Sigma:T,F
 #        - and symmetry
 
 function plot_preimage(X::RandVar{Bool};prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, t, LazyOmega();prob_args...)
   plot_preimage(satsets)
 end
 
 function plot_preimage(X::RandVar{Bool}, dims::Vector; prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, t, LazyOmega();prob_args...)
   plot_preimage(satsets, dims)
 end
 
@@ -29,7 +28,7 @@ end
 
 # Returns mathematica function
 function plot_preimage3D(X::RandVar{Bool};prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, t, LazyOmega();prob_args...)
   plot_preimage3D(satsets,mixedsets)
 end
 
@@ -76,14 +75,14 @@ end
 
 # FIXME, REVIEW: This doesn't seem to be working
 function plot_volume_hist{T}(os::Vector{Omega{T}})
-  vols = Float64[Sigma.measure(o) for o in os]
+  vols = Float64[Sigma.measures(o) for o in os]
   plot(x=vols, Geom.histogram, Scale.y_log10)
 end
 
 # FIXME, REVIEW: This doesn't seem to be working
 function plot_volume_hist(t::Sigma.Tree)
   sat_nodes::Vector{Omega} = map(n->n.data,t.nodes)
-  volumes = measure(sat_nodes)
+  volumes = measures(sat_nodes)
   plot(x = volumes, Geom.histogram, Scale.y_log10)
 end
 

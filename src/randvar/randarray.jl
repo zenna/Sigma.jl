@@ -34,11 +34,11 @@ call{T}(Xs::PureRandArray{T,1}, ω) =
 call{T}(Xs::PureRandArray{T,2}, ω) =
   [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
-# Hacks to return correct type when ω is SampleOmega
+# Hacks to return correct type when ω is ConcreteOmega
 # Julia 0.4 should make this unnecessary due to better type inference
-call{T}(Xs::PureRandArray{T,1}, ω::SampleOmega) =
+call{T}(Xs::PureRandArray{T,1}, ω::ConcreteOmega) =
   T[call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
-call{T}(Xs::PureRandArray{T,2}, ω::SampleOmega) =
+call{T}(Xs::PureRandArray{T,2}, ω::ConcreteOmega) =
   T[call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
 ## Array Access/Updating
@@ -107,7 +107,7 @@ size(Xs::PureRandArray,i::Int) = size(Xs.array, i)
 
 # PERF: use list comprehensions for speed
 function rand{T,N,R<:RandVarAI}(Xs::PureRandArray{T,N,R})
-  ret::Array{T,N} = call(Xs,SampleLazyOmega())
+  ret::Array{T,N} = call(Xs,LazyRandomVector(Float64))
   return ret
 end
 

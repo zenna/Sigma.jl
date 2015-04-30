@@ -1,9 +1,6 @@
 using Sigma
 
-tests = ["bool",
-         "controlflow",
-         "hyperbox",
-         "query",
+tests = ["query",
          "randvarai"]
 
 println("Running tests:")

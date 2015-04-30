@@ -156,7 +156,7 @@ end
 ## ==================
 function combine(ast::Expr,RETURNT::DataType,randvars...)
   name = genvar()
-  new_assert = Dict([name=>(RETURNT, ast)])
+  @compat new_assert = Dict(name=>(RETURNT, ast))
   # Combine with static asserts from all argument randvars
   arg_asserts = [X.asserts for X in randvars]
   all_asserts = merge(vcat(new_assert,arg_asserts)...)

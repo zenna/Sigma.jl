@@ -148,7 +148,7 @@ function refinetree!{D <: Domain}(f::Callable, Y, X::D, t::WeightedTree,
 #       @show depth
       @goto start
     elseif child.status == UNSAT
-      @unexpected
+      error("Unexpected Branch")
     end
   end
 end

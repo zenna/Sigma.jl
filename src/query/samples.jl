@@ -9,9 +9,9 @@ type SamplePreimage
 
   function SamplePreimage(underapprox::Vector,overapprox::Vector)
     both = vcat(underapprox,overapprox)
-    measures::Vector{Float64} = measure(both)
-    pnormalize!(measures)
-    c = Categorical(measures, Distributions.NoArgCheck())
+    vols::Vector{Float64} = measures(both)
+    pnormalize!(vols)
+    c = Categorical(vols, Distributions.NoArgCheck())
     new(both,length(underapprox),c)
   end
 end
@@ -35,14 +35,14 @@ end
 
 # @doc "Point Sample the preimage" ->
 function approx_pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
-  Ysatsets, Ymixedsets = pre_bfs(Y, T, LazyOmega(); pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, t, LazyOmega(); pre_args...)
   p = SamplePreimage(Ysatsets,Ymixedsets)
   samples = [rand(p) for i = 1:n]
 end
 
 # @doc "Point Sample the preimage" ->
 function pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
-  Ysatsets, Ymixedsets = pre_bfs(Y, T, LazyOmega(); pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, t, LazyOmega(); pre_args...)
   p = SamplePreimage(Ysatsets,Ymixedsets)
   samples = [reject_sample(p,Y) for i = 1:n]
 end

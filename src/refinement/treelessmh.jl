@@ -80,7 +80,7 @@ function proposebox_tl{D <: Domain}(f::Callable, Y, X::D;
       error("Cannot condition on unsatisfiable events")
     end
   end
-  @unexpected
+  error("Unexpected Branch")
 end
 
 # Propose boxes in parallel

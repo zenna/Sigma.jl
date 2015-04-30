@@ -4,7 +4,7 @@ function dls(f::Callable, Y_sub, depth::Int64,
   if node.status == UNKNOWNSAT
     image = call(f,node.data)
     node.status = if subsumes(Y_sub, image) SAT
-                  elseif overlap(image,Y_sub) PARTIALSAT
+                  elseif isintersect(image,Y_sub) PARTIALSAT
                   else UNSAT end
   end
 

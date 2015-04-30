@@ -37,14 +37,7 @@ export
   PureRandArray,
   RandVarAI,
 
-  # Omega
-  Omega,
-  SampleOmega,
-  Interval,
-  HyperBox,
-
   # Abstract Domains
-  AbstractBool,
   rangetype,
 
   LA,
@@ -142,7 +135,6 @@ include("domains.jl")
 include("omega.jl")
 include("randvar.jl")
 include("lift.jl")
-include("controlflow.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")

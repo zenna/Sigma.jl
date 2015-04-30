@@ -21,7 +21,7 @@ showcompact(io::IO, x::SatStatus) = print(io, string(x))
 function checksat(f::Callable, Y, X::Domain; args...)
   setimage = call(f,X; args...)
   if subsumes(Y, setimage) SAT
-  elseif overlap(setimage, Y) PARTIALSAT
+  elseif isintersect(setimage, Y) PARTIALSAT
   else UNSAT end
 end
 

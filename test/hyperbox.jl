@@ -1,6 +1,6 @@
 using Base.Test
 using Sigma
-import Sigma: HyperBox, measure, logmeasure
+import Sigma: measure, logmeasure
 import Sigma: partial_split_box, mid_split
 
 # What should a domain be
