@@ -35,14 +35,14 @@ end
 
 # @doc "Point Sample the preimage" ->
 function approx_pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
-  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, LazyOmega(); pre_args...)
   p = SamplePreimage(Ysatsets,Ymixedsets)
   samples = [rand(p) for i = 1:n]
 end
 
 # @doc "Point Sample the preimage" ->
 function pre_sample_bfs(Y::RandVar{Bool}, n::Int; pre_args...)
-  Ysatsets, Ymixedsets = pre_bfs(Y, T, Omega(); pre_args...)
+  Ysatsets, Ymixedsets = pre_bfs(Y, T, LazyOmega(); pre_args...)
   p = SamplePreimage(Ysatsets,Ymixedsets)
   samples = [reject_sample(p,Y) for i = 1:n]
 end
@@ -73,7 +73,7 @@ end
 ## MH Sampling
 ## ===========
 function cond_sample_mh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
-  Ypresamples = pre_mh(Y,T,Omega();max_iters = nsamples, pre_args...)
+  Ypresamples = pre_mh(Y,T,LazyOmega();max_iters = nsamples, pre_args...)
   r = rand(Ypresamples[1])
   [call(X, rand(i)) for i in Ypresamples]
 end

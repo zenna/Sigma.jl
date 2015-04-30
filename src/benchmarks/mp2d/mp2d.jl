@@ -96,7 +96,7 @@ model, condition = test_mp2d()
 # cond_sample_tlmh(model,condition,1;solver=dreal3)
 
 # @show model[1,1].smt
-# o = Omega()
+# o = LazyOmega()
 # @show condition.smt
 # o
 # call(condition,o)

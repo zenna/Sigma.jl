@@ -107,7 +107,7 @@ size(Xs::PureRandArray,i::Int) = size(Xs.array, i)
 
 # PERF: use list comprehensions for speed
 function rand{T,N,R<:RandVarAI}(Xs::PureRandArray{T,N,R})
-  ret::Array{T,N} = call(Xs,SampleOmega())
+  ret::Array{T,N} = call(Xs,SampleLazyOmega())
   return ret
 end
 

@@ -173,4 +173,4 @@ end
 # X = uniform(0,1)
 # Y = X > 0.5
 
-# pre_rrr(Y, T, Omega(), max_iters = 2)
+# pre_rrr(Y, T, LazyOmega(), max_iters = 2)

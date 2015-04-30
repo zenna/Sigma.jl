@@ -103,7 +103,7 @@ function convert(::Type{SExpr}, X::RandVarSMT{Bool}, ω; solver::SMTSolver = dre
 end
 
 # Will need to instantiate ω values
-function call(X::RandVarSMT{Bool}, ω::Omega; solver::SMTSolver = z3, args...)
+function call(X::RandVarSMT{Bool}, ω::Omega{Float64}; solver::SMTSolver = z3, args...)
   # Generate Variable Names
   sexprs = SExpr[]
   for gen in X.assert_gens
@@ -138,10 +138,10 @@ end
    SExpr("(assert (>= $(ω_nth(i)) $a))")
    SExpr("(assert (<= $(ω_nth(i)) $b))")]
 
-ω_asserts(o::Omega, i::Int) = ω_asserts(i,o[i].l,o[i].u)
+ω_asserts(o::Omega{Float64}, i::Int) = ω_asserts(i,o[i].l,o[i].u)
 
 @doc "Creates dynamic assertions for non-uniform distributions" ->
-function other_asserts(o::Omega, i::Int, name::Symbol, dist::Distribution,
+function other_asserts(o::Omega{Float64}, i::Int, name::Symbol, dist::Distribution,
                        RT::DataType)
   sexprs = SExpr[SExpr("(declare-fun $name () $(julia2smt(RT)))")]
   interval = o[i]
@@ -262,7 +262,7 @@ ifelse{T1<:Real}(A::RandVarSMT{Bool}, B::T1, C::RandVarSMT{T1}) =
 
 ## Printing
 ## ========
-string(x::RandVarSMT{Bool}) = convert(SExpr, x, Omega()).e
+string(x::RandVarSMT{Bool}) = convert(SExpr, x, LazyOmega()).e
 print(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 show(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 showcompact(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))

@@ -232,7 +232,7 @@ ifelse{T1<:Real}(A::RandVarAI{Bool}, B::T1, C::RandVarAI{T1}) =
 
 # ## Printing
 # ## ========
-# string(x::RandVarSMT{Bool}) = convert(SExpr, x, Omega()).e
+# string(x::RandVarSMT{Bool}) = convert(SExpr, x, LazyOmega()).e
 # print(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 # show(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))
 # showcompact(io::IO, x::RandVarSMT{Bool}) = print(io, string(x))

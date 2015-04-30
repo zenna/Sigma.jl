@@ -1,7 +1,8 @@
 ## Interface to Z3 (non)-linear solver
 ## ===================================
 
-parse_sat_status_z3(satstatus::String) = ["sat" => SAT, "unsat" => UNSAT][strip(satstatus)]
+@compat parse_sat_status_z3(satstatus::String) =
+  Dict("sat" => SAT, "unsat" => UNSAT)[strip(satstatus)]
 
 ## Library
 ## ========

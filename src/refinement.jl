@@ -26,7 +26,7 @@ function checksat(f::Callable, Y, X::Domain; args...)
 end
 
 # What fraction of the samples are in the preiamge
-function fraction_sat(Y::RandVar{Bool}, o::Omega, n::Int)
+function fraction_sat(Y::RandVar{Bool}, o::Omega{Float64}, n::Int)
   samples = [rand(o) for i = 1:n]
   nsat = count(identity, [call(Y,rand(o)) for i = 1:n])
   nsat/n

@@ -7,12 +7,12 @@ import Sigma:T,F
 #        - and symmetry
 
 function plot_preimage(X::RandVar{Bool};prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, Omega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
   plot_preimage(satsets)
 end
 
 function plot_preimage(X::RandVar{Bool}, dims::Vector; prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, Omega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
   plot_preimage(satsets, dims)
 end
 
@@ -29,7 +29,7 @@ end
 
 # Returns mathematica function
 function plot_preimage3D(X::RandVar{Bool};prob_args...)
-  satsets, mixedsets = Sigma.pre_bfs(X, T, Omega();prob_args...)
+  satsets, mixedsets = Sigma.pre_bfs(X, T, LazyOmega();prob_args...)
   plot_preimage3D(satsets,mixedsets)
 end
 

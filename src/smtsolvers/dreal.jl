@@ -3,7 +3,8 @@
 
 ## Parsing Output of dReal
 ## =======================
-parse_sat_status(satstatus::String) = ["sat" => SAT, "unsat" => UNSAT][strip(satstatus)]
+@compat parse_sat_status(satstatus::String) = 
+  Dict("sat" => SAT, "unsat" => UNSAT)[strip(satstatus)]
 
 # Parse a floatingpoint/integer from a string
 numregex = "[-+]?[0-9]*\.?[0-9]+"

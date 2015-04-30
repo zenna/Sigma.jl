@@ -5,14 +5,6 @@ using Color
 
 ## Conversion
 ## ==========
-
-typealias Point Lifted{Vector{Float64}}
-typealias Vec Lifted{Vector{Float64}}
-typealias Mat Lifted{Matrix{Float64}}
-typealias PointPair Lifted{Matrix{Float64}}
-typealias Edge Lifted{Matrix{Float64}}  #Parametric form of line is p1 + (p2 - p1)
-typealias Scalar Lifted{Float64}
-
 points_to_vec(p1::Point, p2::Point) = p1 - p2
 points_to_vec(edge::PointPair) = points_to_vec(edge[:,1], edge[:,2])
 
@@ -159,5 +151,5 @@ draw_lines(a,b)
 # s = simulate_prob(4,obstacles)
 # s(Omega(Sigma.EnvVar))
 # p = prob_deep(s, max_depth = 5)
-# p = pre_deepening(s,T,Omega(),max_depth = 10)
+# p = pre_deepening(s,T,LazyOmega(),max_depth = 10)
 # p

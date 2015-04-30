@@ -1,6 +1,6 @@
 using Base.Test
 using Sigma
-import Sigma: Omega, flip
+import Sigma: LazyOmega, flip
 
 # When condition is tf, we should explore and merge both branches
 begin
@@ -21,13 +21,13 @@ begin
   local a = ifelse(x,false,true)
   @show typeof(a)
   @test isa(a,Sigma.RandVar)
-  @test call(a,Omega()) === tf
+  @test call(a,LazyOmega()) === tf
   @test call(a,[0.3]) == false
   @test call(a,[0.7]) == true
 
   a = ifelse(x,false,true)
   @test isa(a,Sigma.RandVar)
-  @test call(a,Omega()) === tf
+  @test call(a,LazyOmega()) === tf
   @test call(a,[0.3]) == false
   @test call(a,[0.7]) == true
 end
@@ -39,15 +39,15 @@ begin
   local x = flip(1,0.6)
   local a = ifelse(x,flip(1,0.9),flip(1,0.2))
   @test isa(a,Sigma.RandVar)
-  # Omega() should be piped through to a or b, and hence:
-  @test !isa(call(a,Omega()),Sigma.RandVar)
+  # LazyOmega() should be piped through to a or b, and hence:
+  @test !isa(call(a,LazyOmega()),Sigma.RandVar)
   @test call(a,[0.3]) == true
   @test call(a,[0.7]) == false
 
   a = ifelse(x,flip(1,0.9), flip(1,0.2))
   @test isa(a,Sigma.RandVar)
-  # Omega() should be piped through to a or b, and hence:
-  @test !isa(call(a,Omega()),Sigma.RandVar)
+  # LazyOmega() should be piped through to a or b, and hence:
+  @test !isa(call(a,LazyOmega()),Sigma.RandVar)
   @test call(a,[0.3]) == true
   @test call(a,[0.7]) == false
 end

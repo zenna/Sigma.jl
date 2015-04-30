@@ -1,9 +1,10 @@
+# Parallel Map, copy/pasted from Julia with minor adaption
 function pmaplm(f, lsts...; err_retry=true, err_stop=false, ncores = 1)
     len = length(lsts)
 
-    results = Dict{Int,Any}()
+    @compat results = Dict{Int,Any}()
 
-    retryqueue = {}
+    retryqueue = Any[]
     task_in_err = false
     is_task_in_error() = task_in_err
     set_task_in_error() = (task_in_err = true)

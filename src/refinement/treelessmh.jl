@@ -164,7 +164,7 @@ end
 
 # Sample nsample points from X conditioned on Y being true
 function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
-  Ypresamples = pre_tlmh(Y,T,Omega(),nsamples; pre_args...)
+  Ypresamples = pre_tlmh(Y,T,LazyOmega(),nsamples; pre_args...)
   samples = Array(rangetype(X),nsamples)
   for i = 1:length(Ypresamples)
     samples[i] = call(X,rejection_presample(Y,Ypresamples[i]))
