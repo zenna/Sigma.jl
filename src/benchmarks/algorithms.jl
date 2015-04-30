@@ -1,4 +1,4 @@
-## Solvers
+## Algorithms
 ## =======
 
 # Abstract Interpretation
@@ -9,6 +9,7 @@ immutable SigmaAI <: Algorithm
   split::Function
 end
 
+# SMT Based
 immutable SigmaSMT <: Algorithm
   capture::Vector{Symbol}
   solver::Sigma.SMTSolver

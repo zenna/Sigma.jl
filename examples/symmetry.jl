@@ -1,6 +1,7 @@
 using Sigma
+using Base.Test
 
-# Constrain a
+# Constrain an array of integers to be symmetric
 function issymmetric(x)
   n = length(x)
   middle = div(n,2)+1
@@ -9,4 +10,5 @@ end
 
 Xs = iid(Int64, i->discreteuniform(i,1,25), 200)
 c = issymmetric(Xs)
-cond_sample_mh(Xs,c,1)
+sample = cond_sample_mh(Xs,c,1)
+@test issymmetric(sample)

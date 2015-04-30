@@ -1,14 +1,11 @@
 using Sigma
+using Base.Test
 
 # Probabilistic Programming Generalises SAT
-
 A = flip()
 B = flip()
 C = flip()
-E = flip()
 
 formula = (A & B) | C
-vars = MakeRandomArray([A,B,C])
-solutions = cond(A,formula)
-model = rand(solutions)
-model[1],model[2],model[3]
+a,b,c = rand([A,B,C], solutions)
+@test (a & b) | c

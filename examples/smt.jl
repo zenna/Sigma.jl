@@ -1,13 +1,13 @@
 using Sigma
-
-# Probabilistic Programming Generalises SMT
+using Base.Test
 
 X = uniform(0,10)
 Y = uniform(0,10)
 Z = uniform(0,10)
 
 formula = 3X + 2Y - Z >= 4
-vars = MakeRandomArray([X,Y,Z])
-solutions = cond(vars,formula)
-model = rand(solutions)
-
+x,y,z = rand([X, Y, Z], formula)
+@test 3x + 2y - z >= 4
+@test 0 < x < 10
+@test 0 < y < 10
+@test 0 < z < 10
