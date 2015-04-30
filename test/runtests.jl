@@ -13,3 +13,11 @@ for t in tests
     println(" * $test_fn")
     include(test_fn)
 end
+
+println("Running examples:")
+
+examples = readdir("../examples")
+for example in examples
+    println(" * $example")
+    include(example_fn)
+end
