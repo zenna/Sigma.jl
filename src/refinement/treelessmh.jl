@@ -20,9 +20,9 @@ function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
     # Compute preimage volume fractions
     prevolfracs = Array(Float64,length(children))
     for i = 1:length(children)
-      if statuses[i] == T
+      if statuses[i] == SAT
         prevolfracs[i] = 1.0
-      elseif statuses[i] == F
+      elseif statuses[i] == UNSAT
         prevolfracs[i] = 0.0
       else
         prevolfracs[i] = fraction_sat(f, children[i][1], npre_tests)
@@ -164,7 +164,7 @@ end
 
 # Sample nsample points from X conditioned on Y being true
 function cond_sample_tlmh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
-  Ypresamples = pre_tlmh(Y,T,LazyOmega(),nsamples; pre_args...)
+  Ypresamples = pre_tlmh(Y,t,LazyOmega(),nsamples; pre_args...)
   samples = Array(rangetype(X),nsamples)
   for i = 1:length(Ypresamples)
     samples[i] = call(X,rejection_presample(Y,Ypresamples[i]))

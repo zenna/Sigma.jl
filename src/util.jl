@@ -1,38 +1,4 @@
 ## General util TODO: Move to separate
-
-# Are a and b equal on these fields
-isequalon(a,b,fields::Vector{Symbol}) =
-  all([getfield(a,f) == getfield(b,f) for f in fields])
-
-issametype(a,b) = typeof(a) == typeof(b)
-
-equiv{T}(a::T,b::T) =
-  all([getfield(a,f) == getfield(b,f) for f in T.names])
-
-eq_f{T}(x::T,y::T) = T.names == () ? (==) : deepequiv
-
-function deepequiv{T}(a::T,b::T)
-  for f in T.names
-    if Base.isdefined(a,f) && Base.isdefined(b,f)
-      same = eq_f(getfield(a,f), getfield(b,f))(getfield(a,f),getfield(b,f))
-      !same && return false
-    elseif Base.isdefined(a,f) $ Base.isdefined(b,f)
-      return false
-    end
-  end
-  return true
-end
-
-function deephash{T}(x::T, h = zero(Uint))
-  h += uint(0x7f53e68ceb575e76)
-  for t in T.names
-    if Base.isdefined(x,t)
-      h = hash(getfield(x,t),h)
-    end
-  end
-  return h
-end
-
 type Counter
   X::Int64
 end

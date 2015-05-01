@@ -18,10 +18,8 @@ AIalgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
-# for i = 1:100
-  runbenchmarks(AIalgorithms,problems;
-                runname = "kl",prefix=benchdir,savedb=true,exceptions=true)
-# end
+record(AIalgorithms,problems;
+       runname = "kl",prefix=benchdir,savedb=true,exceptions=false)
 
 # splitkey = [rand_partial_split => "rand", weighted_mid_split => "mid", weighted_partial_split => "partial"]
 

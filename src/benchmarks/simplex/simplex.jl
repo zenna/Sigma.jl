@@ -1,7 +1,10 @@
+using Sigma
+import Sigma: mvuniformai, mvuniformmeta
+using Lens
+using DynamicAnalysis
+
 ## Simplex Benchmark
 ## =================
-using Sigma
-using DynamicAnalysis
 # This benchmark samples from a small region around corners of a n-dimensional
 # Simplex. If the regions are of equal size then we should expect an equal
 # number of samples in each region.

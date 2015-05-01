@@ -110,21 +110,7 @@ export
   distinguished_colors,
   rand_color,
   plot_sample_cond_density,
-  plot_sample_density,
-
-  # Benchmarking
-  parse_output,
-  run_church,
-  stat_line_layer,
-  stat_ribbon_layer,
-  stat_errorbar_layer,
-  plot_cond_performance,
-  plot_prob_performance,
-  add_KL!,
-  add_KL_church!,
-  allbenchmarks,
-  allalgorithms,
-  runbenchmarks
+  plot_sample_density
 
 include("common.jl")
 include("util.jl")
@@ -140,13 +126,8 @@ include("query.jl")
 include("distributions.jl")
 include("relation.jl")
 
-# # Benchmarks
-# include("benchmarks/benchmarks.jl")
-
 # Hack to avoid loading Gadfly each time
-
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")
-benchdir = joinpath(juliadir, "Sigma","src","benchmarks")
 
 loadvis() = include(vispath)
 

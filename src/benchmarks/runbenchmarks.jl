@@ -1,12 +1,15 @@
 using Sigma
+using Compat
 
 import Sigma: Simplex, weighted_mid_split, rand_partial_split,
               weighted_partial_split
 import Sigma: dreal, z3, dreal3
-import Sigma: SigmaSMT, SigmaAI
 import Sigma: cond_sample_tlmh
-import Sigma: runbenchmarks, benchdir
+
 using DynamicAnalysis
+import DynamicAnalysis: benchmark
+
+benchdir = pwd()
 
 include("algorithms.jl")
 include("church.jl")
