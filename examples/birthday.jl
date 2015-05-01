@@ -1,3 +1,4 @@
+using Sigma
 # Approximately, what’s the probability that in a room filled with 23 people at least one pair of people have the same birthday?
 birthdays = iid(Int, i->discreteuniform(1,366),30)
 function same_birthday(birthdays)

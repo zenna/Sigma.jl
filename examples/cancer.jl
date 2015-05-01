@@ -1,4 +1,5 @@
 using Sigma
+import Sigma: flipmeta
 ## From probmods.org / Kahnenman and Tversky
 ## ==========================================
 
@@ -13,7 +14,6 @@ end
 
 # Model
 cancer_base_rate = 0.01
-plot_sample_histogram(cancer_base_rate,10000)
 breast_cancer = flip(1,cancer_base_rate)
 positive_mammogram = ifelse(breast_cancer,flip(2, 0.8),flip(3,0.096))
 

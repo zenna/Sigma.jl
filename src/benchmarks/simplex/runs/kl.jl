@@ -1,12 +1,5 @@
 ## Distribution Test
 ## =================
-import Sigma: Simplex, weighted_mid_split, rand_partial_split,
-              weighted_partial_split
-import Sigma: dreal, z3, dreal3
-import Sigma: SigmaSMT, SigmaAI
-import Sigma: cond_sample_tlmh
-import Sigma: runbenchmarks, benchdir
-
 holesizes = logspace(-1,-10,3)
 problems = [Simplex(4,[:sample_distribution, :accumulative_KL,
                        :total_time,],100,0.01)]

@@ -2,19 +2,6 @@ using Base.Test
 using Sigma
 import Sigma: LazyOmega, flip
 
-# When condition is tf, we should explore and merge both branches
-begin
-  local x = tf
-  local a = ifelse(x,false,true)
-  @test a === tf
-  a = ifelse(x, false, true)
-  @test a === tf
-
-  local m = 0.0
-  a = ifelse(true,m,(m += 1;m))
-  @test m == 1.0
-end
-
 # When cond is a random variable, @If and ifelse return a random variable
 begin
   local x = flip(1,0.6)

@@ -10,7 +10,7 @@
 # Adjust the proposal distribution
 # frac_in_preimage is the fraction of the event which must be in the preimage
 # Default 1 implies it must be a purely preimage sample
-# Ohterwise, adjust_proposal will convert events that are TF to T if their
+# Ohterwise, adjust_proposal will convert events that are t to f if their
 # percentage is greater than frac_in_preimage, determined by sampling
 function adjust_proposal(statuses::Vector{SatStatus},weights::Vector{Float64},
                          children,f::Callable;

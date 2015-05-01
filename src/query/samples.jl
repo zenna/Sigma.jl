@@ -73,7 +73,7 @@ end
 ## MH Sampling
 ## ===========
 function cond_sample_mh(X::RandVar, Y::RandVar{Bool}, nsamples::Int; pre_args...)
-  Ypresamples = pre_mh(Y,T,LazyOmega();max_iters = nsamples, pre_args...)
+  Ypresamples = pre_mh(Y,t,LazyOmega();max_iters = nsamples, pre_args...)
   r = rand(Ypresamples[1])
   [call(X, rand(i)) for i in Ypresamples]
 end

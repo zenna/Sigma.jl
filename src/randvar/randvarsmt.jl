@@ -119,9 +119,9 @@ function call(X::RandVarSMT{Bool}, ω::Omega{Float64}; solver::SMTSolver = z3, a
   existunsatpoints = solver.checksat(negprogram)
 
   # If both are true, return {T,F}
-  if (existsatpoints == SAT) & (existunsatpoints == SAT) TF
-  elseif existsatpoints == SAT T
-  elseif existunsatpoints == SAT F
+  if (existsatpoints == SAT) & (existunsatpoints == SAT) tf
+  elseif existsatpoints == SAT t
+  elseif existunsatpoints == SAT f
   else
     @show program.e
     @show negprogram.e

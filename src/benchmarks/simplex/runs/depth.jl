@@ -8,7 +8,7 @@ import Sigma: SigmaSMT, SigmaAI
 import Sigma: cond_sample_tlmh
 import Sigma: runbenchmarks
 
-SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
+SplitBenchmarks = [Simplex(i,[:sample_distribution,
                                         :accumulative_KL,
                                         :total_time,],400,.1)
                    for i = [3,10]]

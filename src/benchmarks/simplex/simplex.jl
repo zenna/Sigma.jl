@@ -1,5 +1,7 @@
 ## Simplex Benchmark
-## ================
+## =================
+using Sigma
+using DynamicAnalysis
 # This benchmark samples from a small region around corners of a n-dimensional
 # Simplex. If the regions are of equal size then we should expect an equal
 # number of samples in each region.
@@ -71,12 +73,13 @@ end
 hash(s::Simplex, h::Uint) = deephash(s,h)
 
 function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
+  Sigma.restart_counter!()
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
   model, condition = simplex(b.ndims, m, b.holesize)
   @show b.nsamples
 
-  value, results = quickbench(()->sample(a,model,condition,b.nsamples), captures)
+  value, results = capture(()->sample(a,model,condition,b.nsamples), captures)
   @show length(value)
   results
 end
@@ -89,3 +92,7 @@ sample(a::SigmaSMT, model, condition, nsamples) =
 
 sample(a::SigmaAI, model, condition, nsamples) =
    a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split)
+
+## Runs
+## ====
+include("runs/kl.jl")

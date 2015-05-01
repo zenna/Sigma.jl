@@ -9,7 +9,7 @@ import Sigma: cond_sample_tlmh
 import Sigma: runbenchmarks
 
 
-SplitBenchmarks = [SimplexBenchmark(i,[:sample_distribution,
+SplitBenchmarks = [Simplex(i,[:sample_distribution,
                                         :accumulative_KL,
                                         :total_time,],1,0.1)
                    for i = 2:10:62]

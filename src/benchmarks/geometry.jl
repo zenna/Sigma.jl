@@ -26,16 +26,7 @@ function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
-perp(v::Vec) = liftedarray([-v[2],v[1]])
 function normalise(v::Vec)
   denom = sqrt(sqr(v[1]) + sqr(v[2]))
   liftedarray([v[i] / denom for i = 1:length(v)])
-end
-
-function reflect(v::Vec,q::Vec)
-  q_norm = normalise(q)
-  n_amb = perp(q_norm)
-  v2 = normalise(v)
-  n = @If dot(q_norm,v2) < 0 n_amb -n_amb
-  v2 - 2 * (dot(v2,n) * n)
 end
