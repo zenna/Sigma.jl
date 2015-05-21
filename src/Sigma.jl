@@ -6,6 +6,11 @@ using Lens
 using DataStructures
 using Compat
 
+# SMT Solvers
+using dReal
+
+import AbstractDomains: dims
+
 if VERSION < v"0.4.0-dev"
   using Docile
   # call is in base in 0.4
@@ -87,9 +92,6 @@ export
   mvnormal,
   mvuniform,
 
-  # Relation
-  Var,
-
   @noexpand,
 
   #utils
@@ -115,16 +117,15 @@ export
 include("common.jl")
 include("util.jl")
 include("pmaplm.jl")
-include("smtsolver.jl")
 include("joins.jl")
 include("domains.jl")
 include("omega.jl")
 include("randvar.jl")
+include("smtsolver.jl")
 include("lift.jl")
 include("refinement.jl")
 include("query.jl")
-include("distributions.jl")
-include("relation.jl")
+# include("distributions.jl")
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")

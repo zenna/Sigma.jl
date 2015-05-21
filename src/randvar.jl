@@ -13,12 +13,13 @@ rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,
 rangetype{T<:RandVar}(::Type{T}) = T.parameters[1]
 rangetype(x) = typeof(x) # Catch all (TODO: Why does this exist?)
 
-for finame in ["randvarai.jl",
-               "randvarsmt.jl",
-               "randarray.jl",
-               "randvarmeta.jl",]
+for finame in [#"randvarai.jl",
+               #"randvarsmt.jl",
+               #"randarray.jl",
+               #"randvarmeta.jl",
+               "factored.jl"]
     include(joinpath("randvar", finame))
 end
 
 ## Convenience synonym
-RandArray = PureRandArray
+# RandArray = PureRandArray
