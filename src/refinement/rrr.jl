@@ -32,8 +32,7 @@ function shouldstop(niterations, t::WeightedTree)
   return false
 end
 
-function updatepathnodes!(path::Vector{(Node, Int)}, t::WeightedTree,
-                          weightloss::Float64)
+@compat function updatepathnodes!(path::Vector{Tuple{Node, Int}}, t::WeightedTree,  weightloss::Float64)
   # Iterate backwards from end of path
 #   println("Deducting $weightloss")
   logruntotal = log(weightloss)
@@ -54,7 +53,7 @@ function randchild(t::Tree, children)
   cindex = rand(Categorical(transitionprobs))
 end
 
-function add_children!(t::WeightedTree, node::Node, children::Vector{(Node, Float64)})
+@compat function add_children!(t::WeightedTree, node::Node, children::Vector{Tuple{Node, Float64}})
   for (child, weight) in children
     add_child!(t, child, node.id, weight)
   end

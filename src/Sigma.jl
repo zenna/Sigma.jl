@@ -1,15 +1,14 @@
 module Sigma
 
+using Cxx
+using IBEX
 using Distributions
 using AbstractDomains
 using Lens
 using DataStructures
 using Compat
 
-# SMT Solvers
-using dReal
-
-import AbstractDomains: dims
+import AbstractDomains: dims, Interval, Boxes
 
 if VERSION < v"0.4.0-dev"
   using Docile
@@ -22,6 +21,21 @@ else
   juliadir = joinpath(homedir(),".julia","v0.4")
 end
 
+## Include (C++) sigma and crpytominisat
+cxx_includes = ["/usr/local/include",
+                "/home/zenna/repos/sigma"]
+
+# function __init__()
+for cxx_include in cxx_includes
+  addHeaderDir(cxx_include; kind = C_System)
+end
+
+cxx"""
+  #include <cryptominisat4/cryptominisat.h>
+  #include "sigma/refine.h"
+"""
+@compat Libdl.dlopen("libcryptominisat4.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
+
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
@@ -32,6 +46,8 @@ import Base.start
 import Base.next
 import Base.done
 import Base: hash
+import Base: ndims, isequal, union, push!, string, print, show
+
 # import Lens:benchmark
 import Distributions: quantile
 
@@ -116,12 +132,13 @@ export
 
 include("common.jl")
 include("util.jl")
-include("pmaplm.jl")
-include("joins.jl")
+# include("pmaplm.jl")
+# include("joins.jl")
 include("domains.jl")
 include("omega.jl")
+include("sat.jl")
 include("randvar.jl")
-include("smtsolver.jl")
+# include("smtsolver.jl")
 include("lift.jl")
 include("refinement.jl")
 include("query.jl")

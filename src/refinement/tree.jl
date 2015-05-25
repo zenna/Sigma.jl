@@ -25,7 +25,7 @@ end
 ## Weighted Tree
 ## ============
 
-typealias NodeWeight (Int, Float64)
+@compat typealias NodeWeight Tuple{Int, Float64}
 getnodeid(nw::NodeWeight) = nw[1]
 getweight(nw::NodeWeight) = nw[2]
 
