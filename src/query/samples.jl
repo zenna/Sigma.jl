@@ -88,3 +88,15 @@ end
 function sample_mean{T<:Real}(X::RandVar{T}; nsamples = 1000)
   mean(rand(X, nsamples))
 end
+
+# Generate random sample from distribution of X
+function rand{T}(X::RandVar{T})
+  func = lambda(X)
+  func(LazyRandomVector(Float64))::T
+end
+
+# Generate n random samples from distribution of X
+function rand{T}(X::RandVar{T}, nsamples::Int)
+  func = lambda(X)
+  T[func(LazyRandomVector(Float64)) for i = 1:nsamples]
+end

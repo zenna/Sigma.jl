@@ -47,7 +47,8 @@ end
 
 # Real -> Real
 ## ===========
-for (name,op) in ((:UnaryPlusRandVar,:+),(:UnaryMinusRandVar,:-),(:AbsRandVar,:*))
+real_real = ((:UnaryPlusRandVar,:+),(:UnaryMinusRandVar,:-),(:AbsRandVar,:*))
+for (name,op) in real_real
   eval(
   quote
   immutable $name{T<:Real,A1<:Real} <: RandVar{T}
@@ -59,10 +60,12 @@ end
 
 # Real -> _<:Floating
 ## ==================
-for (name,op) in ((:ExpRandVar,:exp), (:LogRandVar,:log), (:SinRandVar,:sin),
+real_floating = ((:ExpRandVar,:exp), (:LogRandVar,:log), (:SinRandVar,:sin),
           (:CosRandVar,:cos), (:TanRandVar,:tan), (:AsinRandVar,:asin),
           (:AcosRandVar,:acos), (:AtanRandVar,:atan), (:SinhRandVar,:sinh),
           (:CoshRandVar,:cosh), (:TanhRandVar,:tanh), (:Atan2RandVar,:atan2))
+
+for (name,op) in real_floating
   eval(
   quote
   immutable $name{T<:Real,A1<:Real} <: RandVar{T}
@@ -91,7 +94,8 @@ end
 
 ## Real × Real -> Bool
 ## ===================
-for (name,op) in ((:OrRandVar, :|), (:AndRandVar,:&))
+bool = ((:OrRandVar, :|), (:AndRandVar,:&))
+for (name,op) in bool
   eval(
   quote
   immutable $name{T,A1,A2} <: RandVar{Bool}

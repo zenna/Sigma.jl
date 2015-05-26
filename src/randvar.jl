@@ -49,6 +49,7 @@ end
 # rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,Y,nsamples;pre_args...)
 
 for finame in ["types.jl",
-               "expand.jl"]
+               "expand.jl",
+               "compile.jl"]
     include(joinpath("randvar", finame))
 end

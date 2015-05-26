@@ -50,6 +50,28 @@ import Base: ndims, isequal, union, push!, string, print, show
 import Base.eltype
 import Base.size
 
+import Base:  asin,
+              sqrt,
+              exp,
+              log,
+              cos,
+              sin,
+              tan,
+              acos,
+              asin,
+              atan,
+              cosh,
+              sinh,
+              tanh,
+              acosh,
+              asinh,
+              atanh,
+              abs,
+              atan2,
+              max,
+              min,
+              sign
+
 # import Lens:benchmark
 import Distributions: quantile
 
