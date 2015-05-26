@@ -29,7 +29,8 @@ isequal(X::OmegaRandVar,Y::OmegaRandVar) = isequal(X.dim,Y.dim)
 # randvar1 + randvar2 creates a PlusRandVar value with args [randvar1, randvar2]
 
 ## Real × Real -> Real ##
-for (name,op) in ((:PlusRandVar,:+),(:MinusRandVar,:-),(:TimesRandVar,:*),(:DivideRandVar,:/), (:PowRandVar,:(^)))
+real_real_real = ((:PlusRandVar,:+),(:MinusRandVar,:-),(:TimesRandVar,:*),(:DivideRandVar,:/), (:PowRandVar,:(^)))
+for (name,op) in real_real_real
   eval(
   quote
   immutable $name{T<:Real,A1<:Real,A2<:Real} <: RandVar{T}
@@ -69,8 +70,10 @@ for (name,op) in ((:ExpRandVar,:exp), (:LogRandVar,:log), (:SinRandVar,:sin),
 end
 
 # Real × Real -> Bool
-for (name,op) in ((:GTRandVar, :>), (:GTERandVar,:>=), (:LTERandVar,:<=), (:LTRandVar,:<),
+real_real_bool = ((:GTRandVar, :>), (:GTERandVar,:>=), (:LTERandVar,:<=), (:LTRandVar,:<),
                   (:EqRandVar, :(==)), (:NeqRandVar, :!=))
+
+for (name,op) in real_real_bool
   eval(
   quote
   immutable $name{T<:Real,A1<:Real,A2<:Real} <: RandVar{T}
@@ -179,45 +182,88 @@ function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::Va
   retvalue, varset
 end
 
+## TODO, GENERIC RandVar Unary(not bool)
+## TODO, GENERIC RANDVAR Unary trig
+
+# Generic Randvar expamd
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::RandVar, a::RandVar, b::RandVar)
   op_a, varset_a = haskey(visited,a) ? visited[a] : (visited[a] = expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   op_b, varset_b = haskey(visited,b) ? visited[b] : (visited[b] = expand(cmap, cnf, ω, varset, visited, bc, b, args(b)...))
   expand(cmap, cnf, ω, union(varset_a,varset_b),visited, bc, X, op_a, op_b)
 end
 
+# Generic Randvar{Bool} expand
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::RandVar{Bool}, a::RandVar{Bool}, b::RandVar)
   op_a = haskey(visited,a) ? visited[a] : (visited[a] = expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   op_b = haskey(visited,b) ? visited[b] : (visited[b] = expand(cmap, cnf, ω, varset, visited, bc, b, args(b)...))
   expand(cmap, cnf, ω, varset, visited, bc, X, op_a, op_b)
 end
 
-function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::GTERandVar, a::IBEX.ExprNode, b::IBEX.ExprNode)
-  constraint::IBEX.ExprCtr = a >= b
-  boolvar = add!(cmap, constraint, varset, bc)
-  boolvar
+for (name,op) in real_real_bool
+  eval(
+  quote
+  function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::$name, a::IBEX.ExprNode, b::IBEX.ExprNode)
+    constraint::IBEX.ExprCtr = $op(a,b)
+    boolvar = add!(cmap, constraint, varset, bc)
+    boolvar
+  end
+  end)
 end
 
+## Tseitin Transformation
+## ======================
+
+# Or
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::OrRandVar, A::BoolVar, B::BoolVar)
   C = nextvar!(bc)
    # auxilary variable C = A | B
   # (A ∨ B ∨ !C) ∧ (!A ∨ C) ∧ (!B ∨ C)
-  or_subcnf = CMCNF([CMClause([CMLit(A,false),CMLit(B,false),~CMLit(C,true)]),
+  or_subcnf = CMCNF([CMClause([CMLit(A,false),CMLit(B,false),CMLit(C,true)]),
                      CMClause([CMLit(A,true),CMLit(C,false)]),
                      CMClause([CMLit(B,true),CMLit(C,false)])])
   push!(cnf, or_subcnf)
   C
 end
 
-function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::TimesRandVar, a::IBEX.ExprNode, b::IBEX.ExprNode)
-  result = a * b
-  result, varset
+# And
+function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::AndRandVar, A::BoolVar, B::BoolVar)
+  C = nextvar!(bc)
+   # auxilary variable C = A & B
+  # (\overline{A} \vee \overline{B} \vee C) \wedge (A \vee \overline{C}) \wedge (B \vee \overline{C})
+  and_subcnf = CMCNF([CMClause([CMLit(A,true),CMLit(B,true),CMLit(C,false)]),
+                      CMClause([CMLit(A,false),CMLit(C,true)]),
+                      CMClause([CMLit(B,false),CMLit(C,true)])])
+  push!(cnf, and_subcnf)
+  C
+end
+
+# Not
+function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::AndRandVar, A::BoolVar)
+  C = nextvar!(bc)
+   # auxilary variable C = !A
+  # (\overline{A} \vee \overline{C}) \wedge (A \vee C)
+  not_subcnf = CMCNF([CMClause([CMLit(A,true),CMLit(C,true)]),
+                     CMClause([CMLit(A,false),CMLit(C,false)])])
+  push!(cnf, not_subcnf)
+  C
+end
+
+# Real * Real -> Real
+for (name,op) in real_real_real
+  eval(
+  quote
+  # Real
+  function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::$name, a::IBEX.ExprNode, b::IBEX.ExprNode)
+    result = ($op)(a,b)
+    result, varset
+  end
+  end)
 end
 
 # Maps Literal to Equation
 type LiteralMap
   cxx
 end
-
 
 # Reverse direction and adds negation
 function to_cxx_lmap(cmap::ConstraintMap)

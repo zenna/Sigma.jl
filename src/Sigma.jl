@@ -142,7 +142,7 @@ include("randvar.jl")
 include("lift.jl")
 include("refinement.jl")
 include("query.jl")
-# include("distributions.jl")
+include("distributions.jl")
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")
