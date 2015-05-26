@@ -25,14 +25,13 @@ end
 cxx_includes = ["/usr/local/include",
                 "/home/zenna/repos/sigma"]
 
-# function __init__()
 for cxx_include in cxx_includes
   addHeaderDir(cxx_include; kind = C_System)
 end
 
 cxx"""
   #include <cryptominisat4/cryptominisat.h>
-  #include "sigma/refine.h"
+  #include "sigma/sigma.h"
 """
 @compat Libdl.dlopen("libcryptominisat4.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
 
@@ -137,6 +136,7 @@ include("util.jl")
 include("domains.jl")
 include("omega.jl")
 include("sat.jl")
+include("cmsat.jl")
 include("randvar.jl")
 # include("smtsolver.jl")
 include("lift.jl")
