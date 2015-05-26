@@ -1,6 +1,3 @@
-import Base.eltype
-import Base.size
-
 type PureRandArray{T,N,R <: RandVar} <: RandVar{Array{T,N}}
   array::Array{R,N}
 end
@@ -225,12 +222,12 @@ function iidall(T::DataType, R::DataType, c::Function, nrows::Int64; offset = 0)
   PureRandVector{T,R{T}}(v)
 end
 
-iidmeta(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarMeta, c, nrows, ncols; offset...)
-iidmeta(T::DataType, c, nrows; offset...) = iidall(T, RandVarMeta, c, nrows; offset...)
+# iidmeta(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarMeta, c, nrows, ncols; offset...)
+# iidmeta(T::DataType, c, nrows; offset...) = iidall(T, RandVarMeta, c, nrows; offset...)
 
-iidsmt(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSMT, c, nrows, ncols; offset...)
-iidsmt(T::DataType, c, nrows; offset...) = iidall(T, RandVarSMT, c, nrows; offset...)
+# iidsmt(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarSMT, c, nrows, ncols; offset...)
+# iidsmt(T::DataType, c, nrows; offset...) = iidall(T, RandVarSMT, c, nrows; offset...)
 
-iidai(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarAI, c, nrows, ncols; offset...)
-iidai(T::DataType, c, nrows; offset...) = iidall(T, RandVarAI, c, nrows; offset...)
+# iidai(T::DataType, c, nrows, ncols; offset...) = iidall(T, RandVarAI, c, nrows, ncols; offset...)
+# iidai(T::DataType, c, nrows; offset...) = iidall(T, RandVarAI, c, nrows; offset...)
 

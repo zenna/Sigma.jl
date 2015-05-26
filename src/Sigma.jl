@@ -9,6 +9,7 @@ using DataStructures
 using Compat
 
 import AbstractDomains: dims, Interval, Boxes
+import Distributions: quantile
 
 if VERSION < v"0.4.0-dev"
   using Docile
@@ -46,6 +47,8 @@ import Base.next
 import Base.done
 import Base: hash
 import Base: ndims, isequal, union, push!, string, print, show
+import Base.eltype
+import Base.size
 
 # import Lens:benchmark
 import Distributions: quantile
@@ -129,17 +132,12 @@ export
   plot_sample_cond_density,
   plot_sample_density
 
-include("common.jl")
 include("util.jl")
-# include("pmaplm.jl")
-# include("joins.jl")
 include("domains.jl")
 include("omega.jl")
-include("sat.jl")
-include("cmsat.jl")
+include("sat/sat.jl")
+include("sat/cmsat.jl")
 include("randvar.jl")
-# include("smtsolver.jl")
-include("lift.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
