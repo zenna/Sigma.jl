@@ -46,7 +46,7 @@ import Base.start
 import Base.next
 import Base.done
 import Base: hash
-import Base: ndims, isequal, union, push!, string, print, show
+import Base: ndims, isequal, union, push!, string, print, show, println
 import Base.eltype
 import Base.size
 
