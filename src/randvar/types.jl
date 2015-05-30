@@ -16,6 +16,10 @@ dims(X::ConstantRandVar) = Set{Int}()
 (==)(X::ConstantRandVar, Y::ConstantRandVar) = ConstantRandVar{Bool}(X.val == Y.val)
 isequal(X::ConstantRandVar, Y::ConstantRandVar) = isequal(X.val,Y.val)
 
+one{T}(::Type{RandVar{T}}) = ConstantRandVar(one(T))
+zero{T}(::Type{RandVar{T}}) = ConstantRandVar(zero(T))
+norm(X::ConstantRandVar) = ConstantRandVar(norm(X.val))
+
 ## Omega Random Variable
 ## =====================
 @doc "Simplest RandVar: ω->ω[dim] - extracts dim component of omega" ->

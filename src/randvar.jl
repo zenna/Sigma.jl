@@ -38,18 +38,9 @@ function isequal(X::RandVar,Y::RandVar)
   true
 end
 
-# pipeomega(v, ω) = v
-# pipeomega(v::RandVar, ω) = call(v,ω)
-
-# rand(X::RandVar) = call(X,LazyRandomVector(Float64))
-# rand{T}(X::RandVar{T},nsamples::Int) = T[call(X,LazyRandomVector(Float64)) for i= 1:nsamples]
-
-# default aliases
-# rand(X::RandVar,Y::RandVar{Bool};pre_args...) = cond_sample_bfs(X,Y;pre_args...)
-# rand(X::RandVar,Y::RandVar{Bool},nsamples::Int;pre_args...) = cond_sample_bfs(X,Y,nsamples;pre_args...)
-
 for finame in ["types.jl",
                "expand.jl",
-               "compile.jl"]
+               "compile.jl",
+               "randarray.jl"]
     include(joinpath("randvar", finame))
 end

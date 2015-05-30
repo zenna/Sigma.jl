@@ -31,10 +31,11 @@ for cxx_include in cxx_includes
 end
 
 cxx"""
-  #include <cryptominisat4/cryptominisat.h>
+  #include <memory>
+  #include <cmsat/Solver.h>
   #include "sigma/sigma.h"
 """
-@compat Libdl.dlopen("libcryptominisat4.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
+@compat Libdl.dlopen("libcryptominisat-2.9.9.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -49,6 +50,9 @@ import Base: hash
 import Base: ndims, isequal, union, push!, string, print, show, println
 import Base.eltype
 import Base.size
+import Base.all
+import Base: one, zero, norm, similar
+
 
 import Base:  asin,
               sqrt,
@@ -117,10 +121,10 @@ export
   setindex,
 
   # Distributions
-  random,
   normal,
   uniform,
   flip,
+  exponential,
   betarv,
   gamma,
   categorical,

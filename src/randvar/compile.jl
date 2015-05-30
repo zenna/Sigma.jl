@@ -12,6 +12,7 @@ for (name,op) in all_functional_randvars
 end
 
 convert(::Type{Expr}, X::ConstantRandVar) = X.val
-convert(::Type{Expr}, X::OmegaRandVar) = :(ω[$(X.dim)])
+#add one for julia/c++ indexing mismatch, basically a HACK
+convert(::Type{Expr}, X::OmegaRandVar) = :(ω[$(X.dim+1)])
 lambda_expr(X::RandVar) = Expr(:(->),:ω,convert(Expr,X))
 lambda(X::RandVar) = eval(lambda_expr(X))

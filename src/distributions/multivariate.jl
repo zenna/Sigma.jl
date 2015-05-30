@@ -1,32 +1,12 @@
-## Multivariate Distributions
-## ==========================
-
-# dirichlet distribution
-# Convert array of gammas to dirichlet Distribution
-gammatodiriclet(x::PureRandArray) = x / sum(x)
-
-function dirichlet(α::Vector{Float64})
-  arr = RandVarAI{Float64}[gamma(α[i],1.0) for i = 1:length(α)]
-  gammatodiriclet(PureRandArray(arr))
+## Independent RandVars
+## ====================
+function iid(T::DataType, c::Function,
+             nrows::Int64, ncols::Int64; offset::Int64 = 0)
+  a = RandVar{T}[c(i+(j-1)*(nrows) + offset) for i = 1:nrows, j = 1:ncols]
+  PureRandArray{T,2}(a)
 end
 
-# Specify only omega component of first element of random array
-function dirichlet(i::Int, α::Vector{Float64})
-  arr = RandVarAI{Float64}[gamma(i+j-1,α[j],1.0) for j = 1:length(α)]
-  gammatodiriclet(PureRandArray(arr))
+function iid(T::DataType, R::DataType, c::Function, nrows::Int64; offset = 0)
+  v::Array{R{T}} = [c(i + offset) for i = 1:nrows]
+  PureRandVector{T,R{T}}(v)
 end
-
-# Specify all omega components
-function dirichlet(is::Vector{Int}, α::Vector{Float64})
-  @assert length(is) == length(α)
-  arr = RandVarAI{Float64}[gamma(is[j],α[j],1.0) for j = 1:length(α)]
-  gammatodiriclet(PureRandArray(arr))
-end
-
-## Independent Multivariates
-## =========================
-mvuniformai(a,b, i::Int, j::Int) = iid(Float64, c->uniformai(a,b),i,j)
-mvuniformai(a,b, i::Int) = iid(Float64, c->uniformai(a,b),i)
-
-mvnormalai(μ,σ, i::Int, j::Int) = iid(Float64, c->normalai(μ,σ),i,j)
-mvnormalai(μ,σ, i::Int) = iid(Float64, c->normalai(μ,σ),i)
