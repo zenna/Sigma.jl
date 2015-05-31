@@ -51,7 +51,7 @@ end
 
 # Real -> Real
 ## ===========
-real_real = ((:UnaryPlusRandVar,:+),(:UnaryMinusRandVar,:-),(:AbsRandVar,:*))
+real_real = ((:UnaryPlusRandVar,:+),(:UnaryMinusRandVar,:-),(:AbsRandVar,:abs))
 for (name,op) in real_real
   eval(
   quote

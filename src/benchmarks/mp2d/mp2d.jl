@@ -1,27 +1,28 @@
 ## Motion Planning 3D Benchmark
 ## =========================
+using Sigma
 
-typealias Point Lifted{Vector{Float64}}
-typealias Vec Lifted{Vector{Float64}}
-typealias Mat Lifted{Matrix{Float64}}
+typealias Point AbstractVector
+typealias Vec AbstractVector
+typealias Mat AbstractMatrix
 # Use for functions which should take a normal or equivalently typed randarray
 
 # A geometric entity of N dimensions
 abstract Entity{N}
 
 immutable Rectangle <: Entity{2}
-  bounds::LA{Float64,2}
+  bounds::Mat{Float64}
 end
 
 # ## Edges
 # ## =====
 # # Point Edge
 immutable Edge
-  points::LA{Float64,2}
+  points::Mat
 end
 
 immutable ParametricEdge
-  coords::LA{Float64,2}
+  coords::Mat
 end
 
 function parametric(e::Edge)
@@ -31,7 +32,7 @@ function parametric(e::Edge)
 end
 
 # Is the point in the box?
-function ispointinpoly(point, box::Rectangle)
+function ispointinpoly(point::Point, box::Rectangle)
   r = (point[1] >= box.bounds[1,1]) &
       (point[1] <= box.bounds[2,1]) &
       (point[2] >= box.bounds[1,2]) &
@@ -41,6 +42,8 @@ end
 
 # Where if anywhere, along p does it intersect segment
 function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
+  @show ppos
+  @show qpos
   w = ppos - qpos
   u = pdir
   v = qdir
@@ -70,17 +73,15 @@ function avoid_obstacles(points, obs)
 end
 
 function validpath(points, obstacles, origin, dest)
-  ispointinpoly(points[:,1],origin) &
-  ispointinpoly(points[:,end], dest) &
-  avoid_obstacles(points,obstacles)
+  ispointinpoly(points[:,1],origin) & ispointinpoly(points[:,end], dest) & avoid_obstacles(points,obstacles)
 end
 
-function test_mp2d()
-  points = mvuniformmeta(0,10,2,4)
+function test_mp2d(path_length::Integer)
+  points = mvuniform(-1,0,10,2,path_length*2)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
-  dest = Rectangle([.9 .9
-                    1.0 1.0])
+  dest = Rectangle([9.9 9.9
+                    10.0 10.0])
   obstacles = [Edge(ed) for ed in
                Array[[8.01 3.01; 1.02 9],
                      [0.5 3.08; 2.02 9.04],
@@ -90,37 +91,42 @@ function test_mp2d()
   points, good_path
 end
 
-## Test
-## ====
-model, condition = test_mp2d()
-# cond_sample_tlmh(model,condition,1;solver=dreal3)
+# ## Test
+# ## ====
+model, condition = test_mp2d(4)
+# Sigma.dims(condition)
 
-# @show model[1,1].smt
-# o = LazyOmega()
-# @show condition.smt
-# o
-# call(condition,o)
-# ndims(o)
-# #
+# a = Sigma.build_init_box(condition,Set{IBEX.ExprSymbol}())
+# using Cxx
+abstract_samples  = Sigma.pre_tlmh(condition,1)
+print(abstract_samples[])
 
-# a = Array[[8.01 3.01; 1.02 9],
-#       [0.5 3.08; 2.02 9.04],
-#       [0.0 9.99; 3 5.04]]
+# a = abstract_samples[1]
+# rand(a)
+# call(model[1,1],rand(a))
+# sample = rand(model,condition,1)
+# Sigma.dims(condition)
+# origin = Rectangle([0.0 0.0
+#                     0.2 0.2])
+# dest = Rectangle([.9 .9
+#                   1.0 1.0])
+# obstacles = [Edge(ed) for ed in
+#              Array[[8.01 3.01; 1.02 9],
+#                    [0.5 3.08; 2.02 9.04],
+#                    [0.0 9.99; 3 5.04]]]
+# validpath(points, obstacles, origin, dest)
+# ## Draw
 
-# e = Edge(a[1])
-# b = parametric(e)
+include("../vis.jl")
+function drawthething(sample)
+  obstacles = Array[[8.01 3.01; 1.02 9],
+                    [0.5 3.08; 2.02 9.04],
+                    [0.0 9.99; 3 5.04]]
+  lines = make_compose_lines(obstacles)
 
-# b.coords[:,1]
-# points = iidmeta(Float64,i->uniformmeta(i,0,10),2,4)
-# points, condition = nonlinearplan(points)
-# s = cond_sample_mh(points,condition,1)
+  points = call(model, rand(sample))
+  b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
+  draw_lines(b,lines)
+end
 
-# # ## Draw
-# obstacles = Array[[8.01 3.01; 1.02 9],
-#                   [0.5 3.08; 2.02 9.04],
-#                   [0.0 9.99; 3 5.04]]
-# a = make_compose_lines(obstacles)
-# points = s[1]
-# b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
-# b
-# draw_lines(a,b)
+drawthething(abstract_samples[1])

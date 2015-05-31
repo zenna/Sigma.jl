@@ -59,7 +59,7 @@ end
 
 Clause(lits::Lit...) = Clause([lits...])
 
-string(clause::Clause) = join([string(lit) for lit in clause.data]," ")
+string(clause::Clause) = string(join([string(lit) for lit in clause.data]," "), " 0")
 print(io::IO, clause::Clause) = print(io,string(clause))
 show(io::IO, clause::Clause) = show(io,string(clause))
 

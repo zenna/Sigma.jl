@@ -52,7 +52,7 @@ import Base.eltype
 import Base.size
 import Base.all
 import Base: one, zero, norm, similar
-
+import Base: var
 
 import Base:  asin,
               sqrt,
@@ -139,6 +139,7 @@ export
   @noexpand,
 
   #utils
+  to_dimacs,
   tolerant_eq,
   rand_select,
   sqr,

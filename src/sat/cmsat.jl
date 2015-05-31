@@ -45,7 +45,7 @@ end
 
 getindex(clause::CMClause, i::Real) = CMLit(icxx"$(clause.cxx)[$i-1];") ## C++/Julia offset
 length(clause::CMClause) = @cxx clause.cxx->size()
-string(clause::CMClause) = join([string(clause[i]) for i = 1:length(clause)]," ")
+string(clause::CMClause) = string(join([string(clause[i]) for i = 1:length(clause)]," "), " 0")
 print(io::IO, clause::CMClause) = print(io, string(clause))
 show(io::IO, clause::CMClause) = print(io, string(clause))
 
@@ -71,5 +71,7 @@ push!(cnf1::CMCNF, cnf2::CMCNF) = icxx"$(cnf1.cxx).insert($(cnf1.cxx).end(), $(c
 
 getindex(cnf::CMCNF, i::Real) = CMClause(icxx"$(cnf.cxx)[$i-1];") ## C++/Julia offset
 string(cnf::CMCNF) = join([string(cnf[i]) for i = 1:length(cnf)],"\n")
+
+
 # print(io::IO, cnf::CMCNF) = print(io, string(cnf))
 # show(io::IO, cnf::CMCNF ) = print(io, string(cnf))

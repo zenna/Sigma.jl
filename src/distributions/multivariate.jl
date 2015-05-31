@@ -1,3 +1,9 @@
+function mvuniform(offset::Integer, lb::Real, ub::Real, nrows::Integer, ncols::Integer)
+    iid(Float64, i->uniform(i, lb,ub), nrows, ncols, offset = offset)
+end
+
+mvuniform(lb::Real, ub::Real, n::Integer) = PureRandArray(RandVar{Float64}[uniform(lb,ub) for i = 1:n])
+
 ## Independent RandVars
 ## ====================
 function iid(T::DataType, c::Function,
@@ -6,7 +12,7 @@ function iid(T::DataType, c::Function,
   PureRandArray{T,2}(a)
 end
 
-function iid(T::DataType, R::DataType, c::Function, nrows::Int64; offset = 0)
-  v::Array{R{T}} = [c(i + offset) for i = 1:nrows]
-  PureRandVector{T,R{T}}(v)
+function iid(T::DataType, c::Function, nrows::Int64; offset = 0)
+  a = RandVar{T}[c(i + offset) for i = 1:nrows]
+  PureRandArray{T,1}(a)
 end

@@ -44,3 +44,15 @@ for finame in ["types.jl",
                "randarray.jl"]
     include(joinpath("randvar", finame))
 end
+
+
+## Printing
+## ========
+function to_dimacs(Y::Sigma.RandVar{Bool})
+  cmap, cnf, ω, aux_vars = Sigma.analyze(Y)
+  indep_vars = join(values(cmap), " ")
+  last_var = var(cnf[length(cnf)][1])
+  println("cnf $last_var $(length(cnf))")
+  println(string(cnf))
+  println("c ind $indep_vars")
+end
