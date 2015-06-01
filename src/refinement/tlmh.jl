@@ -18,12 +18,14 @@ function post_process(boxes::GiveThisThingAType, nsamples::Int)
 end
 
 function pre_tlmh(lmap::LiteralMap, cnf::CMCNF, ω::IBEX.ExprSymbol, aux_vars::VarVector, box, nsamples::Int)
+  println("Calling C++ pre_tlmh")
   cxx_boxes = GiveThisThingAType(@cxx sigma::pre_tlmh(lmap.cxx, cnf.cxx, ω.cxx, aux_vars.cxx, box, nsamples))
   post_process(cxx_boxes, nsamples)
 end
 
 # Construct an initial box (flattened) for all the variables
 function build_init_box(Y::RandVar{Bool}, aux_vars::VarSet)
+  println("Building Initial Box")
   omega_numdims = maximum(dims(Y))+1
   aux_numdims = length(aux_vars)
   numdims = omega_numdims + aux_numdims
@@ -47,6 +49,7 @@ cxx"""void add_to_sp_vec2(std::vector<std::shared_ptr<ibex::ExprSymbol>> &vec, E
 """
 
 function varset_to_varvec(aux_vars::VarSet)
+  println("Creating Vector of Auxiary Variables")
   @show aux_vars
   varvec = VarVector(icxx"std::vector<std::shared_ptr<ibex::ExprSymbol>>();")
   for expr_symbol in aux_vars

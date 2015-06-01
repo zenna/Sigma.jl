@@ -1,9 +1,9 @@
 # using Sigma
 # using Lens
 
-# typealias Point AbstractVector
-# typealias Vec AbstractVector
-# typealias Mat AbstractMatrix
+typealias Point AbstractVector
+typealias Vec AbstractVector
+typealias Mat AbstractMatrix
 
 # Approximate Bayesian Computation
 
@@ -14,39 +14,28 @@ function point_in_poly(poly::Mat, testx::Float64, testy::Float64)
   nvert = size(poly,2)
   vertx = poly[1,:]
   verty = poly[2,:]
-  c = false
+  c = flip(0,0.0) # HACK
   j = nvert
   print(vertx)
   print(verty)
   print(testy)
 
   println("Setting up Lens")
-  lens(:beforeloop, verty)
   println("Going into Loop")
-#   lens(:insideloop, verty)
   for i = 1:nvert
-#     @show verty[i]
-#     @show verty[j]
-#     @show !((verty[i]>testy) == (verty[j]>testy))
-#     @show !c
-#     @show c
-    lens(:insideloop, verty)
     firsttest = !((verty[i]>testy) == (verty[j]>testy))
     secondtest = testx < ((vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i])
     conjunction = firsttest & secondtest
-    c = ifelse(conjunction,
-        !c,
-        c)
+    c = ifelse(conjunction, !c, c)
     j = i
   end
-  @show cq
   return c
 end
 
 # Render a polygon to a monochrome image
 function render(poly::Mat, width::Int, height::Int)
   # If the point is in the polygon render it 1.0, otherwie as 0.0
-  image = [ifelse(point_in_poly(poly, float(x), float(y)),1.0,0.0)
+  image = RandVar{Float64}[ifelse(point_in_poly(poly, float(x), float(y)),1.0,0.0)
            for x = 1:width, y = 1:height]
   PureRandArray(image)
 end
@@ -81,8 +70,7 @@ function test_abc()
   abc(mvuniform(-1,0,10,2,3),testimage)
 end
 
-a = mvuniform(0,1,20)
-Set([a])
-test_abc()
-a = capture(test_abc, :beforeloop)
-a
+poly,condition = test_abc()
+ndims(condition)
+to_dimacs(condition)
+# rand(poly,condition,1)

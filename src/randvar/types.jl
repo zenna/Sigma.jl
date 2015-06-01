@@ -98,7 +98,7 @@ end
 
 ## Real × Real -> Bool
 ## ===================
-bool = ((:OrRandVar, :|), (:AndRandVar,:&))
+bool = ((:OrRandVar, :|), (:AndRandVar,:&), (:BicondRandVar, :(==)))
 for (name,op) in bool
   eval(
   quote
@@ -116,7 +116,7 @@ end
 immutable NotRandVar{T,A1} <: RandVar{Bool}
   args::Tuple{RandVar{A1}}
 end
-!(X::RandVar{Bool})= NotRandVar{Bool,Bool}(X)
+!(X::RandVar{Bool})= NotRandVar{Bool,Bool}((X,))
 
 immutable IfElseRandVar{T,A1,A2,A3} <: RandVar{T}
   args::Tuple{RandVar{A1},RandVar{A2},RandVar{A3}}
@@ -136,7 +136,7 @@ UnaryRealExpr = Union(UnaryPlusRandVar,UnaryMinusRandVar,AbsRandVar)
 TrigExpr = Union(ExpRandVar,LogRandVar,SinRandVar,CosRandVar,TanRandVar,AsinRandVar,
                  AcosRandVar,AtanRandVar,SinhRandVar,CoshRandVar,TanhRandVar,Atan2RandVar)
 IneqExpr = Union(GTRandVar,GTERandVar,LTERandVar, LTRandVar,EqRandVar,NeqRandVar)
-LogicalExpr = Union(OrRandVar,AndRandVar)
+LogicalExpr = Union(OrRandVar,AndRandVar, BicondRandVar, NotRandVar)
 
 # All Functional expressions
 FuncionalExpr = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, IfElseRandVar)

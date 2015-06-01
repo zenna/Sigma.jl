@@ -25,11 +25,11 @@ function PureRandArray(xs::Array{Any,2})
   for i = 1:size(xs,1)
     for j = 1:size(xs,2)
       @assert isa(xs[i,j],RandVar)
-      @assert typeof(xs[i,j]) == rtype "inconsistent types of random variables in array"
+      @assert rangetype(xs[i,j]) == rtype "inconsistent types of random variables in array"
       out[i,j] = xs[i,j]
     end
   end
-  out
+  PureRandArray(out)
 end
 
 # Fall back when type inference fails
@@ -223,7 +223,7 @@ end
 for op = (:abs, :asin, :sqrt, :exp, :log, :cos, :sin, :tan, :acos, :asin, :atan,
           :cosh, :sinh, :tanh, :acosh, :asinh, :atanh, :abs, :atan2, :max, :min,
           :sign)
-  @eval ($op){T,N}(X::PureRandArray{T,N}) = PureRandArray(map($op,X.array))
+  @eval ($op){T,N}(X::PureRandArray{T,N}) = PureRandArray{Float64,N}(map($op,X.array))
 end
 
 

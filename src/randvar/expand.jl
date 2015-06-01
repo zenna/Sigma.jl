@@ -44,7 +44,7 @@ function add!(cmap::ConstraintMap, ctr::IBEX.ExprCtr, varset::VarSet, bc::BoolCo
   end
 end
 
-## Generic 
+## Generic
 ## =======
 
 # Unary
@@ -125,6 +125,28 @@ function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::Va
                       CMClause([CMLit(A,false),CMLit(C,true)]),
                       CMClause([CMLit(B,false),CMLit(C,true)])])
   push!(cnf, and_subcnf)
+  C
+end
+
+# Biconditional (If and Only If)
+function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol, varset::VarSet, visited, bc::BoolCounter, X::BicondRandVar, A::BoolVar, B::BoolVar)
+  C = nextvar!(bc)
+  # auxilary variable C = A & B
+  # (!A ∨ !B ∨ C) ∧ (A ∨ !C) ∧ (B ∨ !C)
+#       //
+#     // ( a_0 <-> a_1 )
+#     //
+#     // <=>
+#     //
+#     // aux = ( -aux |  a_0 | -a_1 ) & ( -aux | -a_0 |  a_1 ) &
+#     //     (  aux |  a_0 |  a_1 ) & (  aux | -a_0 | -a_1 )
+#     //
+
+  bicond_subcnf = CMCNF([CMClause([CMLit(C,true),CMLit(A,false),CMLit(B,true)]),
+                         CMClause([CMLit(C,true),CMLit(A,true), CMLit(B,false)]),
+                         CMClause([CMLit(C,false),CMLit(A,false), CMLit(A,false)]),
+                         CMClause([CMLit(C,false),CMLit(B,true), CMLit(C,true)])])
+  push!(cnf, bicond_subcnf)
   C
 end
 
