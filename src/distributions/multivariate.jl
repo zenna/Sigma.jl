@@ -3,6 +3,8 @@ function mvuniform(offset::Integer, lb::Real, ub::Real, nrows::Integer, ncols::I
 end
 
 mvuniform(lb::Real, ub::Real, n::Integer) = PureRandArray(RandVar{Float64}[uniform(lb,ub) for i = 1:n])
+mvuniform(lb::Real, ub::Real, nrows::Integer, ncols) =
+  PureRandArray(RandVar{Float64}[uniform(lb,ub) for i = 1:nrows,j=1:ncols])
 
 ## Independent RandVars
 ## ====================

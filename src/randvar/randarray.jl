@@ -202,16 +202,16 @@ for op = (:(==), :!=)
   end
 
   function ($op){T,N}(XS::PureRandArray{T,N}, ys::Array{T,N})
-    if size(X) == size(Y)
-      all([($op)(X.array[i],Y.array[i]) for i = 1:length(X)])
+    if size(XS) == size(ys)
+      all([($op)(XS.array[i],ys[i]) for i = 1:length(XS)])
     else
       ConstantRandVar(false)
     end
   end
 
   function ($op){T,N}(ys::Array{T,N}, XS::PureRandArray{T,N})
-    if size(X) == size(Y)
-      all([($op)(X.array[i],Y.array[i]) for i = 1:length(X)])
+    if size(XS) == size(ys)
+      all([($op)(XS.array[i],ys[i]) for i = 1:length(XS)])
     else
       ConstantRandVar(false)
     end
@@ -226,5 +226,14 @@ for op = (:abs, :asin, :sqrt, :exp, :log, :cos, :sin, :tan, :acos, :asin, :atan,
   @eval ($op){T,N}(X::PureRandArray{T,N}) = PureRandArray{Float64,N}(map($op,X.array))
 end
 
+function lambda{T}(XS::PureRandArray{T,2})
+  X_fns = map(lambda,XS.array)
+  ω -> [X_fns[i,j](ω) for i = 1:size(XS,1), j = 1:size(XS,2)]
+end
+
+function lambda{T}(XS::PureRandArray{T,1})
+  X_fns = map(lambda,XS.array)
+  ω -> [X_fns[i](ω) for i = 1:size(XS,1)]
+end
 
 print(io::IO, A::PureRandArray) = print(typeof(A),"\n",A.array)

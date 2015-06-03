@@ -1,6 +1,6 @@
 ## Motion Planning 3D Benchmark
 ## =========================
-using Sigma
+# using Sigma
 
 typealias Point AbstractVector
 typealias Vec AbstractVector

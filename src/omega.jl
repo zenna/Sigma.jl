@@ -33,7 +33,10 @@ end
 typealias Omega{T} Union(Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T})
 
 @doc "Abstract representations of sample space - euclidean box" ->
-typealias AbstractOmega{T} Union(HyperBox{T})
+typealias AbstractOmega{T} Union(HyperBox{T}, LazyBox{T})
 
 @doc "A concrete (i.e. not abstract) element ω in sample space Ω" ->
 typealias ConcreteOmega{T} Union(Vector{T}, LazyRandomVector{T})
+
+@doc "Build an omega of `n` dimensions" ->
+abstract_omega(n::Int) = HyperBox([Interval(0.0,1.0) for i = 1:n])

@@ -1,7 +1,8 @@
 ## Compile rand vars into callable functions
 ## =========================================
 all_functional_randvars = union(real_real_real, real_real, real_floating,
-                                real_real_bool, ((:IfElseRandVar, :ifelse),))
+                                real_real_bool, ((:IfElseRandVar, :ifelse),),
+                                bool_bool_bool, ((:NotRandVar, :!),))
 for (name,op) in all_functional_randvars
   eval(
   quote

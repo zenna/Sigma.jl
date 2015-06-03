@@ -33,7 +33,7 @@ function analyze(X::RandVar{Bool})
 end
 
 #Default dict behaviour for constraint map
-function add!(cmap::ConstraintMap, ctr::IBEX.ExprCtr, varset::VarSet, bc::BoolCounter)
+function add_constraint!(cmap::ConstraintMap, ctr::IBEX.ExprCtr, varset::VarSet, bc::BoolCounter)
   # Don't recreate if the constraint already exists
   if haskey(cmap,(ctr,varset))
     cmap[(ctr,varset)]
@@ -185,7 +185,7 @@ for (name,op) in real_real_bool
                   varset::VarSet, visited, bc::BoolCounter, X::$name,
                   a::IBEX.ExprNode, b::IBEX.ExprNode)
     constraint::IBEX.ExprCtr = $op(a,b)
-    boolvar = add!(cmap, constraint, varset, bc)
+    boolvar = add_constraint!(cmap, constraint, varset, bc)
     boolvar
   end
   end)
@@ -243,8 +243,8 @@ function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol,
   elsecase_constraint::IBEX.ExprCtr = real_aux == C
 
   # Err, I think this is correct
-  B_bool = add!(cmap, thencase_constraint, varset, bc)
-  C_bool = add!(cmap, elsecase_constraint, varset, bc)
+  B_bool = add_constraint!(cmap, thencase_constraint, varset, bc)
+  C_bool = add_constraint!(cmap, elsecase_constraint, varset, bc)
   bool_aux = expand(cmap, cnf, ω, varset, visited, bc, X, A, B_bool, C_bool)
   push!(cnf,CMClause([CMLit(bool_aux,false)])) # Assert that ifelse aux is true
   real_aux

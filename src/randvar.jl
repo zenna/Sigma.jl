@@ -41,9 +41,13 @@ end
 for finame in ["types.jl",
                "expand.jl",
                "compile.jl",
-               "randarray.jl"]
+               "randarray.jl",
+               "dreal.jl"]
     include(joinpath("randvar", finame))
 end
+
+# All Random Variables
+typealias AllRandVars Union(RandVar, PureRandArray)
 
 
 ## Printing

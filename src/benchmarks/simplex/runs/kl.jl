@@ -1,25 +1,25 @@
 ## Distribution Test
 ## =================
+include("../simplex.jl")
+
 holesizes = logspace(-1,-10,3)
 problems = [Simplex(4,[:sample_distribution, :accumulative_KL,
                        :total_time,],100,0.01)]
 
 mh_captures = [:samples]
-all_splits = [weighted_partial_split, rand_partial_split]
+# all_splits = [weighted_partial_split, rand_partial_split]
 
-SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
+# SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
+#   for nprocs = [1],
+#       solver = [dreal3],
+#       split = all_splits,
+#       sampler = [cond_sample_tlmh]][:]
+
+IBEXalgorithms = [SigmaIBEX(mh_captures, sampler, nprocs)
   for nprocs = [1],
-      solver = [dreal3],
-      split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
-AIalgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [1],
-      split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
-
-record(AIalgorithms,problems;
-       runname = "kl",prefix=benchdir,savedb=true,exceptions=false)
+benchmark(IBEXalgorithms[1],problems[1])
 
 # splitkey = [rand_partial_split => "rand", weighted_mid_split => "mid", weighted_partial_split => "partial"]
 

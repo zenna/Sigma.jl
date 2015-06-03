@@ -98,8 +98,8 @@ end
 
 ## Real × Real -> Bool
 ## ===================
-bool = ((:OrRandVar, :|), (:AndRandVar,:&), (:BicondRandVar, :(==)))
-for (name,op) in bool
+bool_bool_bool = ((:OrRandVar, :|), (:AndRandVar,:&), (:BicondRandVar, :(==)))
+for (name,op) in bool_bool_bool
   eval(
   quote
   immutable $name{T,A1,A2} <: RandVar{Bool}

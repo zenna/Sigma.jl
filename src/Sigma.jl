@@ -1,5 +1,7 @@
 module Sigma
 
+using dReal
+
 using Cxx
 using IBEX
 using Distributions
@@ -7,6 +9,8 @@ using AbstractDomains
 using Lens
 using DataStructures
 using Compat
+
+# SMT Solvers
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
@@ -85,6 +89,8 @@ export
   RandArray,
   PureRandArray,
   RandVarAI,
+  dims,
+
 
   # Abstract Domains
   rangetype,
@@ -168,6 +174,8 @@ include("randvar.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
+include("smt/smtsolver.jl")
+
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")
