@@ -26,6 +26,9 @@ end
 @doc "Number of dimensions of a random variable" ->
 ndims(X::RandVar) = length(dims(X))
 
+@doc "Apply a random variable to some randomness" ->
+call(X::RandVar,ω::Omega) = lambda(X)(ω)
+
 function isequal(X::RandVar,Y::RandVar)
   # Equivalent Random variables should (at least) have same type and #args
   typeof(X) != typeof(Y) && (return false)
@@ -48,6 +51,7 @@ end
 
 # All Random Variables
 typealias AllRandVars Union(RandVar, PureRandArray)
+typealias Lift{T} Union(T,RandVar{T})
 
 
 ## Printing

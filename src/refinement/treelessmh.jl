@@ -66,14 +66,14 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   @show box
   A::D = box
   image::AbstractBool = X(A; args...)
-  while (niters <= 10) && (depth <= maxdepth)
+  while (niters <= 1000) && (depth <= maxdepth)
     @show A
 #     @show status
     # @show niters, depth
-    if @show issmall(A, precision)
+    if issmall(A, precision)
        assert(!isequal(X(A),f))
        return A, logq, prevolfrac
-    elseif isequal(image,t)
+    elseif @show(isequal(image,t))
 #       lens(:refinement_depth, depth)
       return A, logq, prevolfrac
     elseif isequal(image, tf)
@@ -85,6 +85,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
       # statuses, weights, prevolfracs = adjust_proposal(statuses, weights, children, f; args...)
       rand_index = rand(Categorical(weights))
 #       println("Selecting Child - $rand_index")
+      @show rand_index
 
       # Randomly Sample Child
       A = children[rand_index][1]
@@ -171,6 +172,7 @@ function pre_tlmh2(Y::RandVar{Bool}, niters::Int; args...)
     box[dim]
   end
   @show box
+  println("Converting into dREAL")
   Ydreal::DRealRandVar = convert(DRealRandVar{Bool}, Y)
   pre_tlmh(Ydreal, box, niters)
 end

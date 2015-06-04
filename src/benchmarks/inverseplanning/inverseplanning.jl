@@ -1,5 +1,5 @@
-# using Sigma
-restart_counter!()
+using Sigma
+Sigma.restart_counter!()
 # import Base:size,getindex
 typealias Point AbstractVector
 typealias Vec AbstractVector
@@ -91,10 +91,13 @@ plen = path_length(observed_path)
 path = mvuniform(1,max(size(amap)...),2,plen)
 
 path, condition = inverse_planning(amap+1, terrain_costs, observed_path)
-a = convert(DRealRandVar{Bool}, condition)
-dims(condition)
-# samples = Sigma.pre_tlmh(condition, 1)
+println("Converting into randvar")
+# a = convert(Sigma.DRealRandVar{Bool}, condition)
 
+dims(condition)
+println("Drawing samples")
+samples = Sigma.pre_tlmh2(condition, 1)
+1+1
 
 # path1, path2, terrains = rand((path,path,terrain_costs), condition,2)
 

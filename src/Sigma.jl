@@ -14,6 +14,7 @@ using Compat
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
+import dReal:model
 
 if VERSION < v"0.4.0-dev"
   using Docile
@@ -125,6 +126,7 @@ export
   cond_sample_mh,
   cond_sample_bfs,
   setindex,
+  model,
 
   # Distributions
   normal,
