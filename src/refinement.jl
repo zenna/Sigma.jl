@@ -1,8 +1,6 @@
 # Pre-image Computation:
 # ======================
 
-for finame in ["tlmh.jl",
-               "treelessmh.jl",
-               "split.jl"]
-    include(joinpath("refinement", finame))
-end
+
+(DREAL_SOLVER_ON | DREAL_BINARY_SOLVER_ON) && include(joinpath("refinement","treelessmh.jl"))
+SIGMA_SOLVER_ON && include(joinpath("refinement","tlmh.jl"))

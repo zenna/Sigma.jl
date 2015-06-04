@@ -133,7 +133,7 @@ function rand{T,N}(Xs::PureRandArray{T,N})
 end
 
 ## Arbitrary Array  Functions
-similar{T}(X::PureRandArray{T,2}, elem_type, dims::Tuple{Int,Int}) = PureRandArray(T,dims...)
+@compat similar{T}(X::PureRandArray{T,2}, elem_type, dims::Tuple{Int,Int}) = PureRandArray(T,dims...)
 
 # ## Complex Array Functions
 # ## =======================

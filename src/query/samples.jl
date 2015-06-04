@@ -17,9 +17,9 @@ end
 ## ====================
 
 function rand{T, S<:Solver}(X::RandVar{T}, Y::RandVar{Bool}, nsamples::Int,
-                            algo::Function = pre_tlmh, solver::Type{S} = DRealSolver)
+                            algo::Function = pre_tlmh, solver::Type{S} = DRealSolver; args...)
   # Sample boxes in preimage of Y
-  preimage_boxes = algo(Y, nsamples, solver)
+  preimage_boxes = algo(Y, nsamples, solver;args...)
   warn("Sampling points is wrong (biased towards smaller regions)")
 
   # Get uniformly distributed points within these preimages
@@ -34,8 +34,8 @@ end
 
 @doc "Sample points from an Array X given Y is true" ->
 function rand{T,N,S<:Solver}(X::PureRandArray{T,N}, Y::RandVar{Bool}, nsamples::Int,
-                   algo::Function = pre_tlmh, solver::Type{S} = DRealSolver)
-  preimage_boxes = algo(Y, nsamples, solver)
+                   algo::Function = pre_tlmh, solver::Type{S} = DRealSolver;args...)
+  preimage_boxes = algo(Y, nsamples, solver;args...)
   warn("Sampling points is wrong (biased towards smaller regions)")
   preimage_points = [rand(box) for box in preimage_boxes]
   X_fns = map(x->lambda(x),X.array)

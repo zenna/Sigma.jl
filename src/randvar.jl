@@ -42,11 +42,8 @@ function isequal(X::RandVar,Y::RandVar)
 end
 
 for finame in ["types.jl",
-               "expand.jl",
                "compile.jl",
-               "randarray.jl",
-               "dreal.jl",
-               "drealbinary.jl"]
+               "randarray.jl"]
     include(joinpath("randvar", finame))
 end
   
@@ -55,7 +52,7 @@ end
 typealias AllRandVars Union(RandVar, PureRandArray)
 typealias Lift{T} Union(T,RandVar{T})
 
-in{T}(X::RandVar, bounds::Tuple{Lift{T},Lift{T}}) = (X >= bounds[1]) & (X <=  bounds[2])
+@compat in{T}(X::RandVar, bounds::Tuple{Lift{T},Lift{T}}) = (X >= bounds[1]) & (X <=  bounds[2])
 
 ## Printing
 ## ========

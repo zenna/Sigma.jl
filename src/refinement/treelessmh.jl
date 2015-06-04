@@ -32,11 +32,14 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   A::D = box
   image::AbstractBool = X(A; args...)
   while (niters <= 1000) && (depth <= maxdepth)
-    if issmall(A, precision) || isequal(image,t)
+    if issmall(A, precision)
+      lens(:proposing, depth=depth, niters=niters)
+      return A, logq, 1.0  # Assume boxes are full
+    elseif  isequal(image,t)
       lens(:proposing, depth=depth, niters=niters)
       return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
-      children::Vector{Tuple{Domain,Float64}} = split(A, depth)
+      @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = [X(child[1]; args...) for child in children]
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
       if all([isequal(status,f) for status in statuses])
@@ -65,40 +68,13 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   error("Unexpected Branch")
 end
 
-# # Propose boxes in parallel
-# function propose_parallel_tl(f,Y,X,stack; ncores = 1, args...)
-#   ncores = min(ncores, nprocs())
-#   println("Using $ncores cores")
-#   if isempty(stack)
-#     spawns = [@spawn proposebox_tl(f,Y,X;args...) for i = 1:ncores]
-#     boxes = [fetch(s) for s in spawns]
-#     push!(stack,boxes...)
-#   end
-#   return pop!(stack)
-# end
 
-# function genstack(f,Y,X,nsamples;ncores = 1,args...)
-#   println("Using $ncores cores")
-#   g = _ -> proposebox_tl(f,Y,X;args...)
-#   lst = [i for i = 1:nsamples]
-#   pmaplm(g, lst;ncores = min(nprocs(),ncores))
-# end
-
-# # Propose boxes in parallel
-# function propose_pmap_tl(f,Y,X,stack; ncores = 1, args...)
-#   pop!(stack)
-# end
-
-# @doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
+@doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
 function pre_tlmh{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
                   solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
-  boxes = D[]
-  # stack = (D,Float64,Float64)[] #For parallelism
-  # stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
-  # lens(:start_loop,time_ns())
   @show "start of tml2"
+  boxes = D[]
   box, logq, prevolfrac = proposebox_tl(Y,init_box; args...) # log for numercal stability
-#   box, logq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
   logp = logmeasure(box) + log(prevolfrac)
   push!(boxes,box)
 
@@ -107,7 +83,6 @@ function pre_tlmh{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters
   lens(:start_loop,time_ns())
   while nsteps < niters - 1
     nextbox, nextlogq, prevolfrac = proposebox_tl(Y,init_box; args...)
-    # nextbox, nextlogq, prevolfrac = propose_pmap_tl(f,Y,X,stack; args...)
     nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
     loga = nextlogp + logq - logp - nextlogq
@@ -150,6 +125,91 @@ function pre_tlmh(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolverBinary}
     println("Converting into dREAL Binary")
   Ydrealbinary = convert(DRealRandVarBinary{Bool}, Y)
   pre_tlmh(Ydrealbinary, box, niters, solver; args...)
+end
+
+## Parallel 
+## ========
+
+# # Propose boxes in parallel
+# function propose_parallel_tl(X::RandVar,box::D,stack; ncores = 1, args...)
+#   ncores = min(ncores, nprocs())
+#   println("Using $ncores cores")
+#   if isempty(stack)
+#     spawns = [@spawn proposebox_tl(X,box;args...) for i = 1:ncores]
+#     boxes = [fetch(s) for s in spawns]
+#     push!(stack,boxes...)
+#   end
+#   return pop!(stack)
+# end
+
+function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int;ncores = 1,args...)
+  println("Using $ncores cores")
+  g = _ -> proposebox_tl(Y,box;args...)
+  lst = [i for i = 1:nsamples]
+  pmaplm(g, lst;ncores = min(nprocs(),ncores))
+end
+
+# Propose boxes in parallel
+function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
+  pop!(stack)
+end
+
+@doc "Parallely Uniform sample of subset of preimage of Y under f unioned with X." ->
+function pre_tlmh_parallel{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
+                  solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
+  @show "start of parallel tml"
+  boxes = D[]
+  @compat stack::Vector{Tuple{D,Float64,Float64}} = genstack(Y,init_box,niters; args...)
+  box, logq, prevolfrac = propose_pmap_tl(stack) # log for numercal stability
+  logp = logmeasure(box) + log(prevolfrac)
+  push!(boxes,box)
+
+  println("Initial satisfying point found!, starting MH chain\n")
+  naccepted = 0; nsteps = 0
+  lens(:start_loop,time_ns())
+  while nsteps < niters - 1
+    nextbox, nextlogq, prevolfrac = propose_pmap_tl(stack)
+    nextlogp = logmeasure(nextbox) + log(prevolfrac)
+
+    loga = nextlogp + logq - logp - nextlogq
+    a = exp(loga)
+
+    # MH accept/reject step
+    if a >= 1 || rand() < a
+      naccepted += 1
+      box = nextbox
+      logp = nextlogp
+      logq = nextlogq
+    end
+    push!(boxes,box)
+
+    lens(:loop_stats, naccepted/niters, nsteps)
+    lens(:start_loop,time_ns())
+    nsteps += 1
+  end
+  boxes
+end
+
+function pre_tlmh_parallel(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolver}; args...)
+  box = LazyOmega(Float64)
+  for dim in dims(Y)
+    box[dim]
+  end
+  @show box
+  println("Converting into dREAL")
+  Ydreal::DRealRandVar = convert(DRealRandVar{Bool}, Y)
+  pre_tlmh_parallel(Ydreal, box, niters, solver; args...)
+end
+
+function pre_tlmh_parallel(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolverBinary}; args...)
+  box = LazyOmega(Float64)
+  for dim in dims(Y)
+    box[dim]
+  end
+  @show box
+    println("Converting into dREAL Binary")
+  Ydrealbinary = convert(DRealRandVarBinary{Bool}, Y)
+  pre_tlmh_parallel(Ydrealbinary, box, niters, solver; args...)
 end
 
 # ## Sampling

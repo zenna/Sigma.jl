@@ -1,5 +1,8 @@
 ## Literal
 ## =======
+@doc "A Boolean Variable" ->
+typealias BoolVar Int
+
 @doc "A Boolean Literal: a variable or its negation" ->
 type CMLit
   cxx
