@@ -35,9 +35,9 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
     if issmall(A, precision)
       lens(:proposing, depth=depth, niters=niters)
       return A, logq, 1.0  # Assume boxes are full
-    elseif  isequal(image,t)
-      lens(:proposing, depth=depth, niters=niters)
-      return A, logq, 1.0  # Assume boxes are full
+    # else if  isequal(image,t)
+    #   lens(:proposing, depth=depth, niters=niters)
+    #   return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
       @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = [X(child[1]; args...) for child in children]
