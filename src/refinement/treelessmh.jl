@@ -40,7 +40,16 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
     #   return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
       @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
-      statuses = [X(child[1]; args...) for child in children]
+      statuses = AbstractBool[]
+      for child in children
+        try
+          child_status = X(child[1]; args...)
+          push!(statuses,child_status)
+        catch
+          println("caught exception, both unsat")
+          push!(statuses,f)
+        end
+      end
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
       if all([isequal(status,f) for status in statuses])
         return A, logq, 1.0
