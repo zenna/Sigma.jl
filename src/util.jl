@@ -8,9 +8,9 @@ inc(c::Counter) = c.X +=1
 genint() = (inc(GLOBAL_COUNTER);GLOBAL_COUNTER.X-1)
 restart_counter!() = GLOBAL_COUNTER.X = 0
 
-tolerant_eq(a, b, epsilon = 1E-5) = abs(a - b) <= epsilon
-≊ = tolerant_eq
-
+isapprox(a, b, epsilon = DEFAULT_PREC) = abs(a - b) <= epsilon
+≊ = isapprox
+≊
 ## Arithmetic
 ## ==========
 sqr{T <: Real}(x::T) = x * x

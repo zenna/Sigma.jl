@@ -22,7 +22,7 @@ end
 function proposebox_tl{D <: Domain}(X::RandVar, box::D;
                                     split::Function = weighted_partial_split,
                                     maxdepth::Int = 1000,
-                                    precision::Float64 = 0.001,
+                                    precision::Float64 = DEFAULT_PREC,
                                     args...)
 #   @show myid()
 
@@ -84,7 +84,7 @@ end
 
 # @doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
 function pre_tlmh{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
-                  solver::Type{S}; precision::Float64 = 0.001, args...)
+                  solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
   boxes = D[]
   # stack = (D,Float64,Float64)[] #For parallelism
   # stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
