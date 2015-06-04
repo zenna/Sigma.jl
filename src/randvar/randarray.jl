@@ -238,4 +238,20 @@ function lambda{T}(XS::PureRandArray{T,1})
   ω -> [X_fns[i](ω) for i = 1:size(XS,1)]
 end
 
+function approxeq{T}(XS::PureRandArray{T}, ys::Array{T}; epsilon = 0.0001)
+  sum(abs(XS - ys)) <= epsilon
+end
+
+function approxeq{T}(ys::Array{T}, XS::PureRandArray{T}; epsilon = 0.0001)
+  sum(abs(ys - XS)) <= epsilon
+end
+
+function approxeq{T}(XS::PureRandArray{T}, YS::PureRandArray{T}; epsilon = 0.0001)
+  sum(abs(XS - YS)) <= epsilon
+end
+
+# function approxeq{T}(XS::PureRandVector{T}, ys::Array{T}; epsilon = 0.0001)
+#   sum(abs(XS - ys)) <= epsilon
+# end
+
 print(io::IO, A::PureRandArray) = print(typeof(A),"\n",A.array)
