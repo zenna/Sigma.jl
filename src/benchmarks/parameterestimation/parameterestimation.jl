@@ -15,4 +15,4 @@ data = [rand()*20 for i = 1:npoints]
 sample_rvs = PureRandArray([logistic(μ,μ) for i = 1:npoints])
 
 # Draw 10 Samples from the prior distribution conditioned on the data
-samples = rand(params,(sample_rvs == data) & (μ ∈ (1,4)) & (s ∈ (1,4)),10,pre_tlmh, DRealSolverBinary)
+@show samples = rand(params,(sample_rvs == data) & (μ ∈ (1,4)) & (s ∈ (1,4)),100,Sigma.pre_tlmh, Sigma.DRealSolver)

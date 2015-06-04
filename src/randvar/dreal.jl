@@ -45,49 +45,49 @@ end
 function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
   # 1. ∃ω ∈ A ∩ X : Does A contain any point X?
   ctx = X.ctx
-  push_ctx!(ctx) #1
-  println("(push 1)")
+  # push_ctx!(ctx) #1
+  # println("(push 1)")
   for dim in dims(ω)
 #     @show dim
     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
     ub = (<=)(ctx,X.dimtovar[dim], ω[dim].u)
-    println("(assert",lb,")")
+    # println("(assert",lb,")")
     dReal.add!(ctx,lb)
-    println("(assert",ub,")")
+    # println("(assert",ub,")")
     dReal.add!(ctx,ub)
   end
-#   push_ctx!(ctx) #2
-  println("(assert",X.ex,")")
+  push_ctx!(ctx) #2
+  # println("(assert",X.ex,")")
   dReal.add!(ctx, X.ex)
 #   println("About to check pop case")
-  println("(check-sat)")
+  # println("(check-sat)")
   pos_case = is_satisfiable(ctx)
 #   @show pos_case
-  println("(pop 1)")
+  # println("(pop 1)")
   pop_ctx!(ctx) #undo from 2 to here
 #   println("About to push")
-  println("(push 1)")
-  push_ctx!(ctx) #3
+  # println("(push 1)")
+  # push_ctx!(ctx) #3
   for dim in dims(ω)
 #     @show dim
     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
     ub = (<=)(ctx,X.dimtovar[dim],ω[dim].u)
-    println("(assert",lb,")")
+    # println("(assert",lb,")")
     dReal.add!(ctx,lb)
-    println("(assert",ub,")")
+    # println("(assert",ub,")")
     dReal.add!(ctx,ub)
   end
 #   println("About to check neg case")
   notex = (!)(ctx,X.ex)
-  println("(assert",notex,")")
+  # println("(assert",notex,")")
   dReal.add!(ctx, notex)
 
   # 2. ∃ω ∈ A \ X : Does A contain any point not in X?
-  println("(check-sat)")
+  # println("(check-sat)")
   neg_case = is_satisfiable(ctx)
 #   @show pos_case
-  println("(pop 1)")
-  println("; end")
+  # println("(pop 1)")
+  # println("; end")
   pop_ctx!(ctx) #roll back to 3
 #   pop_ctx!(ctx) #roll back to 1
   if pos_case & neg_case tf

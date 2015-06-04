@@ -51,7 +51,8 @@ lambda(X::RandVar) = eval(lambda_expr(X))
 function parse_sat_status(satstatus::String)
   # @show satstatus[1:20]
   # @show "delta-sat with delta"
-  if satstatus == "unsat"
+  # @show satstatus
+  if strip(satstatus) == "unsat"
     return false
   else
     return true
@@ -88,6 +89,8 @@ end
 ## Call solver command line
 ## ========================
 function check(program::SExpr)
+  # println("Check")
+  # println(program.ex)
   fname = randstring()
   withext = "$fname.smt2"
   f = open(withext,"w")
@@ -148,6 +151,8 @@ function call(X::DRealRandVarBinary{Bool}, ω::AbstractOmega{Float64})
   neg_case = check(merge(full_neg_program))
   
   # If both are true, return {T,F}
+  # @show pos_case
+  # @show neg_case
   if pos_case & neg_case tf
   elseif pos_case t
   elseif neg_case f
