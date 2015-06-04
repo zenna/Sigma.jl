@@ -165,6 +165,8 @@ end
 # ## Arithmetic
 # ## ==========
 
+(.^){N}(::Base.MathConst{:e}, XS::PureRandArray{Base.MathConst{:e}, N}) = PureRandArray((.^)(e,XS.array))
+
 # # Here, we extract the arrays of both args and apply op
 for op = (:+, :-, :*, :.*, :/, :&, :|, :.^)
   @eval ($op){T<:Real,N}(XS::PureRandArray{T,N}, YS::PureRandArray{T,N}) = PureRandArray(($op)(XS.array,YS.array))

@@ -4,7 +4,7 @@ using Sigma
 import Sigma: SimplexBenchmark, weighted_mid_split, rand_partial_split,
               weighted_partial_split
 import Sigma: dreal, z3, dreal3
-import Sigma: SigmaSMT, SigmaIBEX
+import Sigma: SigmaSMT, SigmaAI
 import Sigma: cond_sample_tlmh
 import Sigma: runbenchmarks
 
@@ -24,7 +24,7 @@ SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
-AIAlgorithms = [SigmaIBEX(mh_captures, sampler, nprocs, split)
+AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
   for nprocs = [2],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
@@ -41,7 +41,7 @@ runbenchmarks(SMTAlgorithms,dimbenchmarks;runname = "dimensions")
   xs = Int64[]
   ys = Float64[]
   for (key,value) in data
-    if isa(key[1],Sigma.SigmaIBEX) & (key[1].split == Sigma.rand_partial_split) & !(isa(value,Exception))
+    if isa(key[1],Sigma.SigmaAI) & (key[1].split == Sigma.rand_partial_split) & !(isa(value,Exception))
       push!(xs,key[2].ndims)
       push!(ys,value[:total_time][1])
     end

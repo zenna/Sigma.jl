@@ -4,7 +4,7 @@ using Sigma
 import Sigma: SimplexBenchmark, weighted_mid_split, rand_partial_split,
               weighted_partial_split
 import Sigma: dreal, z3, dreal3
-import Sigma: SigmaSMT, SigmaIBEX
+import Sigma: SigmaSMT, SigmaAI
 import Sigma: cond_sample_tlmh
 import Sigma: runbenchmarks
 
@@ -23,7 +23,7 @@ SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]
 
-AIAlgorithms = [SigmaIBEX(mh_captures, sampler, nprocs, split)
+AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
   for nprocs = [1],
       split = all_splits,
       sampler = [cond_sample_tlmh]][:]

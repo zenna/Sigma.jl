@@ -2,10 +2,11 @@
 ## =======
 
 # Abstract Interpretation
-immutable SigmaIBEX <: Algorithm
+immutable SigmaAI <: Algorithm
   capture::Vector{Symbol}
   sampler::Function
   ncores::Int
+  split::Function
 end
 
 # SMT Based
@@ -44,7 +45,7 @@ end
 equiv{T}(a::T,b::T) =
   all([getfield(a,f) == getfield(b,f) for f in T.names])
 
-==(a::SigmaIBEX,b::SigmaIBEX) = equiv(a,b)
-hash(a::SigmaIBEX, h::Uint) = deephash(a,h)
+==(a::SigmaAI,b::SigmaAI) = equiv(a,b)
+hash(a::SigmaAI, h::Uint) = deephash(a,h)
 ==(a::SigmaSMT,b::SigmaSMT) = equiv(a,b)
 hash(a::SigmaSMT, h::Uint) = deephash(a,h)

@@ -39,7 +39,7 @@ cxx"""
   #include <memory>
   #include <cmsat/Solver.h>
   #include "sigma/sigma.h"
-"""
+"""RR
 @compat Libdl.dlopen("libcryptominisat-2.9.9.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
 
 import Base: ifelse, cond, isequal, isinf
@@ -133,6 +133,7 @@ export
   uniform,
   flip,
   exponential,
+  logistic,
   betarv,
   gamma,
   categorical,
@@ -165,8 +166,12 @@ export
   distinguished_colors,
   rand_color,
   plot_sample_cond_density,
-  plot_sample_density
+  plot_sample_density,
 
+  #Solver
+  DRealSolver
+
+include("solver.jl")
 include("util.jl")
 include("domains.jl")
 include("omega.jl")
@@ -176,7 +181,7 @@ include("randvar.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")
-include("smt/smtsolver.jl")
+
 
 
 # Hack to avoid loading Gadfly each time

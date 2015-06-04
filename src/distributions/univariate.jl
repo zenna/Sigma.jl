@@ -11,3 +11,8 @@ flip() = flip(genint())
 
 # Exponential
 exponential(i::Int, λ::Lift{Real}) = (-log(1-omega_component(i)))/λ
+exponential(λ::Lift{Real}) = exponential(genint(),λ)
+
+# Logistic
+logistic(i,μ,s) = μ + s*log(omega_component(i)/(1-omega_component(i)))
+logistic(μ,s) = logistic(genint(),μ,s)

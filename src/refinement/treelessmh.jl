@@ -9,42 +9,8 @@
 
 ## ============================================================================
 
-# Adjust the proposal distribution
-# frac_in_preimage is the fraction of the event which must be in the preimage
-# Default 1 implies it must be a purely preimage sample
-# Ohterwise, adjust_proposal will convert events that are t to f if their
-# percentage is greater than frac_in_preimage, determined by sampling
-# function adjust_proposal(statuses::Vector{AbstractBool},weights::Vector{Float64},
-#                          children,f::Callable;
-#                          frac_in_preimage::Float64 = 0.01,
-#                          npre_tests::Int = 100, args...)
-#   if frac_in_preimage < 1.0
-#     # Compute preimage volume fractions
-#     prevolfracs = Array(Float64,length(children))
-#     for i = 1:length(children)
-#       if statuses[i] == SAT
-#         prevolfracs[i] = 1.0
-#       elseif statuses[i] == UNSAT
-#         prevolfracs[i] = 0.0
-#       else
-#         prevolfracs[i] = fraction_sat(f, children[i][1], npre_tests)
-#       end
-#     end
 
-# #     @show prevolfracs
-# #     @show statuses
-
-#     # Those with preimage vol fration higher than threshold are turned
-#     # to SAT
-#     newstatuses =
-#       [(statuses[i] == PARTIALSAT) && (prevolfracs[i] > frac_in_preimage) ? SAT : statuses[i] for i = 1:length(statuses)]
-#     newstatuses,weights, prevolfracs
-#   else
-#     statuses,weights, ones(Float64,length(statuses))
-#   end
-# end
-
-
+# Is this box small (enough to be accepted)
 function issmall(box::Boxes, precision::Float64)
   for dim in dims(box)
     (measure(box[dim]) > precision)&& return false
@@ -59,7 +25,6 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
                                     precision::Float64 = 0.001,
                                     args...)
 #   @show myid()
-#   split = args[:split]
 
   niters = 0 ; depth = 0 ; logq = 0.0 # == log(1.0)
   prevolfrac = 1.0
@@ -67,35 +32,25 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   A::D = box
   image::AbstractBool = X(A; args...)
   while (niters <= 1000) && (depth <= maxdepth)
-    @show A
-#     @show status
-    # @show niters, depth
-    if issmall(A, precision)
-       assert(!isequal(X(A),f))
-       return A, logq, prevolfrac
-    elseif @show(isequal(image,t))
-#       lens(:refinement_depth, depth)
-      return A, logq, prevolfrac
+    if issmall(A, precision) || isequal(image,t)
+      lens(:proposing, depth=depth, niters=niters)
+      return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
       children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = [X(child[1]; args...) for child in children]
-      @show statuses
-#       @show children
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
-      # statuses, weights, prevolfracs = adjust_proposal(statuses, weights, children, f; args...)
-      rand_index = rand(Categorical(weights))
-#       println("Selecting Child - $rand_index")
-      @show rand_index
 
-      # Randomly Sample Child
+      # Choose a random child
+      rand_index = rand(Categorical(weights))
       A = children[rand_index][1]
       status = statuses[rand_index]
+      
+      # Shouldn't go to empty children
       assert(!isequal(status,f))
       logq += log(weights[rand_index])
-#       prevolfrac = prevolfracs[rand_index]
-      prevolfrac = 1
-
+      
       depth += 1; niters += 1
+      lens(:children_split, weights, children, depth, niters)
     elseif isequal(image, f) # Condition is unsatisfiable
       error("Cannot condition on unsatisfiable events")
     end
@@ -128,7 +83,8 @@ end
 # end
 
 # @doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
-function pre_tlmh{D <: Domain}(Y::RandVar{Bool}, init_box::D, niters::Integer; precision::Float64 = 0.001, args...)
+function pre_tlmh{D <: Domain}(Y::RandVar{Bool}, init_box::D, niters::Integer,
+                  solver::Type{DRealSolver}; precision::Float64 = 0.001, args...)
   boxes = D[]
   # stack = (D,Float64,Float64)[] #For parallelism
   # stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
@@ -166,7 +122,7 @@ function pre_tlmh{D <: Domain}(Y::RandVar{Bool}, init_box::D, niters::Integer; p
   boxes
 end
 
-function pre_tlmh2(Y::RandVar{Bool}, niters::Int; args...)
+function pre_tlmh(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolver}; args...)
   box = LazyOmega(Float64)
   for dim in dims(Y)
     box[dim]
@@ -174,7 +130,7 @@ function pre_tlmh2(Y::RandVar{Bool}, niters::Int; args...)
   @show box
   println("Converting into dREAL")
   Ydreal::DRealRandVar = convert(DRealRandVar{Bool}, Y)
-  pre_tlmh(Ydreal, box, niters)
+  pre_tlmh(Ydreal, box, niters, solver; args...)
 end
 
 

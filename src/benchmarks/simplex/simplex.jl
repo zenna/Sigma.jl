@@ -1,7 +1,10 @@
-# using Sigma
+using Sigma
+import Sigma: mvuniformai, mvuniformmeta
 using Lens
+
 using DynamicAnalysis
-include("../algorithms.jl")
+import DynamicAnalysis: Algorithm, Problem, benchmark
+using DataStructures
 
 ## Simplex Benchmark
 ## =================
@@ -51,7 +54,7 @@ simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
 # From a set of samples compute discrete distribution over the vertices
 function vertex_distribution(samples,n,holesize)
   vertexcoords = simplex_coordinates(n)
-  counts =  DefaultDict(Int, Int, 0)
+  counts =  DefaultDict(Int, Float64, 0.0)
   for sample in samples
     for i = 1:n+1
       if point_near_region(sample,vertexcoords[:,i], holesize)
@@ -60,7 +63,7 @@ function vertex_distribution(samples,n,holesize)
       end
     end
   end
-  counts
+  Dict(counts)
 end
 
 ## Benchmark
@@ -75,24 +78,27 @@ end
 ==(a::Simplex, b::Simplex) = equiv(a,b)
 hash(s::Simplex, h::Uint) = deephash(s,h)
 
-function simplexbenchmark(a::Algorithm, m::AllRandVars, b::Simplex)
+function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
   Sigma.restart_counter!()
-  captures::Vector{Symbol} = vcat(a.capture, b.capture)
+  captures::Vector{Symbol} = vcat(a.capture,b.capture)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
   model, condition = simplex(b.ndims, m, b.holesize)
   @show b.nsamples
 
-  value, results = capture(()->sample(a,model,condition,b.nsamples), captures; exceptions = false)
+  value, results = capture(()->sample(a,model,condition,b.nsamples), captures)
+  @show length(value)
   results
 end
 
-benchmark(a::SigmaIBEX, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
+benchmark(a::SigmaAI, b::Simplex) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
+benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
 
 sample(a::SigmaSMT, model, condition, nsamples) =
   a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split, solver = a.solver)
 
-sample(a::SigmaIBEX, model, condition, nsamples) =
-   a.sampler(model,condition, nsamples)
+sample(a::SigmaAI, model, condition, nsamples) =
+   a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split)
 
 ## Runs
 ## ====
+include("runs/kl.jl")
