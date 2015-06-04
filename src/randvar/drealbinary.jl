@@ -160,6 +160,8 @@ function call(X::DRealRandVarBinary{Bool}, ω::AbstractOmega{Float64})
     @show full_program.ex
     @show full_neg_program.ex
     error("Query or its negation must be true")
+    print(merge(full_program))
+    print(merge(full_neg_program))
   end
 end
 

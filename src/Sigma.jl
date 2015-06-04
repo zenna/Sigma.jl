@@ -2,8 +2,8 @@ module Sigma
 
 using dReal
 
-using Cxx
-using IBEX
+# using Cxx
+# using IBEX
 using Distributions
 using AbstractDomains
 using Lens
@@ -41,6 +41,9 @@ cxx"""
   #include "sigma/sigma.h"
 """RR
 @compat Libdl.dlopen("libcryptominisat-2.9.9.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
+
+## Global Cosntants
+const DEFAULT_PREC = 0.0001 #precision
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -150,7 +153,6 @@ export
 
   #utils
   to_dimacs,
-  tolerant_eq,
   rand_select,
   sqr,
   ≊,
