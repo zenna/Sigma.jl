@@ -39,8 +39,15 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
       children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = [X(child[1]; args...) for child in children]
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
+      if all([isequal(status,f) for status in statuses])
+        return A, logq, 1.0
+      end
 
       # Choose a random child
+      @show statuses
+      @show weights
+      @show A
+      @show children
       rand_index = rand(Categorical(weights))
       A = children[rand_index][1]
       status = statuses[rand_index]
