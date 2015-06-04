@@ -58,6 +58,7 @@ import Base.size
 import Base.all
 import Base: one, zero, norm, similar
 import Base: var
+import Base: in
 
 import Base:  asin,
               sqrt,

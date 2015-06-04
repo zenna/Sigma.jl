@@ -23,9 +23,11 @@ function rand{T, S<:Solver}(X::RandVar{T}, Y::RandVar{Bool}, nsamples::Int,
   warn("Sampling points is wrong (biased towards smaller regions)")
 
   # Get uniformly distributed points within these preimages
+  @show preimage_boxes
   preimage_points = [rand(box) for box in preimage_boxes]
 
   # Evaluate X(ω) for each point in preimage of Y
+  println("About to lambarise")
   X_fn = lambda(X)
   T[X_fn(point) for point in preimage_points]
 end

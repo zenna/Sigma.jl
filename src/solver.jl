@@ -2,5 +2,9 @@
   inference procedures, e.g. `rand(X,Y,DRealSolver)`""" ->
 abstract Solver
 
-immutable DRealSolver <: Solver end
+abstract DReal <: Solver
+immutable DRealSolver <: DReal end
+immutable DRealSolverBinary <: DReal end
+
 immutable SigmaSolver <: Solver end
+immutable Z3SolverBianry <: Solver end

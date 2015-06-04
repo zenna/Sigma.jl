@@ -83,8 +83,8 @@ end
 # end
 
 # @doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
-function pre_tlmh{D <: Domain}(Y::RandVar{Bool}, init_box::D, niters::Integer,
-                  solver::Type{DRealSolver}; precision::Float64 = 0.001, args...)
+function pre_tlmh{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
+                  solver::Type{S}; precision::Float64 = 0.001, args...)
   boxes = D[]
   # stack = (D,Float64,Float64)[] #For parallelism
   # stack::Vector{(D,Float64,Float64)} = genstack(f,Y,X,niters;args...)
@@ -133,6 +133,17 @@ function pre_tlmh(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolver}; args
   pre_tlmh(Ydreal, box, niters, solver; args...)
 end
 
+
+function pre_tlmh(Y::RandVar{Bool}, niters::Int, solver::Type{DRealSolverBinary}; args...)
+  box = LazyOmega(Float64)
+  for dim in dims(Y)
+    box[dim]
+  end
+  @show box
+    println("Converting into dREAL Binary")
+  Ydrealbinary = convert(DRealRandVarBinary{Bool}, Y)
+  pre_tlmh(Ydrealbinary, box, niters, solver; args...)
+end
 
 # ## Sampling
 # ## ========
