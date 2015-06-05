@@ -18,7 +18,7 @@ import Base.isapprox
 import Base.start
 import Base.next
 import Base.done
-import Base: hash 
+import Base: hash
 import Base: ndims, isequal, union, push!, string, print, show, println
 import Base.eltype
 import Base.size
@@ -62,7 +62,7 @@ global const DREAL_SOLVER_ON = true
 global const DREAL_BINARY_SOLVER_ON = true
 
 if VERSION < v"0.4.0-dev"
-  include("Sigma1.jl")  
+  include("Sigma1.jl")
 else
   include("Sigma2.jl")
 end

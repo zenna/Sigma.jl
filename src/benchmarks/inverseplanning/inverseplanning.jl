@@ -47,6 +47,8 @@ end
 
 # exp_λ = 0.1
 
+## Maps
+## =====
 ## Eaxmple
 amap =
   [1 1 1 1 1 1 1
@@ -72,7 +74,12 @@ amap =
    0 1 0
    0 0 0]
 
+
+## Terrain Costs
 terrain_costs = mvuniform(0,1,3)
+
+## Observed Paths
+## ==============
 observed_path = [6 5 4 3 2 1 1 1
                  1 1 1 2 3 4 5 6]
 
@@ -85,28 +92,12 @@ observed_path = [4 4 4 3 2 2 2 2 2 2
 observed_path = [6 5 4
                  2 2 2]
 
-cost = path_cost(observed_path, amap+1, terrain_costs)
-
-plen = path_length(observed_path)
-path = mvuniform(1,max(size(amap)...),2,plen)
-
 path, condition = inverse_planning(amap+1, terrain_costs, observed_path)
 println("Converting into randvar")
 # a = convert(Sigma.DRealRandVar{Bool}, condition)
 
-dims(condition)
+@show dims(condition)
 println("Drawing samples")
-samples = Sigma.pre_tlmh2(condition, 1)
-1+1
+# samples = Sigma.pre_tlmh(condition, 1)
 
-# path1, path2, terrains = rand((path,path,terrain_costs), condition,2)
-
-# terrains
-# path
-# terrains
-# # [1 0 0x
-# #  1 1 0
-# #  1 0 0x]
-# # Terrains = PureRandArray([])
-
-# # for
+terrains = rand(terrain_costs, condition,2,pre_tlmh, DRealSolverBinary)
