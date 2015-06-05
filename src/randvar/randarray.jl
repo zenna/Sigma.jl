@@ -80,10 +80,10 @@ convert{T, R<:RandVar}(::Type{Array{RandVar{T}}}, arr::Matrix{R}) =
 
 # rangetype(Xs::PureRandArray) = Array{typeof(Xs).parameters[1]}
 # eltype(Xs::PureRandArray) = rangetype(Xs).parameters[1]
-call{T,O<:Omega}(Xs::PureRandArray{T,1}, ω::O) =
-  T[call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
+call{T}(Xs::PureRandArray{T,1}, ω::Omega) =
+  [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
 call{T}(Xs::PureRandArray{T,2}, ω::Omega) =
-  T[call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
+  [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
 # ## Array Access/Updating
 # ## =====================

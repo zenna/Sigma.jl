@@ -30,7 +30,7 @@ function getindex{T}(o::LazyRandomVector{T}, key::Int)
 end
 
 @doc "All kinds of Omega" ->
-typealias Omega{T} Union(Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T})
+typealias Omega{T} Union(Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T}, Dict{Int,T})
 
 @doc "Abstract representations of sample space - euclidean box" ->
 typealias AbstractOmega{T} Union(HyperBox{T}, LazyBox{T})

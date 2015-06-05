@@ -100,4 +100,5 @@ println("Converting into randvar")
 println("Drawing samples")
 # samples = Sigma.pre_tlmh(condition, 1)
 
-terrains = rand(terrain_costs, condition,2,pre_tlmh, DRealSolverBinary)
+# terrains = rand(terrain_costs, condition,2,pre_tlmh, DRealSolverBinary)
+# pre = Sigma.pre_tlmh_parallel(condition,10,Sigma.DRealSolverBinary;ncores=4)
