@@ -27,7 +27,7 @@ end
 ndims(X::RandVar) = length(dims(X))
 
 @doc "Apply a random variable to some randomness" ->
-call(X::RandVar,ω::Omega) = lambda(X)(ω)
+call(X::RandVar,ω) = lambda(X)(ω)
 
 function isequal(X::RandVar,Y::RandVar)
   # Equivalent Random variables should (at least) have same type and #args

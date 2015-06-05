@@ -100,6 +100,10 @@ export
   setindex,
   model,
 
+  # RandVar Types
+  RandVar,
+  AllRandVars,
+
   # Distributions
   normal,
   uniform,

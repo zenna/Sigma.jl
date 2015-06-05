@@ -1,11 +1,3 @@
-using Sigma
-import Sigma: mvuniformai, mvuniformmeta
-using Lens
-
-using DynamicAnalysis
-import DynamicAnalysis: Algorithm, Problem, benchmark
-using DataStructures
-
 ## Simplex Benchmark
 ## =================
 # This benchmark samples from a small region around corners of a n-dimensional
@@ -75,10 +67,10 @@ immutable Simplex <: Problem
   holesize::Float64
 end
 
-==(a::Simplex, b::Simplex) = equiv(a,b)
-hash(s::Simplex, h::Uint) = deephash(s,h)
+# ==(a::Simplex, b::Simplex) = equiv(a,b)
+# hash(s::Simplex, h::Uint) = deephash(s,h)
 
-function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
+function simplexbenchmark(a::Algorithm, m::AllRandVars, b::Simplex)
   Sigma.restart_counter!()
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
@@ -90,15 +82,55 @@ function simplexbenchmark(a::Algorithm, m::RandVar, b::Simplex)
   results
 end
 
-benchmark(a::SigmaAI, b::Simplex) = simplexbenchmark(a, mvuniformai(-2,2,b.ndims), b)
-benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniformmeta(-2,2,b.ndims), b)
+benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
 
-sample(a::SigmaSMT, model, condition, nsamples) =
-  a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split, solver = a.solver)
+function sample(a::SigmaSMT, model, condition, nsamples)
+  @show model
+  @show condition
+  @show nsamples
+  rand(model,condition,nsamples,a.sampler,a.solver;cores = a.ncores, split = a.split)
+end
 
-sample(a::SigmaAI, model, condition, nsamples) =
-   a.sampler(model,condition, nsamples; ncores = a.ncores, split = a.split)
+## Rejection Sampler
+benchmark(a::SigmaRej, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
+
+function sample(a::SigmaRej, X::AllRandVars, Y::RandVar{Bool}, nsamples::Integer)
+  box = Sigma.LazyOmega(Float64)
+  for dim in dims(Y)
+    box[dim]
+  end
+
+  Y_func = Sigma.lambda(Y)
+  X_func = Sigma.lambda(X)
+
+  samples = []
+  ntries = 10000000
+  for i = 1:nsamples
+    for i = 1:ntries
+      ω = rand(box)
+      if Y_func(ω)
+        println("Got sample with rejection")
+        push!(samples,X_func(ω))
+        break
+      end
+    end
+  end
+
+  @show length(samples), nsamples
+  length(samples) != nsamples && error("Couldn't draw sample")
+  return samples
+end
+
+
+## Sigma BFS
+benchmark(a::SigmaBFS, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
+
+function sample(a::SigmaBFS, X::AllRandVars, Y::RandVar{Bool}, nsamples::Integer)
+  Sigma.rand_bfs(X,Y,nsamples)
+end
+
 
 ## Runs
 ## ====
 include("runs/kl.jl")
+include("runs/dimensions.jl")
