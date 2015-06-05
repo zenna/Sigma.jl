@@ -157,15 +157,13 @@ function call(X::DRealRandVarBinary{Bool}, ω::AbstractOmega{Float64})
   elseif pos_case t
   elseif neg_case f
   else
-    @show full_program.ex
-    @show full_neg_program.ex
+    print(merge(full_program).ex)
+    print(merge(full_neg_program).ex)
     error("Query or its negation must be true")
     print(merge(full_program))
     print(merge(full_neg_program))
   end
 end
-
-
 
 # # Returns an abstract bool
 # function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})

@@ -1,17 +1,20 @@
 module SigmaBenchmarking
 
 using Sigma
+using Lens
 using Compat
 
-import Sigma: Simplex, weighted_mid_split, rand_partial_split,
+# Split Functions
+import Sigma: weighted_mid_split, rand_partial_split,
               weighted_partial_split
-import Sigma: cond_sample_tlmh
+# Solvers
+import Sigma: Solver, DRealSolver, DRealSolverBinary, SigmaSolver
 
 using DynamicAnalysis
 import DynamicAnalysis: benchmark
 
-using DataFrames
-using Gadfly
+# using DataFrames
+# using Gadfly
 
 benchdir = pwd()
 

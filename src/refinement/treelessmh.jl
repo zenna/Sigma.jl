@@ -30,27 +30,40 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   prevolfrac = 1.0
   @show box
   A::D = box
-  image::AbstractBool = X(A; args...)
+  lens(:refine,time_ns())
+  image::AbstractBool = X(A)
   while (niters <= 1000) && (depth <= maxdepth)
     if issmall(A, precision)
-      lens(:proposing, depth=depth, niters=niters)
+      lens(:depth, depth)
+      lens(:refine,time_ns())
       return A, logq, 1.0  # Assume boxes are full
     # else if  isequal(image,t)
     #   lens(:proposing, depth=depth, niters=niters)
     #   return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
       @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
-      statuses = [X(child[1]; args...) for child in children]
+      statuses = AbstractBool[]
+      for child in children
+        try
+          child_status = X(child[1]; args...)
+          push!(statuses,child_status)
+        catch
+          println("caught exception, both unsat")
+          push!(statuses,f)
+        end
+      end
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
       if all([isequal(status,f) for status in statuses])
+        lens(:depth, depth)
+        lens(:refine,time_ns())
         return A, logq, 1.0
       end
 
       # Choose a random child
-      @show statuses
-      @show weights
-      @show A
-      @show children
+      # @show statuses
+      # @show weights
+      # @show A
+      # @show children
       rand_index = rand(Categorical(weights))
       A = children[rand_index][1]
       status = statuses[rand_index]

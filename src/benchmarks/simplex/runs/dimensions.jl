@@ -1,63 +1,119 @@
-## Dimension Test
-## ==============
-using Sigma
-import Sigma: SimplexBenchmark, weighted_mid_split, rand_partial_split,
-              weighted_partial_split
-import Sigma: dreal, z3, dreal3
-import Sigma: SigmaSMT, SigmaAI
-import Sigma: cond_sample_tlmh
-import Sigma: runbenchmarks
-
+## Distribution Test
+## =================
+holesizes = logspace(-1,-10,3)
 
 SplitBenchmarks = [Simplex(i,[:sample_distribution,
                                         :accumulative_KL,
                                         :total_time,],1,0.1)
-                   for i = 2:10:62]
+                   for i = 2:6]
 
-mh_captures = [:start_loop, :refinement_depth]
-all_splits = [weighted_partial_split, rand_partial_split]
+mh_captures = [:samples, :refine, :depth]
+all_splits = [rand_partial_split]
 
-# SMT algorithms
-SMTAlgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
-  for nprocs = [2],
-      solver = [z3],
+SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
+  for nprocs = [1],
+      solver = [DRealSolverBinary],
       split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
+      sampler = [Sigma.pre_tlmh]][:]
 
-AIAlgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [2],
-      split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
+Rejalgorithms = [SigmaRej(mh_captures)]
 
-dimbenchmarks = SplitBenchmarks
-dimalgorithms = vcat(AIAlgorithms,SMTAlgorithms)
+Bfsalgorithms = [SigmaBFS(mh_captures)]
 
 
-runbenchmarks(SMTAlgorithms,dimbenchmarks;runname = "dimensions")
+function simplex_dim()
+  @show "Got to start of dim"
+  record(Bfsalgorithms, SplitBenchmarks;
+         runname = "simplex_dim",prefix=benchdir,savedb=false,exceptions=true)
+end
 
-# using Gadfly
+function count(ndims)
+  results = DynamicAnalysis.all_records() |> r->DynamicAnalysis.where(r,:runname,j->j=="kl") |> r->DynamicAnalysis.where(r,:problem,j->j.ndims == ndims)
+  @show size(results,1)
 
-# function extractdata(data)
-  xs = Int64[]
-  ys = Float64[]
-  for (key,value) in data
-    if isa(key[1],Sigma.SigmaAI) & (key[1].split == Sigma.rand_partial_split) & !(isa(value,Exception))
-      push!(xs,key[2].ndims)
-      push!(ys,value[:total_time][1])
-    end
-  end
+end
+
+# function accumulative_kl(i, ndims)
+#   records = DynamicAnalysis.all_records() |> r->DynamicAnalysis.where(r,:runname,j->j=="kl") |> r->DynamicAnalysis.where(r,:problem,j->j.ndims == ndims)
+#   results = records[:results]
+#   @show length(results)
+#   allsamples = Lens.get(results[i];lensname=:samples)
+#   kls = Float64[]
+#   for i = 1:length(allsamples)
+#     samples = allsamples[1:i]
+#     v = vertex_distribution(samples,ndims,0.01)
+#     truth = groundtruth(ndims)
+#     push!(kls,KLsafe(truth,v))
+#   end
+#   kls
 # end
 
-# # Rand split SMT
-# plot(x = [6,20,16,30,26,14,12,10,28,18,8,4,2,22,24],
-#      y = [13.011885005,256.489656571,127.71078451,752.123698964,496.484901629,98.558202318,71.843140398,41.183985416,664.071571283,180.454738625,25.195943663,4.50651888,1.256410641,294.636191188,384.058506053], Geom.line)
+# function accumulative_mean_kls(dims)
+#   trials = [accumulative_kl(i, dims) for i = 1:count(dims)]
+#   mean_kls = Array(Float64, length(trials[1]))
+#   stds_kls = Float64[]
+#   for i = 1:length(trials[1])
+#     total = 0.0
+#     for j = 1:length(trials)
+#       total += trials[j][i]
+#     end
+#     mean_kls[i] = total/length(trials)
+#   end
+#   return mean_kls
+# end
 
-# # SMt Weighted Partial Split
-# plot(y = [19.871517743,33.501616323,11.487123464,405.106928473,332.24927191,3.450550429,88.607793944,1.162512879,277.990990788,203.635011443,243.855978834,170.414683246,42.959482655,66.204113471,7.14161407],
-#      x = [10,12,8,30,28,4,18,2,26,22,24,20,14,16,6], Geom.line)
-# # AI weighted split
-# plot(x = [24,2,16,6,18,26,10,28,8,12,4,30,14,20,22], y = [17.65186648,1.243326702,4.666299409,0.319582324,6.233854256,22.748533103,1.007933536,29.050127148,0.609038764,1.814690567,0.164571561,50.687513444,2.983420971,9.907827246,14.34077483], Geom.line)
+# function plot_kls(dims::Vector{Int})
+#   dfs = DataFrame[]
+#   for dim in dims
+#     akl = accumulative_mean_kls(dim)
+#     df = DataFrame(x=1:length(akl), y = akl, label = "Dim:$dim")
+#     push!(dfs,df)
+#   end
+#   Gadfly.plot(vcat(dfs...), x="x", y="y", color="label",Gadfly.Geom.line,
+#      Guide.xlabel("Number of Samples"),
+#      Guide.ylabel("KL Divergence"))
+# end
 
-# # AI rand partial split
-# plot(y = [44.101825938,6.654024226,33.385988671,23.40312112,4.185090303,3.039394481,13.501202084,9.471848048,0.820727576,19.288896369,55.487252981,0.175479435,0.365668565,0.060729855,1.425457634],
-#      x = [28,16,26,24,14,12,20,18,8,22,30,4,6,2,10], Geom.line)
+
+# splitkey = [rand_partial_split => "rand", weighted_mid_split => "mid", weighted_partial_split => "partial"]
+
+# # # Analysis
+# # ## KL
+# using Lens
+# using SQLite
+# using Gadfly
+# using DataFrames
+# q = all_records() |> r->Lens.where(r,"runname",j->j=="kl")
+# g = group(q)
+
+
+
+# plot_db(y = tree, x = :iterate, groupby=)
+
+# function plot_kl2(groups)
+#   dfs = DataFrame[]
+#   i = 1
+#   for (k,v) in groups
+#     results = Result[x[7] for x in v]
+#     collated = Lens.collate(results, :samples, :x1)
+#     @show length(collated)
+#     samples = collated
+#     ndims = k[2].ndims
+#     holesize = k[2].holesize
+#     gt = groundtruth(ndims)
+#     akl = accumulative_KL(samples, ndims, gt,holesize)
+#     df = DataFrame(x=1:length(akl), y = akl, label = "SMT$i")
+#     push!(dfs,df)
+#     i += 1
+#   end
+# #   return  dfs
+#   plot(vcat(dfs...), x="x", y="y", color="label",Geom.line,
+#        Guide.xlabel("Number of Samples"),
+#        Guide.ylabel("KL Divergence"))
+# end
+
+# plot_kl2(g)
+
+
+
+# draw(PDF("/home/zenna/Dropbox/writing/conferences/icml2015/figures/smt1.pdf",4*1inch,3*1inch), smtplot)

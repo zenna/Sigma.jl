@@ -9,14 +9,9 @@ all_splits = [rand_partial_split]
 
 SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
   for nprocs = [1],
-      solver = [z3],
+      solver = [DRealSolverBinary],
       split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
-
-AIalgorithms = [SigmaAI(mh_captures, sampler, nprocs, split)
-  for nprocs = [1],
-      split = all_splits,
-      sampler = [cond_sample_tlmh]][:]
+      sampler = [Sigma.pre_tlmh_parallel]][:]
 
 function kl()
   record(AIalgorithms,problems;
