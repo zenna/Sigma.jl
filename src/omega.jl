@@ -29,6 +29,15 @@ function getindex{T}(o::LazyRandomVector{T}, key::Int)
   end
 end
 
+function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
+  @show "Getting UNIT BNOX"
+  box = @show LazyBox(T)
+  for dim in dims
+    box[dim] = Interval{T}(zero(T), one(T))
+  end
+  box
+end
+
 @doc "All kinds of Omega" ->
 typealias Omega{T} Union(Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T}, Dict{Int,T})
 

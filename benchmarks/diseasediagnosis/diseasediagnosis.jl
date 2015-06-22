@@ -8,7 +8,7 @@ disease_priors = [0.025851035,0.058152077,0.020436158,0.040025596,
                   0.029336553,0.020641227,0.074125078,0.028544798,
                   0.054423213,0.077353640,0.078099579,0.065297382,
                   0.039513058,0.030245903,0.128596589,0.095504584]
-diseases = PureRandArray(map(p->flip(p),disease_priors))
+diseases = RandArray(map(p->flip(p),disease_priors))
 
 datapath = joinpath(benchdir, "diseasediagnosis","problem-2-edges.csv")
 edges = readtable(datapath)
@@ -27,7 +27,7 @@ for i = 1:nfindings
   push!(findings, (|)(ands...))
 end
 
-findings_randvar = PureRandArray(findings)
+findings_randvar = RandArray(findings)
 
 ## Benchmarking
 

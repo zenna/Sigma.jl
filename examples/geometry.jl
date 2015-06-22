@@ -8,7 +8,7 @@ Z = uniform(-2,2)
 cond1 = isapprox(X*X + Y*Y,0.1)
 # cond2 = in(asin(X/Y), (-1/2PI,1/2PI))
 cond2 = asin(X/Y) > 1/2PI
-xy = PureRandArray(Any[X,Y])
+xy = RandArray(Any[X,Y])
 samples = rand(xy,cond1&cond2,500,Sigma.pre_tlmh_parallel,Sigma.DRealSolverBinary; ncores =4 )
 # samples = rand(xy,cond1&cond2,500,Sigma.pre_tlmh,Sigma.DRealSolver) 
 
@@ -24,7 +24,7 @@ b = 1
 c = 0.5
 ellip_cond = isapprox((X*X)/(a*a) + (Y*Y)/(b*b) + (Z*Z)/(c*c), 1.0,0.001)
 
-xyz = PureRandArray(Any[X,Y,Z])
+xyz = RandArray(Any[X,Y,Z])
 samples_ellipsoid = rand(xyz,ellip_cond,500,Sigma.pre_tlmh_parallel,Sigma.DRealSolverBinary; ncores =4 )
 
 ellip_cond = isapprox((X*X)/(a*a) + (Y*Y)/(b*b) + (Z*Z)/(c*c), 1.0,0.001)

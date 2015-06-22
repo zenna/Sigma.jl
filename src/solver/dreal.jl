@@ -9,6 +9,8 @@ type DRealRandVar{T} <: RandVar{T}
   dimtovar::DimToVar
 end
 
+dims(X::DRealRandVar) = Set{Int}(collect(values(X.dimtovar)))
+
 ## Compie a Sigma Random Variable into a dReal Variable
 function convert{T}(::Type{DRealRandVar{T}}, X::RandVar{T})
   ctx = Context(qf_nra)

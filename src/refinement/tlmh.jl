@@ -42,7 +42,7 @@ function build_init_box(Y::RandVar{Bool}, aux_vars::VarSet)
   box
 end
 
-cxx"""void add_to_sp_vec2(std::vector<std::shared_ptr<ibex::ExprSymbol>> &vec, ExprSymbol &x) {
+cxx"""void add_to_sp_vec(std::vector<std::shared_ptr<ibex::ExprSymbol>> &vec, ExprSymbol &x) {
   std::shared_ptr<ibex::ExprSymbol> new_ptr(&x);
   vec.push_back(new_ptr);
 }
@@ -53,12 +53,12 @@ function varset_to_varvec(aux_vars::VarSet)
   @show aux_vars
   varvec = VarVector(icxx"std::vector<std::shared_ptr<ibex::ExprSymbol>>();")
   for expr_symbol in aux_vars
-    @cxx add_to_sp_vec2(varvec.cxx,expr_symbol.cxx)
+    @cxx add_to_sp_vec(varvec.cxx,expr_symbol.cxx)
   end
   varvec
 end
 
-function pre_tlmh(Y::RandVar{Bool}, nsamples::Int)
+function pre_tlmh(Y::RandVar{Bool}, nsamples::Int, solver::Type{SigmaSolver}; args...)
   cmap, cnf, ω, aux_vars = analyze(Y)
   lmap = to_cxx_lmap(cmap)
   pre_tlmh(lmap, cnf, ω, varset_to_varvec(aux_vars), build_init_box(Y, aux_vars), nsamples)

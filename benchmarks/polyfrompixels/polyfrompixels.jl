@@ -1,11 +1,13 @@
-# using Sigma
-# using Lens
-
 typealias Point AbstractVector
 typealias Vec AbstractVector
 typealias Mat AbstractMatrix
 
-# Approximate Bayesian Computation
+## 2D inverse graphics using Approximate Bayesian Computation
+## ==========================================================
+
+# This example constructs a generative model which creates image from polygon
+# The inference task is to infer a distribution over the polygons conditioned on
+# onbserving an image
 
 # http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
 function point_in_poly(poly::Mat, testx::Float64, testy::Float64)
@@ -37,7 +39,7 @@ function render(poly::Mat, width::Int, height::Int)
   # If the point is in the polygon render it 1.0, otherwie as 0.0
   image = RandVar{Float64}[ifelse(point_in_poly(poly, float(x), float(y)),1.0,0.0)
            for x = 1:width, y = 1:height]
-  PureRandArray(image)
+  RandArray(image)
 end
 
 # ABC comparison.
@@ -70,7 +72,9 @@ function test_abc()
   abc(mvuniform(-1,0,10,2,3),testimage)
 end
 
-poly,condition = test_abc()
-ndims(condition)
-to_dimacs(condition)
-# rand(poly,condition,1)
+function main_polyfrompixels()
+  poly,condition = test_abc()
+  ndims(condition)
+  to_dimacs(condition)
+  # rand(poly,condition,1)
+end

@@ -2,7 +2,7 @@
 ## ====
 
 typealias VarSet Set{IBEX.ExprSymbol}
-typealias Visited Dict{RandVar,Any}
+typealias Visited Dict{SymbolicRandVar,Any}
 # Maps a variable to its interval domain
 typealias DomainMap Dict{IBEX.ExprSymbol, Interval}
 
@@ -16,14 +16,14 @@ end
 inc!(x::BoolCounter) = x.x += 1
 nextvar!(x::BoolCounter) = (y = x.x; inc!(x); y)
 
-@doc "Maps a predicate RandVar `X` to a ConstraintMap and a CMCNF of boolean structure" ->
-function analyze(X::RandVar{Bool})
+@doc "Maps a predicate SymbolicRandVar `X` to a ConstraintMap and a CMCNF of boolean structure" ->
+function analyze(X::SymbolicRandVar{Bool})
   ω = IBEX.ExprSymbol(maximum(dims(X))+1) # Ibex representation of sample space
   cmap = ConstraintMap() # map from ibex constraints to boolean variables
   cnf = CMCNF() # boolean cnf extracted
   aux_vars = Set{IBEX.ExprSymbol}() # Auxilary Variables
   next_boolvar = BoolCounter(0)
-  visited = Dict{RandVar,Any}() # Visited Rand Vars and what they return
+  visited = Dict{SymbolicRandVar,Any}() # Visited Rand Vars and what they return
 
   result::BoolVar = expand(cmap,cnf,ω,aux_vars,visited,next_boolvar,X,args(X)...)
 
@@ -49,7 +49,7 @@ end
 
 # Unary
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol,
-                varset::VarSet, visited, bc::BoolCounter, X::RandVar, a::RandVar)
+                varset::VarSet, visited, bc::BoolCounter, X::SymbolicRandVar, a::SymbolicRandVar)
   op_a = haskey(visited,a) ? visited[a] : (visited[a] =
     expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   expand(cmap, cnf, ω, varset,visited, bc, X, op_a)
@@ -57,7 +57,7 @@ end
 
 # Binary
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol,
-                varset::VarSet, visited, bc::BoolCounter, X::RandVar, a::RandVar, b::RandVar)
+                varset::VarSet, visited, bc::BoolCounter, X::SymbolicRandVar, a::SymbolicRandVar, b::SymbolicRandVar)
   op_a = haskey(visited,a) ? visited[a] : (visited[a] =
     expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   op_b = haskey(visited,b) ? visited[b] : (visited[b] =
@@ -67,8 +67,8 @@ end
 
 # Ternary
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol,
-                varset::VarSet, visited, bc::BoolCounter, X::RandVar,
-                a::RandVar, b::RandVar, c::RandVar)
+                varset::VarSet, visited, bc::BoolCounter, X::SymbolicRandVar,
+                a::SymbolicRandVar, b::SymbolicRandVar, c::SymbolicRandVar)
   op_a = haskey(visited,a) ? visited[a] : (visited[a] =
     expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   op_b = haskey(visited,b) ? visited[b] : (visited[b] =
@@ -93,7 +93,7 @@ end
 
 # Generic Randvar{Bool} expand
 function expand(cmap::ConstraintMap, cnf::CMCNF, ω::IBEX.ExprSymbol,
-                varset::VarSet, visited, bc::BoolCounter, X::RandVar{Bool}, a::RandVar{Bool}, b::RandVar{Bool})
+                varset::VarSet, visited, bc::BoolCounter, X::SymbolicRandVar{Bool}, a::SymbolicRandVar{Bool}, b::SymbolicRandVar{Bool})
   op_a = haskey(visited,a) ? visited[a] : (visited[a] =
     expand(cmap, cnf, ω, varset, visited, bc, a, args(a)...))
   op_b = haskey(visited,b) ? visited[b] : (visited[b] =

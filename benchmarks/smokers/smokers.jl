@@ -10,7 +10,7 @@ noisyeq(a,b) = (a == b) | flipmeta(.75)
 # Given a list of smokers, and an edge graph
 # Create the condition that if you have smoke friends you're more
 # likely to be a smoker
-function smokers_befriend_smokers(issmoker::PureRandArray, edges)
+function smokers_befriend_smokers(issmoker::RandArray, edges)
   condition = RandVar{Bool}[]
   for i = 1:length(edges), j = 1:length(edges)
     if edges[i,j] == 1
@@ -27,7 +27,7 @@ function make_observes(issmoker, observed_smokers, observed_nonsmokers)
 end
 
 
-function smokers(issmoker::PureRandArray{Bool})
+function smokers(issmoker::RandArray{Bool})
   mrv_condition = smokers_befriend_smokers(issmoker)
   observations = make_observes(issmoker, observed_smokers, observed_nonsmokers)
 
@@ -50,7 +50,7 @@ function test_smokers()
   nsmokers = length(edges)
 
   # prior prob of being a smoker
-  issmoker = PureRandArray([flipmeta(.2) for i = 1:length(edges)])
+  issmoker = RandArray([flipmeta(.2) for i = 1:length(edges)])
 
   # observations
   observed_smokers = [1,8,9,15]

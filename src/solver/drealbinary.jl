@@ -8,10 +8,12 @@ immutable SExpr
   ex::String
 end
 
-type DRealRandVarBinary{T} <: RandVar{T}
+type DRealBinaryRandVar{T} <: RandVar{T}
   dims::Set{Int}
   sexpr::SExpr
 end
+
+dims(X::DRealBinaryRandVar) = X.dims
 
 for (name,op) in all_functional_randvars
   eval(
@@ -22,8 +24,8 @@ for (name,op) in all_functional_randvars
   end)
 end
 
-function convert{T}(::Type{DRealRandVarBinary{T}}, X::RandVar{T})
-  DRealRandVarBinary{T}(dims(X),convert(SExpr,X))
+function convert{T}(::Type{DRealBinaryRandVar{T}}, X::RandVar{T})
+  DRealBinaryRandVar{T}(dims(X),convert(SExpr,X))
 end
 
 function julia2smt(x::Function)
@@ -123,7 +125,7 @@ end
 merge(sexprs::Vector{SExpr}) = SExpr(join([sexpr.ex for sexpr in sexprs], "\n"))
 
 # Will need to instantiate ω values
-function call(X::DRealRandVarBinary{Bool}, ω::AbstractOmega{Float64})
+function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
   # Generate Variable Names
   declares = SExpr[]
   for dim in dims(ω)

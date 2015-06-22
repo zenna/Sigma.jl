@@ -15,15 +15,14 @@ import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
 import Base: ndims, endof
 import Base.isapprox
-import Base.start
-import Base.next
-import Base.done
+import Base: start, next, done
 import Base: hash
 import Base: ndims, isequal, union, push!, string, print, show, println
 import Base.eltype
 import Base.size
 import Base.all
 import Base: one, zero, norm, similar
+import Base: real
 import Base: var
 import Base: in
 
@@ -52,12 +51,10 @@ import Base:  asin,
 # import Lens:benchmark
 import Distributions: quantile
 
-# SMT Solvers
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
 
-import Base: convert
-
+# Solvers
 global const DREAL_SOLVER_ON = true
 global const DREAL_BINARY_SOLVER_ON = true
 
@@ -70,12 +67,11 @@ end
 ## Global Cosntants
 const DEFAULT_PREC = 0.0001 #precision
 
-
 export
   # Random Variables
   RandVar,
   RandArray,
-  PureRandArray,
+  RandArray,
   RandVarAI,
   dims,
 

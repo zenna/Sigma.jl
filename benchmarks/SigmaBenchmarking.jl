@@ -21,7 +21,8 @@ benchdir = pwd()
 include("algorithms.jl")
 include("church.jl")
 
-benchmarks = ["simplex"]
+benchmarks = ["simplex"
+              "polyfrompixels"]
 
 println("Running Benchmarks:")
 
