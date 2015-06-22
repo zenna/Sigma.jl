@@ -43,6 +43,7 @@ end
 function cond_sample{T}(X::ExecutableRandVar{T},
                      Y::RandVar{Bool},
                      n::Integer;
+                     preimage_sampler::Function = point_sample_partition,
                      args...)
   RT = rangetype(X)
   preimage_samples = point_sample_partition(Y, n; args...)
@@ -53,6 +54,7 @@ end
 function abstract_cond_sample{T}(X::ExecutableRandVar{T},
                      Y::RandVar{Bool},
                      n::Integer;
+                     abstract_preimage_sampler::Function = abstract_sample_partition,
                      args...)
   RT = rangetype(X)
   preimage_samples = abstract_sample_partition(Y, n; args...)
@@ -83,3 +85,5 @@ function rand{T}(X::SymbolicRandVar{T},
   executable_X = convert(ExecutableRandVar{T}, X)
   cond_sample(executable_X, executable_Y, n; args...)
 end
+
+rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args...)[1]

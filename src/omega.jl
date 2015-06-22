@@ -30,8 +30,7 @@ function getindex{T}(o::LazyRandomVector{T}, key::Int)
 end
 
 function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
-  @show "Getting UNIT BNOX"
-  box = @show LazyBox(T)
+  box = LazyBox(T)
   for dim in dims
     box[dim] = Interval{T}(zero(T), one(T))
   end

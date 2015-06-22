@@ -9,7 +9,7 @@ type DRealRandVar{T} <: RandVar{T}
   dimtovar::DimToVar
 end
 
-dims(X::DRealRandVar) = Set{Int}(collect(values(X.dimtovar)))
+dims(X::DRealRandVar) = Set{Int}(collect(keys(X.dimtovar)))
 
 ## Compie a Sigma Random Variable into a dReal Variable
 function convert{T}(::Type{DRealRandVar{T}}, X::RandVar{T})
@@ -48,27 +48,27 @@ function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
   # 1. ∃ω ∈ A ∩ X : Does A contain any point X?
   ctx = X.ctx
   # push_ctx!(ctx) #1
-  # println("(push 1)")
+  println("(push 1)")
   for dim in dims(ω)
 #     @show dim
-    lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
-    ub = (<=)(ctx,X.dimtovar[dim], ω[dim].u)
-    # println("(assert",lb,")")
+    lb = (>=)(ctx, X.dimtovar[dim], ω[dim].l)
+    ub = (<=)(ctx, X.dimtovar[dim], ω[dim].u)
+    println("(assert",lb,")")
     dReal.add!(ctx,lb)
-    # println("(assert",ub,")")
+    println("(assert",ub,")")
     dReal.add!(ctx,ub)
   end
   push_ctx!(ctx) #2
-  # println("(assert",X.ex,")")
+  println("(assert",X.ex,")")
   dReal.add!(ctx, X.ex)
 #   println("About to check pop case")
-  # println("(check-sat)")
+  println("(check-sat)")
   pos_case = is_satisfiable(ctx)
 #   @show pos_case
-  # println("(pop 1)")
+  println("(pop 1)")
   pop_ctx!(ctx) #undo from 2 to here
 #   println("About to push")
-  # println("(push 1)")
+  println("(push 1)")
   # push_ctx!(ctx) #3
   for dim in dims(ω)
 #     @show dim
@@ -96,6 +96,6 @@ function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
   elseif pos_case t
   elseif neg_case f
   else
-    error("Query or its negation must be true")
+    error("Solver error: Query or its negation must be true")
   end
 end

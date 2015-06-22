@@ -1,13 +1,5 @@
-## Parallel MH without Trees
-## =========================
-
-# This is a refinement algorithm like that found in mh.jl, except for the fact
-# that it does not build a tree.  This also makes it easy for it to run in
-# parallel.  The downside of not having a tree (I suspect) is that we may need to
-# recompute things we've done already.  This is a minor loss if we gain a great deal
-# in parallelism.
-
-## ============================================================================
+## Abstract Independent Metropolis Sampliing
+## ==========================================
 
 @doc """Abstract Independent Metropolis Sampliing samples events in preimage
   uniformly in convergence of the Markov Chain.
