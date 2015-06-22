@@ -14,7 +14,7 @@ abstract MCMCAlgorithm <: SamplingAlgorithm
 # - Exact Conditional Point Sample
 # - Approximate Conditional Point Sample 
 
-for finame in ["bounds.jl",
+for finame in ["prob.jl",
                "rand.jl",
                "model.jl"]
     include(joinpath("query", finame))

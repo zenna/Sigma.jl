@@ -10,8 +10,9 @@ end
 
 @doc "Lower and upper bounds for measure of partition" ->
 function measure(p::ApproxPartition)
-  lb = [measure(event) for event in p.under]
-  ub = lb + [measure(event) for event in p.rest]
+  lb = isempty(p.under) ? 0 : sum([measure(event) for event in p.under])
+  rest = isempty(p.rest) ? 0 : sum([measure(event) for event in p.rest])
+  ub = lb + rest
   Interval(lb,ub)
 end
 

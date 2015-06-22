@@ -16,9 +16,9 @@ rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
 ## RandVar{Bool} Preimage Samples
 ## ==============================
 @doc "`n` abstract samples from preimage: Y^-1({true})" ->
-function abstract_sample(Y::RandVar{Bool},
+function abstract_sample{P<:PartitionAlgorithm}(Y::RandVar{Bool},
                          n::Integer;
-                         partition_alg::PartitionAlgorithm = BFSPartition,
+                         partition_alg::Type{P} = BFSPartition,
                          args...)
   init_box = unit_box(LazyBox{Float64}, dims(Y))
   partition = pre_partition(Y, init_box, partition_alg; args...)
