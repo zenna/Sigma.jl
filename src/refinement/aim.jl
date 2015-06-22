@@ -83,8 +83,12 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
 end
 
 @doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
-function pre_tlmh{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
-                  solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
+function pre_mc{D <: Domain}(Y::RandVar{Bool},
+                             init_box::D,
+                             niters::Integer,
+                             ::Type{AIM};
+                             precision::Float64 = DEFAULT_PREC,
+                             args...)
   @show "start of tml2"
   boxes = D[]
   box, logq, prevolfrac = proposebox_tl(Y,init_box; args...) # log for numercal stability
@@ -119,52 +123,52 @@ end
 
 
 ## Parallel 
-## ========
+# ## ========
 
-function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int;ncores = 1,args...)
-  println("Using $ncores cores")
-  g = _ -> proposebox_tl(Y,box;args...)
-  lst = [i for i = 1:nsamples]
-  pmaplm(g, lst;ncores = min(nprocs(),ncores))
-end
+# function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int;ncores = 1,args...)
+#   println("Using $ncores cores")
+#   g = _ -> proposebox_tl(Y,box;args...)
+#   lst = [i for i = 1:nsamples]
+#   pmaplm(g, lst;ncores = min(nprocs(),ncores))
+# end
 
-# Propose boxes in parallel
-function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
-  pop!(stack)
-end
+# # Propose boxes in parallel
+# function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
+#   pop!(stack)
+# end
 
-@doc "Parallely Uniform sample of subset of preimage of Y under f unioned with X." ->
-function pre_tlmh_parallel{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
-                  solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
-  @show "start of parallel tml"
-  boxes = D[]
-  @compat stack::Vector{Tuple{D,Float64,Float64}} = genstack(Y,init_box,niters; args...)
-  box, logq, prevolfrac = propose_pmap_tl(stack) # log for numercal stability
-  logp = logmeasure(box) + log(prevolfrac)
-  push!(boxes,box)
+# @doc "Parallely Uniform sample of subset of preimage of Y under f unioned with X." ->
+# function pre_tlmh_parallel{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
+#                   solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
+#   @show "start of parallel tml"
+#   boxes = D[]
+#   @compat stack::Vector{Tuple{D,Float64,Float64}} = genstack(Y,init_box,niters; args...)
+#   box, logq, prevolfrac = propose_pmap_tl(stack) # log for numercal stability
+#   logp = logmeasure(box) + log(prevolfrac)
+#   push!(boxes,box)
 
-  println("Initial satisfying point found!, starting MH chain\n")
-  naccepted = 0; nsteps = 0
-  lens(:start_loop,time_ns())
-  while nsteps < niters - 1
-    nextbox, nextlogq, prevolfrac = propose_pmap_tl(stack)
-    nextlogp = logmeasure(nextbox) + log(prevolfrac)
+#   println("Initial satisfying point found!, starting MH chain\n")
+#   naccepted = 0; nsteps = 0
+#   lens(:start_loop,time_ns())
+#   while nsteps < niters - 1
+#     nextbox, nextlogq, prevolfrac = propose_pmap_tl(stack)
+#     nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
-    loga = nextlogp + logq - logp - nextlogq
-    a = exp(loga)
+#     loga = nextlogp + logq - logp - nextlogq
+#     a = exp(loga)
 
-    # MH accept/reject step
-    if a >= 1 || rand() < a
-      naccepted += 1
-      box = nextbox
-      logp = nextlogp
-      logq = nextlogq
-    end
-    push!(boxes,box)
+#     # MH accept/reject step
+#     if a >= 1 || rand() < a
+#       naccepted += 1
+#       box = nextbox
+#       logp = nextlogp
+#       logq = nextlogq
+#     end
+#     push!(boxes,box)
 
-    lens(:loop_stats, naccepted/niters, nsteps)
-    lens(:start_loop,time_ns())
-    nsteps += 1
-  end
-  boxes
-end
+#     lens(:loop_stats, naccepted/niters, nsteps)
+#     lens(:start_loop,time_ns())
+#     nsteps += 1
+#   end
+#   boxes
+# end

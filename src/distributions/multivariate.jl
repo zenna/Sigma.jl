@@ -11,6 +11,10 @@ mvlogistic(μ, s, n::Integer, nrows::Integer, ncols) =
   RandArray(RandVar{Float64}[logistic(μ, s) for i = 1:nrows,j=1:ncols])
 
 
+mvexponential(λ, n::Integer) = RandArray(RandVar{Float64}[exponential(λ) for i = 1:n])
+mvexponential(λ, n::Integer, nrows::Integer, ncols::Integer) =
+  RandArray(RandVar{Float64}[exponential(μ, s) for i = 1:nrows,j=1:ncols])
+
 ## Independent RandVars
 ## ====================
 function iid(T::DataType, c::Function,

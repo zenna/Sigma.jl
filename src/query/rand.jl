@@ -16,9 +16,9 @@ rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
 ## RandVar{Bool} Preimage Samples
 ## ==============================
 @doc "`n` abstract samples from preimage: Y^-1({true})" ->
-function abstract_sample{P<:PartitionAlgorithm}(Y::RandVar{Bool},
+function abstract_sample_partition(Y::RandVar{Bool},
                          n::Integer;
-                         partition_alg::Type{P} = BFSPartition,
+                         partition_alg::Type{BFSPartition} = BFSPartition,
                          args...)
   init_box = unit_box(LazyBox{Float64}, dims(Y))
   partition = pre_partition(Y, init_box, partition_alg; args...)
@@ -26,9 +26,9 @@ function abstract_sample{P<:PartitionAlgorithm}(Y::RandVar{Bool},
 end
 
 @doc "`n` point Sample from preimage: Y^-1({true})" ->
-function point_sample{P<:PartitionAlgorithm}(Y::RandVar{Bool},
+function point_sample_partition(Y::RandVar{Bool},
                       n::Integer;
-                      partition_alg::Type{P} = BFSPartition,
+                      partition_alg::Type{BFSPartition} = BFSPartition,
                       sampler::Function = point_sample,
                       args...)
   init_box = unit_box(LazyBox{Float64}, dims(Y))
@@ -45,7 +45,7 @@ function cond_sample{T}(X::ExecutableRandVar{T},
                      n::Integer;
                      args...)
   RT = rangetype(X)
-  preimage_samples = @show point_sample(Y, n; args...)
+  preimage_samples = point_sample_partition(Y, n; args...)
   RT[call(X, sample) for sample in preimage_samples]
 end
  
@@ -55,15 +55,31 @@ function abstract_cond_sample{T}(X::ExecutableRandVar{T},
                      n::Integer;
                      args...)
   RT = rangetype(X)
-  preimage_samples = abstract_sample(Y, n; args...)
+  preimage_samples = abstract_sample_partition(Y, n; args...)
   RT[call(X, sample) for sample in preimage_samples]
+end
+
+## Markokv Chain Conditional Sampling
+## ==================================
+@doc "`n` approximate point Sample from preimage: Y^-1({true})" ->
+function point_sample_mc(Y::RandVar{Bool},
+                      n::Integer;
+                      mc_alg::Type{AIM} = AIM,
+                      sampler::Function = point_sample,
+                      args...)
+  init_box = unit_box(LazyBox{Float64}, dims(Y))
+  chain = pre_mc(Y, init_box, n, mc_alg; args...)
+  sampler(chain)
 end
 
 ## Convenience
 ## ===========
-
-function rand{T}(X::SymbolicRandVar{T}, Y::SymbolicRandVar{Bool}, n::Integer; args...)
-  executable_Y = convert(DRealBinaryRandVar{Bool}, Y)
+function rand{T}(X::SymbolicRandVar{T},
+                 Y::SymbolicRandVar{Bool},
+                 n::Integer;
+                 RandVarType = DRealBinaryRandVar,
+                 args...)
+  executable_Y = convert(RandVarType{Bool}, Y)
   executable_X = convert(ExecutableRandVar{T}, X)
-  preimage_samples = cond_sample(executable_X, executable_Y, n; args...)
+  cond_sample(executable_X, executable_Y, n; args...)
 end

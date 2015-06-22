@@ -18,12 +18,11 @@ function issmall(box::Boxes, precision::Float64)
   return true
 end
 
-for finame in ["partition.jl"
+for finame in ["partition.jl",
+               "chain.jl",
+               "aim.jl",
                "bfs.jl"]
   include(joinpath("refinement", finame))
 end
 
-
-include(joinpath("refinement","bfs.jl"))
-(DREAL_SOLVER_ON | DREAL_BINARY_SOLVER_ON) && include(joinpath("refinement","treelessmh.jl"))
-SIGMA_SOLVER_ON && include(joinpath("refinement","tlmh.jl"))
+SIGMA_SOLVER_ON && include(joinpath("refinement","aimcxx.jl"))

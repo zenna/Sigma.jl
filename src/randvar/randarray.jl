@@ -8,6 +8,7 @@ RandArray(T::DataType, nrows::Int64) =
   RandArray{T,1}(Array(RandVar{T},nrows))
 RandArray(T::DataType, nrows::Int64, ncols::Int64) =
   RandArray{T,2}(Array(RandVar{T},nrows,ncols))
+RandArray{T<:Real}(a::Array{T}) = RandArray(Any[ConstantRandVar(x) for x in a])
 
 # Fall back when type inference fails
 function RandArray(xs::Array{Any,2})
@@ -58,8 +59,13 @@ getindex(Xs::RandVector, i::Int64) = Xs.array[i]
 getindex(Xs::RandMatrix, i::Int64, j::Int64) = Xs.array[i,j]
 getindex(Xs::RandMatrix, i::Int64) = ((c,r) = divrem(i-1,size(Xs,1)); Xs.array[r+1,c+1])
 
-setindex!{T}(X::RandVector,v::T,i::Int64) = X.array[i] = v
-setindex!{T}(X::RandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
+setindex!(X::RandArray, Y, i::Real) = setindex!(X.array, Y, i)
+setindex!(X::RandArray, Y::Sigma.RandArray, i::Real) = setindex!(X.array, Y.array, i)
+setindex!(X::RandArray, Y::RandArray, is...) = setindex!(X.array, Y.array, is...)
+setindex!(X::RandArray, Y, is...) = setindex!(X.array, Y, is...)
+
+# setindex!{T}(X::RandVector,v::T,i::Int64) = X.array[i] = v
+# setindex!{T}(X::RandArray,v::T,i::Int64,j::Int64) = X.array[i,j] = v
 
 function setindex!{T}(X::RandArray{T,2}, Y::RandArray{T,2},
                       u::UnitRange{Int64}, i::Int64)
@@ -122,7 +128,7 @@ function all{N}(Xs::RandArray{Bool,N})
   for i = 2:length(Xs)
     x &= Xs[i]
   end
-  x
+  xs
 end
 
 # ## Arithmetic
@@ -213,4 +219,9 @@ function isapprox{T}(XS::RandArray{T}, YS::RandArray{T}; epsilon = DEFAULT_PREC)
   sum(abs(XS - YS)) <= epsilon
 end
 
-print(io::IO, A::RandArray) = print(typeof(A),"\n",A.array)
+print(io::IO, A::RandArray) = (print("YOU"); print(io, typeof(A),"\n",A.array))
+print(A::RandArray) = (print("ME"); print(A.array))
+println(A::RandArray) = (println("MES"); println(A.array))
+println(io::IO, A::RandArray) = (println("MESA"); println(io, A.array))
+show(io::IO, A::RandArray) = show(io, A.array)
+show(A::RandArray) = show(A.array)

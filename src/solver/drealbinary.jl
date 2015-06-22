@@ -33,6 +33,7 @@ function julia2smt(x::Function)
   @compat Dict((&) => :and,
                (|) => :or,
                (!) => :not,
+               (^) => :pow,
                (==) => :(=),
                ifelse => :ite)
   haskey(julia2smts, x) ? julia2smts[x] : x
