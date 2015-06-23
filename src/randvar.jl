@@ -32,3 +32,22 @@ for finame in ["symbolic.jl",
                "randarray.jl"]
     include(joinpath("randvar", finame))
 end
+
+# Call An Arbitrary Simple Composite type with an ω
+# This calling is quite naive, it just calls all the fields of the type
+# with ω.  It does not do any recursive lookup
+# And the type must be constructable just by using the parameters (default constructor)
+# Use call_type instead of call to avoid mass ambiguity
+function call_type{T}(X::T, ω::Omega)
+  T.abstract && error("Cannot use abstract type as RandVar")
+  properties = Any[]
+  for fieldname in fieldnames(X)
+    field = getfield(X, fieldname)
+    if isa(field, AllRandVars)
+      push!(properties, call(field, ω))
+    else
+      push!(properties, field)
+    end
+  end
+  T(properties...)
+end

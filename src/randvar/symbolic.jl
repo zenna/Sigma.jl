@@ -167,7 +167,7 @@ end
 ifelse{T}(A::SymbolicRandVar{Bool}, B::SymbolicRandVar{T}, C::SymbolicRandVar{T}) = IfElseRandVar{T,Bool,T,T}((A,B,C))
 ifelse{T<:Real}(A::SymbolicRandVar{Bool}, B::T, C::T) = IfElseRandVar{T,Bool,T,T}((A,ConstantRandVar(B),ConstantRandVar(C)))
 ifelse{T<:Real}(A::SymbolicRandVar{Bool}, B::SymbolicRandVar{T}, C::T) = IfElseRandVar{T,Bool,T,T}((A,B,ConstantRandVar(C)))
-ifelse{T<:Real}(A::SymbolicRandVar{Bool}, B::T, C::SymbolicRandVar{T}) = IfElseRandVar{T,Bool,T,T}((A,ContantRandVar(B),C))
+ifelse{T<:Real}(A::SymbolicRandVar{Bool}, B::T, C::SymbolicRandVar{T}) = IfElseRandVar{T,Bool,T,T}((A,ConstantRandVar(B),C))
 
 # Unions
 ## =====

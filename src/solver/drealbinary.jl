@@ -146,11 +146,13 @@ function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
   full_program = headerfooter(program)
   # Check both whether there exists a point which satisfies constraints
   pos_case = check(merge(full_program))
+  # println(merge(full_program).ex)
 
   neg_assertion = SExpr("(assert (not $(X.sexpr.ex)))")
   neg_program = vcat(declares, bounds, neg_assertion)
   full_neg_program = headerfooter(neg_program)
   # And whether there exists a point which satisfies negation of constraints
+  # println(merge(full_neg_program).ex)
   neg_case = check(merge(full_neg_program))
   
   # If both are true, return {T,F}
@@ -160,11 +162,9 @@ function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
   elseif pos_case t
   elseif neg_case f
   else
-    print(merge(full_program).ex)
-    print(merge(full_neg_program).ex)
     error("Query or its negation must be true")
-    print(merge(full_program))
-    print(merge(full_neg_program))
+    println(merge(full_program).ex, "\n")
+    println(merge(full_neg_program).ex)
   end
 end
 

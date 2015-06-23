@@ -12,3 +12,5 @@ immutable Z3SolverBianry <: Solver end
 DREAL_SOLVER_ON && include(joinpath("solver","dreal.jl"))
 SIGMA_SOLVER_ON && include(joinpath("solver","sigma.jl"))
 DREAL_BINARY_SOLVER_ON && include(joinpath("solver","drealbinary.jl"))
+
+include(joinpath("solver","z3binary.jl"))

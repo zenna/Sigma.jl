@@ -138,7 +138,7 @@ end
 
 # # Here, we extract the arrays of both args and apply op
 for op = (:+, :-, :*, :.*, :/, :&, :|, :.^)
-  @eval ($op){T<:Real,N}(XS::RandArray{T,N}, YS::RandArray{T,N}) = RandArray(($op)(XS.array,YS.array))
+  @eval ($op){T<:Real}(XS::RandArray{T}, YS::RandArray{T}) = RandArray(($op)(XS.array,YS.array))
   # Interop with 'normal arrays' promote them to RandArrays
   @eval ($op){T<:Real,N}(XS::RandArray{T,N}, YS::Array{T,N}) = RandArray(($op)(XS.array,YS))
   @eval ($op){T<:Real,N}(YS::Array{T,N}, XS::RandArray{T,N}) = RandArray(($op)(YS,XS.array))
@@ -191,6 +191,11 @@ for op = (:(==), :!=)
 end
 
 # Unary Functions
+for op = (:transpose, :ctranspose)
+  @eval ($op)(X::RandArray) = RandArray($op(X.array))
+end
+
+# Unary ElementWise Functions
 for op = (:abs, :asin, :sqrt, :exp, :log, :cos, :sin, :tan, :acos, :asin, :atan,
           :cosh, :sinh, :tanh, :acosh, :asinh, :atanh, :abs, :atan2, :max, :min,
           :sign)

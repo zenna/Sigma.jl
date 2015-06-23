@@ -13,28 +13,27 @@ function preimage_model(Y::DRealRandVar{Bool})
   preimage_sample
 end
 
-function model2(X::RandVar, Y::DRealRandVar{Bool})
+function model2(X::AllRandVars, Y::DRealRandVar{Bool})
   push_ctx!(Y.ctx)
   dReal.add!(Y.ctx,Y.ex)
-  println("Checking Satisfiability")
+  # println("Checking Satisfiability")
   issat = is_satisfiable(Y.ctx)
   if !issat
     pop_ctx!(Y.ctx)
     error("Cannot draw model from unsatisfiable condition")
   end
-  println("model_is_satisfiable")
+  # println("model_is_satisfiable")
   preimage_sample = LazyBox(Float64)
   for (dim,var) in Y.dimtovar
     preimage_sample[dim] = dReal.model(Y.ctx,var)
   end
-  @show preimage_sample
   pop_ctx!(Y.ctx)
   call(X,rand(preimage_sample))
 end
 
 @doc """Generates a 'model' from X given that Y is true, a model is like a sample
-  except that it does not follow any wel ldefined distribution""" ->
-function model(X::RandVar, Y::RandVar{Bool})
-  Ydreal::DRealRandVar = convert(DRealRandVar{Bool}, Y)
+  except that it does not follow any well defined distribution""" ->
+function model(X::AllRandVars, Y::RandVar{Bool})
+  Ydreal = convert(DRealRandVar{Bool}, Y)
   model2(X,Ydreal)
 end

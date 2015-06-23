@@ -19,9 +19,9 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   
   A::D = box
   lens(:refine,time_ns())
-  image::AbstractBool = X(A)
+  image::AbstractBool = call(X, A)
   while (niters <= 1000) && (depth <= maxdepth)
-    @show A
+    # @show A
     if issmall(A, precision)
       lens(:depth, depth)
       lens(:refine,time_ns())
@@ -36,17 +36,26 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
       # Due to bug in dReal we're getting both a query and its negation unsat
       for child in children
         try
-          child_status = X(child[1]; args...)
+          child_status = call(X, child[1])
           push!(statuses,child_status)
-        catch
-          println("caught exception, both unsat")
+        catch e
+          rethrow(e)
+          println("caught exception $e")
+          println(A)
+          println(X)
+          [println(child) for child in children]
           push!(statuses,f)
         end
       end
       weights = pnormalize([isequal(statuses[i],f) ? 0.0 : children[i][2] for i = 1:length(children)])
 
-      # Sometimes all the children are false, even though parent is true, bug?
+      # Sometimes all the children are false, even thoughrand pnarent is true, bug?
       if all([isequal(status,f) for status in statuses])
+        @show "Found Bug $depth"
+        @show statuses
+        @show children
+        @show A
+        @show typeof(X)
         lens(:depth, depth)
         lens(:refine,time_ns())
         return A, logq, 1.0
@@ -80,18 +89,25 @@ function pre_mc{D <: Domain}(Y::RandVar{Bool},
                              niters::Integer,
                              ::Type{AIM};
                              precision::Float64 = DEFAULT_PREC,
+                             parallel::Bool = false,
                              args...)
-  @show "start of tml2"
+  
+  @compat stack::Vector{Tuple{D,Float64,Float64}} = parallel ? 
+    genstack(Y,init_box,niters; args...) : Tuple{D,Float64,Float64}[]
+
   boxes = D[]
   box, logq, prevolfrac = proposebox_tl(Y,init_box; args...) # log for numercal stability
   logp = logmeasure(box) + log(prevolfrac)
-  push!(boxes,box)
+  push!(boxes, box)
 
   println("Initial satisfying point found!, starting MH chain\n")
   naccepted = 0; nsteps = 0
   lens(:start_loop,time_ns())
+
   while nsteps < niters - 1
-    nextbox, nextlogq, prevolfrac = proposebox_tl(Y,init_box; args...)
+    println("Drawn $(nsteps+1) samples")
+    nextbox, nextlogq, prevolfrac = parallel ? propose_pmap_tl(stack) :
+                                               proposebox_tl(Y,init_box; args...)
     nextlogp = logmeasure(nextbox) + log(prevolfrac)
 
     loga = nextlogp + logq - logp - nextlogq
@@ -115,52 +131,16 @@ end
 
 
 ## Parallel 
-# ## ========
+## ========
 
-# function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int;ncores = 1,args...)
-#   println("Using $ncores cores")
-#   g = _ -> proposebox_tl(Y,box;args...)
-#   lst = [i for i = 1:nsamples]
-#   pmaplm(g, lst;ncores = min(nprocs(),ncores))
-# end
+function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int; ncores = 2  , args...)
+  println("Using $ncores cores")
+  g = _ -> proposebox_tl(Y,box;args...)
+  lst = [i for i = 1:nsamples]
+  pmaplm(g, lst;ncores = min(nprocs(),ncores))
+end
 
-# # Propose boxes in parallel
-# function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
-#   pop!(stack)
-# end
-
-# @doc "Parallely Uniform sample of subset of preimage of Y under f unioned with X." ->
-# function pre_tlmh_parallel{D <: Domain, S <: DReal}(Y::RandVar{Bool}, init_box::D, niters::Integer,
-#                   solver::Type{S}; precision::Float64 = DEFAULT_PREC, args...)
-#   @show "start of parallel tml"
-#   boxes = D[]
-#   @compat stack::Vector{Tuple{D,Float64,Float64}} = genstack(Y,init_box,niters; args...)
-#   box, logq, prevolfrac = propose_pmap_tl(stack) # log for numercal stability
-#   logp = logmeasure(box) + log(prevolfrac)
-#   push!(boxes,box)
-
-#   println("Initial satisfying point found!, starting MH chain\n")
-#   naccepted = 0; nsteps = 0
-#   lens(:start_loop,time_ns())
-#   while nsteps < niters - 1
-#     nextbox, nextlogq, prevolfrac = propose_pmap_tl(stack)
-#     nextlogp = logmeasure(nextbox) + log(prevolfrac)
-
-#     loga = nextlogp + logq - logp - nextlogq
-#     a = exp(loga)
-
-#     # MH accept/reject step
-#     if a >= 1 || rand() < a
-#       naccepted += 1
-#       box = nextbox
-#       logp = nextlogp
-#       logq = nextlogq
-#     end
-#     push!(boxes,box)
-
-#     lens(:loop_stats, naccepted/niters, nsteps)
-#     lens(:start_loop,time_ns())
-#     nsteps += 1
-#   end
-#   boxes
-# end
+# Propose boxes in parallel
+function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
+  pop!(stack)
+end

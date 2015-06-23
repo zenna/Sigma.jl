@@ -1,3 +1,4 @@
+
 module Sigma
 
 using dReal
@@ -140,7 +141,11 @@ export
   plot_sample_density,
 
   #Solver
-  DRealSolver
+  DRealSolver,
+
+  # RandVars
+  DRealRandVar,
+  DRealBinaryRandVar
 
 include("util.jl")
 include("domains.jl")
