@@ -13,7 +13,7 @@ end
 @doc """An array of random variables (and also a random variable itself)
   `T` is the range type of elements (e.g for multivariate normal, T = Float64)
   `N` is the dimensionality of array""" ->
-type RandArray{T,N} <: DenseArray{RandVar{T},N}
+type RandArray{T,N} <: DenseArray{T,N}
   array::Array{RandVar{T},N}
 end
 

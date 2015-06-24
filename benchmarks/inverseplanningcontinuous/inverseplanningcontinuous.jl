@@ -165,13 +165,15 @@ function optimal_cond(m::Terrain, observed::Path, start_pos::Pos, end_pos::Pos)
   optimal_cost = cost(observed, m)
 
   # In the sense that it is better than any path of length 2, 3, 4, ...
-  alt_path_lengths = [2,3]
+  alt_path_lengths = [2,4]
   optimal_conds = Sigma.RandArray(Bool,length(alt_path_lengths))
 
   # We will consider each case separately
   for i = 1:length(alt_path_lengths)
-    p, c = gen_path_conditioned(start_pos, end_pos, alt_path_lengths[i])
-    optimal_conds[i] =  (cost(p, m) >= optimal_cost) & c
+    # p, c = gen_path_conditioned(start_pos, end_pos, alt_path_lengths[i])
+    # optimal_conds[i] =  (cost(p, m) >= optimal_cost) & c
+    p = gen_path(start_pos, end_pos, alt_path_lengths[i])
+    optimal_conds[i] =  (cost(p, m) >= optimal_cost)
   end
   # optimal_conds[1]
   (&)(optimal_conds...)
@@ -193,34 +195,52 @@ end
 
 # Goal
 start_pos = Sigma.RandArray([0.0, 0.0])
-end_pos = Sigma.RandArray([0.0, 1.0])
-
+end_pos = Sigma.RandArray([0.0, 2.0])
 
 # Example Terrain
 blue = Sigma.uniform(0,1)
 red = Sigma.uniform(0,1)
 bluered = Sigma.RandArray([blue,red])
-l1 = LinearBump(blue, 1.0, 0.0)
-l2 = LinearBump(blue, 1.0, 1.0)
-l3 = LinearBump(blue, 2.0, 1.0)
-l4 = LinearBump(red, 0.0, 1.0)
+l1 = SquareBump(blue, 1.0, 0.0)
+l2 = SquareBump(blue, 1.0, 1.0)
+l3 = SquareBump(blue, 2.0, 1.0)
+l4 = SquareBump(red, 0.0, 1.0)
 bumps = SumOfBumps([l1,l2,l3,l4])
 
-# Example Path
-p = [0.0 1.0 1.0 2.0 2.0
-     0.0 0.0 1.0 1.0 0.0]
+m = [blue red blue
+     blue red blue
+     blue red blue
+     blue blue blue]
 
-p = [0.0 0.0 0.0
-     0.0 1.0 2.0]
+function make_bumps(m)
+  bumps = Bump[]
+  for i = 1:size(m,1), j = 1:size(m,2)
+    push!(bumps, SquareBump(m[i,j], Float64(i) - 1.0, Float64(j) - 1.0))
+  end
+  bumps
+end
+
+bumps = SumOfBumps(make_bumps(m))
+
+
+# Example Path
+# p = [0.0 1.0 1.0 2.0 2.0
+#      0.0 0.0 1.0 1.0 0.0]
+
+p = [0.0 1.0 2.0 3.0 3.0 3.0 2.0 1.0
+     0.0 0.0 0.0 0.0 1.0 2.0 2.0 ]
+
+# p = [0.0 0.0 0.0
+#      0.0 1.0 2.0]
 
 condition = optimal_cond(bumps, p, start_pos, end_pos)
+samples = rand(bluered, condition, 10; RandVarType = Sigma.Z3BinaryRandVar)
 
-init_box = Sigma.unit_box(AbstractDomains.LazyBox{Float64}, Sigma.dims(condition))
+# init_box = Sigma.unit_box(AbstractDomains.LazyBox{Float64}, Sigma.dims(condition))
 # dreal_condition = convert(Sigma.DRealBinaryRandVar{Bool}, condition)
 # Z3_condition = convert(Sigma.Z3BinaryRandVar{Bool}, condition)
 # call(Z3_condition, init_box)
 
-# samples = rand(bluered, condition, 10; RandVarType = Sigma.Z3BinaryRandVar)
 
 # pre_samples = Sigma.point_sample_mc(Z3_condition,1)
 
@@ -238,7 +258,7 @@ init_box = Sigma.unit_box(AbstractDomains.LazyBox{Float64}, Sigma.dims(condition
 # call(l::LinearBump, x, y) = linear(x, y, l.A, l.x0, l.y0)
 # l3 = LinearBump(3.0, -9.0, -9.3)
 
-# plot(z=(x,y)->l(x,y), x=linspace(-10,10,150), y=linspace(-10,10,150), Geom.contour)
+# plot(z=(x,y)->bumps(x,y), x=linspace(0,5,150), y=linspace(0,5,150), Geom.contour)
 
  # Any[0.021034784876292227,0.08543943377481596] 
  # Any[0.0016419482937858677,0.07100088752947345]

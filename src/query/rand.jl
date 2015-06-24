@@ -108,6 +108,12 @@ function rand(X::RandArray,
   [call(X, sample) for sample in preimage_samples]
 end
 
+function rand(X::RandArray,
+              Y::SymbolicRandVar{Bool};
+              args...)
+  rand(X,Y,1;args...)[1]
+end
+
 rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args...)[1]
 
 function rand(X::Tuple,

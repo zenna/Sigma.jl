@@ -7,13 +7,13 @@ mvuniform(lb::Real, ub::Real, nrows::Integer, ncols::Integer) =
   RandArray(RandVar{Float64}[uniform(lb,ub) for i = 1:nrows,j=1:ncols])
 
 mvlogistic(μ, s, n::Integer) = RandArray(RandVar{Float64}[logistic(μ, s) for i = 1:n])
-mvlogistic(μ, s, n::Integer, nrows::Integer, ncols) =
+mvlogistic(μ, s, nrows::Integer, ncols) =
   RandArray(RandVar{Float64}[logistic(μ, s) for i = 1:nrows,j=1:ncols])
 
 
 mvexponential(λ, n::Integer) = RandArray(RandVar{Float64}[exponential(λ) for i = 1:n])
-mvexponential(λ, n::Integer, nrows::Integer, ncols::Integer) =
-  RandArray(RandVar{Float64}[exponential(μ, s) for i = 1:nrows,j=1:ncols])
+mvexponential(λ, nrows::Integer, ncols::Integer) =
+  RandArray(RandVar{Float64}[exponential(λ) for i = 1:nrows,j=1:ncols])
 
 ## Independent RandVars
 ## ====================

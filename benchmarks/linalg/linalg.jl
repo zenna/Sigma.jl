@@ -5,25 +5,17 @@ n = 3
 A = Sigma.mvuniform(-1,1,m,n)
 
 # Sample matrix whose sum is 3
-rand(A,sum(A) == 3)
+As = rand(A, sum(A) == 3)
+sum(As)
 
 # Sample Orthogonal Matrix
-sample = rand(A, (A'*A == eye(m,n)), 1)
+As = rand(A, (A'*A == eye(m,n)), 1)
+As * As'
 
-# Factorise
-col = Sigma.mvexponential(0.5,m)
-row = Sigma.mvlogistic(1,1,m)
+# trace
+B = Sigma.mvexponential(0.5, m, n)
+C = Sigma.mvlogistic(1, 1, m, n)
 
-
-A = Sigma.mvuniform(-10,10,3,2)
-B = Sigma.mvuniform(-10,10,2,3)
-
-data = [1. 2 0
-        4 1 6
-        7 3 2]
-
-result = rand((A,B), A*B == data,1)
-
-rowsample = result[1][1]
-colsample = result[2][1]
-colsample * rowsample.'
+Bs, Cs = rand((B,C), (trace(B) == trace(C)), 1)
+trace(Bs[1])
+trace(Cs[1])

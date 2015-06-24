@@ -12,23 +12,6 @@
 LazyOmega() = LazyBox(Float64)
 LazyOmega{T<:Real}(T2::Type{T}) = LazyBox(T2)
 
-@doc doc"""A Vector of whose values are sampled uniformly from [0,1], but are not
-  created until accessed (hence Lazy).""" ->
-immutable LazyRandomVector{T<:Real}
-  samples::Dict{Int64,T}
-end
-LazyRandomVector{T<:Real}(T1::Type{T}) = LazyRandomVector(Dict{Int64,T1}())
-
-function getindex{T}(o::LazyRandomVector{T}, key::Int)
-  if haskey(o.samples,key)
-    o.samples[key]
-  else
-    i = rand(T)
-    o.samples[key] = i
-    i
-  end
-end
-
 function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
   box = LazyBox(T)
   for dim in dims
