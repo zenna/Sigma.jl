@@ -70,6 +70,8 @@ end
 args(X::OmegaRandVar) = Set{RandVar}()
 dims(X::OmegaRandVar) = Set(X.dim)
 omega_component{T<:Real}(i,OmegaType::Type{T}=Float64) = OmegaRandVar{OmegaType}(i)
+omega_component{T<:Real}(OmegaType::Type{T}=Float64) = OmegaRandVar{OmegaType}(genint())
+
 isequal(X::OmegaRandVar,Y::OmegaRandVar) = isequal(X.dim,Y.dim)
 
 ## Real × Real -> Real

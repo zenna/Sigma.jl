@@ -34,6 +34,7 @@ function check_z3(program::SExpr)
   satstatus
 end
 
+
 # Will need to instantiate ω values
 function call(X::Z3BinaryRandVar{Bool}, ω::AbstractOmega{Float64})
   # Generate Variable Names
@@ -44,15 +45,16 @@ function call(X::Z3BinaryRandVar{Bool}, ω::AbstractOmega{Float64})
 
   bounds = SExpr[]
   for dim in dims(ω)
-    lb = SExpr("(assert (>= omega$dim $(ω[dim].l)))")
-    ub = SExpr("(assert (<= omega$dim $(ω[dim].u)))")
+
+    lb = SExpr("(assert (>= omega$dim $(dofmt(ω[dim].l))))")
+    ub = SExpr("(assert (<= omega$dim $(dofmt(ω[dim].u))))")
     push!(bounds, lb)
     push!(bounds, ub)
   end
 
   pos_assertion = SExpr("(assert $(X.sexpr.ex))")
   program = vcat(declares, bounds, pos_assertion)
-  full_program = headerfooter(program)
+  full_program = headerfooter_z3(program)
   # Check both whether there exists a point which satisfies constraints
   pos_case = check_z3(merge(full_program))
   # println(merge(full_program).ex)

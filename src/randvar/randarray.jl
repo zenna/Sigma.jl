@@ -10,6 +10,8 @@ RandArray(T::DataType, nrows::Int64, ncols::Int64) =
   RandArray{T,2}(Array(RandVar{T},nrows,ncols))
 RandArray{T<:Real}(a::Array{T}) = RandArray(Any[ConstantRandVar(x) for x in a])
 
+RandArray{T<:SymbolicRandVar}(a::Array{T}) = RandArray(Any[a...])
+
 # Fall back when type inference fails
 function RandArray(xs::Array{Any,2})
   rtype = rangetype(xs[1,1])
@@ -165,8 +167,8 @@ for op = (:(==), :!=)
   eval(
   quote
   function ($op){T,N}(XS::RandArray{T,N}, YS::RandArray{T,N})
-    if size(X) == size(Y)
-      all([($op)(X.array[i],Y.array[i]) for i = 1:length(X)])
+    if size(XS) == size(YS)
+      all([($op)(XS.array[i],YS.array[i]) for i = 1:length(XS)])
     else
       ConstantRandVar(false)
     end
@@ -223,6 +225,18 @@ end
 function isapprox{T}(XS::RandArray{T}, YS::RandArray{T}; epsilon = DEFAULT_PREC)
   sum(abs(XS - YS)) <= epsilon
 end
+
+
+## Ifelse
+ifelse{T,N}(A::RandVar{Bool}, B::Array{T,N}, C::Array{T,N}) =
+  RandArray(map((b,c)->ifelse(A,b,c),B,C))
+
+ifelse{T,N}(A::RandVar{Bool}, B::RandArray{T,N}, C::Array{T,N}) =
+  RandArray(map((b,c)->ifelse(A,b,c),B,C))
+
+ifelse{T,N}(A::RandVar{Bool}, B::Array{T,N}, C::RandArray{T,N}) =
+  RandArray(map((b,c)->ifelse(A,b,c),B,C))
+
 
 print(io::IO, A::RandArray) = (print("YOU"); print(io, typeof(A),"\n",A.array))
 print(A::RandArray) = (print("ME"); print(A.array))

@@ -77,18 +77,6 @@ function headerfooter(program::Vector{SExpr})
         SExpr("(exit)")]
 end
 
-# function parse_model_file(model)
-#   # First line is "SAT with the following box"
-#   modeldict = Dict{String,Interval}()
-#   for linenum = 2:length(model)
-#     varline = strip(model[linenum])
-#     m = match(modelregex,varline)
-#     varname, lbound, ubound = m.captures
-#     modeldict[varname] = Interval(float(lbound), float(ubound))
-#   end
-#   modeldict
-# end
-
 ## Call solver command line
 ## ========================
 function check(program::SExpr)
@@ -104,25 +92,6 @@ function check(program::SExpr)
   satstatus
 end
 
-# function check(program::SExpr)
-#   fname = randstring()
-#   withext = "$fname.smt2"
-#   f = open(withext,"w")
-#   write(f,program.e)
-#   close(f)
-#   satstatus = parse_sat_status(readall(`dReal -model $withext`))
-#   rm(withext)
-#   if satstatus == SAT
-#     modelfile = open("$withext.model")
-#     model = parse_model_file(readlines(modelfile))
-#     close(modelfile)
-#     rm("$withext.model")
-#     return satstatus, model
-#   else
-#     return satstatus, nothing
-#   end
-# end
-
 merge(sexprs::Vector{SExpr}) = SExpr(join([sexpr.ex for sexpr in sexprs], "\n"))
 
 # Will need to instantiate ω values
@@ -135,8 +104,12 @@ function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
 
   bounds = SExpr[]
   for dim in dims(ω)
-    lb = SExpr("(assert (>= omega$dim $(ω[dim].l)))")
-    ub = SExpr("(assert (<= omega$dim $(ω[dim].u)))")
+
+    lb = SExpr("(assert (>= omega$dim $(dofmt(ω[dim].l))))")
+    ub = SExpr("(assert (<= omega$dim $(dofmt(ω[dim].u))))")
+
+    # lb = SExpr("(assert (>= omega$dim $(ω[dim].l)))")
+    # ub = SExpr("(assert (<= omega$dim $(ω[dim].u)))")
     push!(bounds, lb)
     push!(bounds, ub)
   end
