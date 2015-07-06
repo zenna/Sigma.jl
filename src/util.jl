@@ -8,10 +8,9 @@ inc(c::Counter) = c.X +=1
 genint() = (inc(GLOBAL_COUNTER);GLOBAL_COUNTER.X-1)
 restart_counter!() = GLOBAL_COUNTER.X = 0
 
-tolerant_eq(a, b, epsilon = 1E-5) = abs(a - b) <= epsilon
-isapprox(a, b; epsilon::Real = 1E-5) = tolerant_eq(x,y,epsilon=epsilon) #catch all
+isapprox(a, b, epsilon = DEFAULT_PREC) = abs(a - b) <= epsilon
 ≊ = isapprox
-
+≊
 ## Arithmetic
 ## ==========
 sqr{T <: Real}(x::T) = x * x
@@ -20,3 +19,7 @@ sqr{T <: Real}(x::T) = x * x
 ## Probabilstic Utilities
 rand_select(v::Vector) = v[rand(DiscreteUniform(1, length(v)))]
 pnormalize{T <: Real}(v::Vector{T}) = (v/sum(v))::Vector{Float64}
+
+## Printing
+fmt = "%.32f"
+@eval dofmt(x) = @sprintf($fmt, x)

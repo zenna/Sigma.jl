@@ -1,4 +1,7 @@
+
 module Sigma
+
+using dReal
 
 using Distributions
 using AbstractDomains
@@ -6,21 +9,6 @@ using Lens
 using DataStructures
 using Compat
 
-# SMT Solvers
-using dReal
-
-import AbstractDomains: dims
-
-if VERSION < v"0.4.0-dev"
-  using Docile
-  # call is in base in 0.4
-  export call
-  call(f::Function, x) = f(x)
-  juliadir = joinpath(homedir(),".julia","v0.3")
-else
-  import Base: call
-  juliadir = joinpath(homedir(),".julia","v0.4")
-end
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
@@ -28,19 +16,66 @@ import Base: show, print, showcompact
 import Base: sum, dot, length, join, round
 import Base: ndims, endof
 import Base.isapprox
-import Base.start
-import Base.next
-import Base.done
+import Base: start, next, done
 import Base: hash
+import Base: ndims, isequal, union, push!, string, print, show, println
+import Base.eltype
+import Base.size
+import Base.all
+import Base: one, zero, norm, similar
+import Base: real
+import Base: var
+import Base: in
+
+import Base:  asin,
+              sqrt,
+              exp,
+              log,
+              cos,
+              sin,
+              tan,
+              acos,
+              asin,
+              atan,
+              cosh,
+              sinh,
+              tanh,
+              acosh,
+              asinh,
+              atanh,
+              abs,
+              atan2,
+              max,
+              min,
+              sign
+
 # import Lens:benchmark
 import Distributions: quantile
+
+import AbstractDomains: dims, Interval, Boxes
+import Distributions: quantile
+
+# Solvers
+global const DREAL_SOLVER_ON = true
+global const DREAL_BINARY_SOLVER_ON = true
+
+if VERSION < v"0.4.0-dev"
+  include("Sigma1.jl")
+else
+  include("Sigma2.jl")
+end
+
+## Global Cosntants
+const DEFAULT_PREC = 0.0001 #precision
 
 export
   # Random Variables
   RandVar,
   RandArray,
-  PureRandArray,
+  RandArray,
   RandVarAI,
+  dims,
+
 
   # Abstract Domains
   rangetype,
@@ -49,21 +84,6 @@ export
   Lifted,
   liftedarray,
   LiftedArray,
-
-  # Preimages
-  pre_recursive,
-  pre_greedy,
-  pre_deepening,
-  prob,
-  cond_prob,
-  prob_deep,
-  cond_prob_deep,
-  prob_sampled,
-  cond_prob_sampled,
-  conditional,
-
-  ndcube,
-  sqr,
 
   # Inference queries
   prob,
@@ -75,12 +95,18 @@ export
   cond_sample_mh,
   cond_sample_bfs,
   setindex,
+  model,
+
+  # RandVar Types
+  RandVar,
+  AllRandVars,
 
   # Distributions
-  random,
   normal,
   uniform,
   flip,
+  exponential,
+  logistic,
   betarv,
   gamma,
   categorical,
@@ -91,11 +117,13 @@ export
   dirichlet,
   mvnormal,
   mvuniform,
+  mvexponential,
+  mvlogistic,
 
   @noexpand,
 
   #utils
-  tolerant_eq,
+  to_dimacs,
   rand_select,
   sqr,
   ≊,
@@ -112,20 +140,25 @@ export
   distinguished_colors,
   rand_color,
   plot_sample_cond_density,
-  plot_sample_density
+  plot_sample_density,
 
-include("common.jl")
+  #Solver
+  DRealSolver,
+
+  # RandVars
+  DRealRandVar,
+  DRealBinaryRandVar
+
 include("util.jl")
-include("pmaplm.jl")
-include("joins.jl")
 include("domains.jl")
 include("omega.jl")
-include("smtsolver.jl")
 include("randvar.jl")
-include("lift.jl")
+include("solver.jl")
 include("refinement.jl")
 include("query.jl")
-# include("distributions.jl")
+include("distributions.jl")
+include("split.jl")
+include("pmaplm.jl")
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")

@@ -1,14 +1,21 @@
 import Base: quantile, convert
 import Distributions.pnormalize!
 
-for finame in ["bounds.jl",
-               "samples.jl",]
+abstract InferenceAlgorithm
+abstract SamplingAlgorithm <: InferenceAlgorithm
+abstract MCMCAlgorithm <: SamplingAlgorithm
+
+## Types of algorithm
+# - Preimage Partition: pre_bfs
+# - Exact Preimage Sample: ___
+# - Approximate Preimage Sample: pre_tlmh
+# - Exact Conditional Abstract Sample: __
+# - Approximate Conditional Abstract Sample: ___
+# - Exact Conditional Point Sample
+# - Approximate Conditional Point Sample 
+
+for finame in ["prob.jl",
+               "rand.jl",
+               "model.jl"]
     include(joinpath("query", finame))
 end
-
-## Convenience Aliases
-## ==================
-prob = prob_bfs
-cond_prob = cond_prob_bfs
-cond_prob_sampled = cond_prob_bfs_sampled
-rand(X::RandVar{Bool}, Y::RandVar{Bool}, nsamples::Int) = cond_sample_bfs(X,Y; nsamples = nsamples)

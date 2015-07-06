@@ -25,3 +25,5 @@ pom.xml.asc
 *.smt2
 *.svg
 *.out
+*.tags
+.tags_sorted_by_file
