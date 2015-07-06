@@ -165,7 +165,7 @@ function optimal_cond(m::Terrain, observed::Path, start_pos::Pos, end_pos::Pos)
   optimal_cost = cost(observed, m)
 
   # In the sense that it is better than any path of length 2, 3, 4, ...
-  alt_path_lengths = [2,4]
+  alt_path_lengths = [2,4,6]
   optimal_conds = Sigma.RandArray(Bool,length(alt_path_lengths))
 
   # We will consider each case separately
@@ -182,59 +182,95 @@ end
 
 ## Example
 ## =======
-# sigma_x = 1;
-# sigma_y = 2;
-# θ = pi/6
-# a = cos(θ)^2/2/sigma_x^2 + sin(θ)^2/2/sigma_y^2
-# b = -sin(2*θ)/4/sigma_x^2 + sin(2*θ)/4/sigma_y^2
-# c = sin(θ)^2/2/sigma_x^2 + cos(θ)^2/2/sigma_y^2
+sigma_x = 1;
+sigma_y = 2;
+θ = pi/6
+a = cos(θ)^2/2/sigma_x^2 + sin(θ)^2/2/sigma_y^2
+b = -sin(2*θ)/4/sigma_x^2 + sin(2*θ)/4/sigma_y^2
+c = sin(θ)^2/2/sigma_x^2 + cos(θ)^2/2/sigma_y^2
 
 # # g = GaussianBump(1.0, a, b, c, 0.0, 0.0)
-# # bumps = SumOfBumps([GaussianBump(1.0, a, b, c, Sigma.uniform(-2.5,2.5), Sigma.uniform(-2.5,2.5)) for i = 1:2])
-# # gs = SumOfBumps([GaussianBump(1.0, a+rand(Sigma.uniform(0,1)), b+rand(Sigma.uniform(0,1)), c+rand(Sigma.uniform(0,1)), rand(Sigma.uniform(-2.5,2.5)), rand(Sigma.uniform(-2.5,2.5))) for i = 1:6])
+b1 = GaussianBump(1.0, a, b, c, Sigma.uniform(-2.5,2.5), Sigma.uniform(-2.5,2.5))
+b2 = GaussianBump(1.0, a, b, c, Sigma.uniform(-2.5,2.5), Sigma.uniform(-2.5,2.5))
+bumps = SumOfBumps([b1, b2])
 
 # Goal
-start_pos = Sigma.RandArray([0.0, 0.0])
-end_pos = Sigma.RandArray([0.0, 2.0])
+# start_pos = Sigma.RandArray([0.0, 0.0])
+# end_pos = Sigma.RandArray([0.0, 2.0])
 
-# Example Terrain
-blue = Sigma.uniform(0,1)
-red = Sigma.uniform(0,1)
-bluered = Sigma.RandArray([blue,red])
-l1 = SquareBump(blue, 1.0, 0.0)
-l2 = SquareBump(blue, 1.0, 1.0)
-l3 = SquareBump(blue, 2.0, 1.0)
-l4 = SquareBump(red, 0.0, 1.0)
-bumps = SumOfBumps([l1,l2,l3,l4])
+# # Example Terrain
+# blue = Sigma.uniform(0,1)
+# red = Sigma.uniform(0,1)
+# bluered = Sigma.RandArray([blue,red])
+# l1 = SquareBump(blue, 1.0, 0.0)
+# l2 = SquareBump(blue, 1.0, 1.0)
+# l3 = SquareBump(blue, 2.0, 1.0)
+# l4 = SquareBump(red, 0.0, 1.0)
+# bumps = SumOfBumps([l1,l2,l3,l4])
 
-m = [blue red blue
-     blue red blue
-     blue red blue
-     blue blue blue]
+# m = [blue red blue
+#      blue red blue
+#      blue red blue
+#      blue blue blue]
 
-function make_bumps(m)
-  bumps = Bump[]
-  for i = 1:size(m,1), j = 1:size(m,2)
-    push!(bumps, SquareBump(m[i,j], Float64(i) - 1.0, Float64(j) - 1.0))
-  end
-  bumps
-end
+# function make_bumps(m)
+#   bumps = Bump[]
+#   for i = 1:size(m,1), j = 1:size(m,2)
+#     push!(bumps, SquareBump(m[i,j], Float64(i) - 1.0, Float64(j) - 1.0))
+#   end
+#   bumps
+# end
 
-bumps = SumOfBumps(make_bumps(m))
+# bumps = SumOfBumps(make_bumps(m))
 
 
-# Example Path
-# p = [0.0 1.0 1.0 2.0 2.0
-#      0.0 0.0 1.0 1.0 0.0]
+# # Example Path
+# # p = [0.0 1.0 1.0 2.0 2.0
+# #      0.0 0.0 1.0 1.0 0.0]
 
-p = [0.0 1.0 2.0 3.0 3.0 3.0 2.0 1.0
-     0.0 0.0 0.0 0.0 1.0 2.0 2.0 ]
+# p = [0.0 1.0 2.0 3.0 3.0 3.0 2.0 1.0 0.0
+#      0.0 0.0 0.0 0.0 1.0 2.0 2.0 2.0 2.0]
 
 # p = [0.0 0.0 0.0
 #      0.0 1.0 2.0]
 
-condition = optimal_cond(bumps, p, start_pos, end_pos)
-samples = rand(bluered, condition, 10; RandVarType = Sigma.Z3BinaryRandVar)
+# # p = [0.0 0.0 0.0
+# #      0.0 1.0 2.0]
+
+# condition = optimal_cond(bumps, p, start_pos, end_pos)
+# samples = rand(bluered, condition, 5; RandVarType = Sigma.Z3BinaryRandVar)
+
+
+# function plot_mathematica(m, bluecost, redcost)
+#   blues = []
+#   reds = []
+#   for i = 1:size(m,1), j = 1:size(m,2)
+#     cost = m[i,j] === blue ? bluecost : redcost
+#     cuboid = "Cuboid[{$(i-1), $(j-1), 0}, {$i, $j, $(Sigma.dofmt(cost))}]"
+#     if m[i,j] === blue
+#       push!(blues, cuboid)
+#     else
+#       push!(reds, cuboid)
+#     end
+#   end
+#   blues, reds
+# end
+
+# function plot_errthing(blucues, redcues)
+#   string("Graphics3D[{Green,Opacity[1.0],",
+#     join(blucues, ",\n"),",\n",
+#     "Red,Opacity[1.0],",w
+#     join(redcues, ",\n"),
+#     "}, ViewPoint -> {2.3, -1.4, 3.}]")
+# end
+
+# plots = []
+# for sample in samples
+#   bcost = sample[1]
+#   rcost = sample[2]
+#   bluemm, redmm = plot_mathematica(m, bcost, rcost)
+#   push!(plots, plot_errthing(bluemm,redmm))
+# end
 
 # init_box = Sigma.unit_box(AbstractDomains.LazyBox{Float64}, Sigma.dims(condition))
 # dreal_condition = convert(Sigma.DRealBinaryRandVar{Bool}, condition)
@@ -283,3 +319,9 @@ samples = rand(bluered, condition, 10; RandVarType = Sigma.Z3BinaryRandVar)
 #  Any[0.7710383703770307,0.36125520943716977] 
 #  Any[0.6979151983847683,0.031075791307149093]
 
+# 5-element Array{Array{T,N},1}:
+#  Any[5.4130838964013575e-5,0.4847191447838962] 
+#  Any[2.6995102535266175e-5,0.49810742642119366]
+#  Any[5.130870877102897e-5,0.5709974893263304]  
+#  Any[5.368679145403241e-5,0.3926466421124112]  
+#  Any[4.306856174783945e-5,0.7753513345259593]  

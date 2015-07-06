@@ -25,6 +25,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
     if issmall(A, precision)
       lens(:depth, depth)
       lens(:refine,time_ns())
+      println("Got Sample")
       return A, logq, 1.0  # Assume boxes are full
     # else if  isequal(image,t)
     #   lens(:proposing, depth=depth, niters=niters)

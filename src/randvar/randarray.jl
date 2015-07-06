@@ -237,10 +237,12 @@ ifelse{T,N}(A::RandVar{Bool}, B::RandArray{T,N}, C::Array{T,N}) =
 ifelse{T,N}(A::RandVar{Bool}, B::Array{T,N}, C::RandArray{T,N}) =
   RandArray(map((b,c)->ifelse(A,b,c),B,C))
 
+print(io::IO, x::RandArray) = print(io, "what")
+show(io::IO, x::RandArray) = show(io, "whats")
 
-print(io::IO, A::RandArray) = (print("YOU"); print(io, typeof(A),"\n",A.array))
-print(A::RandArray) = (print("ME"); print(A.array))
-println(A::RandArray) = (println("MES"); println(A.array))
-println(io::IO, A::RandArray) = (println("MESA"); println(io, A.array))
-show(io::IO, A::RandArray) = show(io, A.array)
-show(A::RandArray) = show(A.array)
+# print(io::IO, A::RandArray) = (print("YOU"); print(io, typeof(A),"\n",A.array))
+# print(A::RandArray) = (print("ME"); print(A.array))
+# println(A::RandArray) = (println("MES"); println(A.array))
+# println(io::IO, A::RandArray) = (println("MESA"); println(io, A.array))
+# show(io::IO, A::RandArray) = show(io, A.array)
+# show(A::RandArray) = show(A.array)

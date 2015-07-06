@@ -51,7 +51,7 @@ isequal(X::ConstantRandVar, Y::ConstantRandVar) = isequal(X.val,Y.val)
 
 # FIXME: Hack? Maybe the need for this will go away if RandArrays are of SymbolicRandVar
 one{T}(::Type{RandVar{T}}) = ConstantRandVar(one(T))
-zero{T<:SymbolicRandVar}(::Type{RandVar{T}}) = ConstantRandVar(zero(T))
+zero{T}(::Type{RandVar{T}}) = ConstantRandVar(zero(T))
 norm(X::ConstantRandVar) = ConstantRandVar(norm(X.val))
 
 one{T}(::Type{SymbolicRandVar{T}}) = ConstantRandVar(one(T))
@@ -195,3 +195,6 @@ function to_dimacs(Y::SymbolicRandVar{Bool})
   println(string(cnf))
   println("c ind $indep_vars")
 end
+
+print{T}(io::IO, X::SymbolicRandVar{T}) = print(io,"RandVar{$T}")
+show{T}(io::IO, X::SymbolicRandVar{T}) = print(io,"RandVar{$T}")

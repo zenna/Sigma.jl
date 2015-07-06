@@ -117,6 +117,8 @@ export
   dirichlet,
   mvnormal,
   mvuniform,
+  mvexponential,
+  mvlogistic,
 
   @noexpand,
 
