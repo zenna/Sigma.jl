@@ -1,6 +1,10 @@
 # Examples
 println("Running examples:")
-examples = readdir()
+# examples = readdir()
+examples = ["ising.jl",
+            "parameterestimation.jl",
+            "polynomial.jl",
+            "sat.jl"]
 for example in examples
   println(" * $example")
   try
