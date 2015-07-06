@@ -1,7 +1,8 @@
+# Probabilistic Inference Generalises Boolean SATisfiability
+
 using Sigma
 using Base.Test
 
-# Probabilistic Programming Generalises SAT
 A = flip()
 B = flip()
 C = flip()

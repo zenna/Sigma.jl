@@ -5,7 +5,7 @@ using DataFrames
 ## =====================================
 
 # noisyeq(a,b) = flip(ifelse(a == b, 1.0, 0.2))
-noisyeq(a,b) = (a == b) | flipmeta(.75)
+noisyeq(a,b) = (a == b) | flip(.75)
 
 # Given a list of smokers, and an edge graph
 # Create the condition that if you have smoke friends you're more
@@ -50,7 +50,7 @@ function test_smokers()
   nsmokers = length(edges)
 
   # prior prob of being a smoker
-  issmoker = RandArray([flipmeta(.2) for i = 1:length(edges)])
+  issmoker = RandArray([flip(.2) for i = 1:length(edges)])
 
   # observations
   observed_smokers = [1,8,9,15]

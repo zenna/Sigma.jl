@@ -40,7 +40,3 @@ ycond = isapprox(((3Zsqr - Xsqr - Ysqr) * Y * (3*Xsqr - Ysqr))/(Xsqr+Ysqr), Y, 0
 zcond = isapprox(Z*(Zsqr-3*Xsqr - 3*Ysqr),Z,0.01)
 
 samples_fractal = rand(xyz,xcond & ycond &zcond,10,Sigma.pre_tlmh_parallel,Sigma.DRealSolverBinary; ncores =4 )
-
-
-cond = 
-\langle x, y, z\rangle^3 = \left\langle\ \frac{(3z^2-x^2-y^2)x(x^2-3y^2)}{x^2+y^2} ,\frac{(3z^2-x^2-y^2)y(3x^2-y^2)}{x^2+y^2},z(z^2-3x^2-3y^2)\right\rangle.

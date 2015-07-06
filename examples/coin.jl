@@ -1,5 +1,4 @@
 using Sigma
-using Base.Test
 
 ## Coin Flipping
 ## =============

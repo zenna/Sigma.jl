@@ -1,5 +1,5 @@
 using Sigma
-import Sigma: flipmeta
+import Sigma: flip
 ## From probmods.org / Kahnenman and Tversky
 ## ==========================================
 
@@ -25,8 +25,8 @@ cond_prob_sampled(breast_cancer, positive_mammogram)
 
 ## SMT version
 ## ===========
-breast_cancer = flipmeta(1,cancer_base_rate)
-positive_mammogram = ifelse(breast_cancer,flipmeta(2, 0.8),flipmeta(3,0.096))
+breast_cancer = flip(1,cancer_base_rate)
+positive_mammogram = ifelse(breast_cancer,flip(2, 0.8),flip(3,0.096))
 prob(positive_mammogram, box_budget = 51)
 
 # Creates 3D preimage plots (for printing with mathematica)

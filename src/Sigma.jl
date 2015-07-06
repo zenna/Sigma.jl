@@ -9,7 +9,6 @@ using Lens
 using DataStructures
 using Compat
 
-
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size
 import Base: show, print, showcompact
