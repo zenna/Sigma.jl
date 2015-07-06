@@ -79,8 +79,9 @@ end
 function rand{T}(X::SymbolicRandVar{T},
                  Y::SymbolicRandVar{Bool},
                  n::Integer;
-                 RandVarType = DRealBinaryRandVar,
+                 RandVarType = default_randvar(),
                  args...)
+  @show RandVarType
   executable_Y = convert(RandVarType{Bool}, Y)
   executable_X = convert(ExecutableRandVar{T}, X)
   cond_sample(executable_X, executable_Y, n; args...)
@@ -89,9 +90,10 @@ end
 function rand(X,
               Y::SymbolicRandVar{Bool},
               n::Integer;
-              RandVarType = DRealBinaryRandVar,
+              RandVarType = default_randvar(),
               preimage_sampler::Function = point_sample_mc,
               args...)
+  @show RandVarType
   executable_Y = convert(RandVarType{Bool}, Y)
   preimage_samples = preimage_sampler(executable_Y, n; args...)
   [call_type(X, sample) for sample in preimage_samples]
@@ -100,7 +102,7 @@ end
 function rand(X::RandArray,
               Y::SymbolicRandVar{Bool},
               n::Integer;
-              RandVarType = DRealBinaryRandVar,
+              RandVarType = default_randvar(),
               preimage_sampler::Function = point_sample_mc,
               args...)
   executable_Y = convert(RandVarType{Bool}, Y)
@@ -119,9 +121,10 @@ rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args..
 function rand(X::Tuple,
               Y::SymbolicRandVar{Bool},
               n::Integer;
-              RandVarType = DRealBinaryRandVar,
+              RandVarType = default_randvar(),
               preimage_sampler::Function = point_sample_mc,
               args...)
+  @show typeof(RandVarType)
   executable_Y = convert(RandVarType{Bool}, Y)
   preimage_samples = preimage_sampler(executable_Y, n; args...)
 
