@@ -1,12 +1,12 @@
 ## Adapting from MiniSat
 ## =====================
 
-@doc "A Boolean Variable" ->
+"A Boolean Variable"
 typealias BoolVar Int
 
 ## Literal
 ## =======
-@doc "A Boolean Literal: a variable or its negation" ->
+"A Boolean Literal: a variable or its negation"
 immutable Lit
   x::BoolVar
   Lit(var::BoolVar)= new(var)
@@ -36,7 +36,7 @@ show(io::IO, l::Lit) = show(io,string(l))
 
 ## Lifted Booleans
 ## ===============
-@doc "Lifted Booleans: Bottom is added to the set" ->
+"Lifted Booleans: Bottom is added to the set"
 immutable LBool
   value::Int8
 end
@@ -50,7 +50,7 @@ const l_undef = LBool(0)
 
 ## Clause
 ## ======
-@doc "A Clause is a disjunction of literals" ->
+"A Clause is a disjunction of literals"
 immutable Clause
   # size_etc::UInt32
   # union { float act; uint32_t abst; } extra;
@@ -63,7 +63,7 @@ string(clause::Clause) = string(join([string(lit) for lit in clause.data]," "), 
 print(io::IO, clause::Clause) = print(io,string(clause))
 show(io::IO, clause::Clause) = show(io,string(clause))
 
-@doc "A CNF is a conjunction of lcauses" ->
+"A CNF is a conjunction of lcauses"
 immutable CNF
   clauses::Set{Clause}
 end

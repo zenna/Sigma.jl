@@ -7,7 +7,7 @@ typealias Visited Dict{SymbolicRandVar,Any}
 typealias DomainMap Dict{IBEX.ExprSymbol, Interval}
 
 
-@doc "Maps between Boolean Variable to a constraint: e.g. X => a+b>c" ->
+"Maps between Boolean Variable to a constraint: e.g. X => a+b>c"
 typealias ConstraintMap Dict{Tuple{IBEX.ExprCtr,VarSet}, BoolVar}
 
 type BoolCounter
@@ -16,7 +16,7 @@ end
 inc!(x::BoolCounter) = x.x += 1
 nextvar!(x::BoolCounter) = (y = x.x; inc!(x); y)
 
-@doc "Maps a predicate SymbolicRandVar `X` to a ConstraintMap and a CMCNF of boolean structure" ->
+"Maps a predicate SymbolicRandVar `X` to a ConstraintMap and a CMCNF of boolean structure"
 function analyze(X::SymbolicRandVar{Bool})
   ω = IBEX.ExprSymbol(maximum(dims(X))+1) # Ibex representation of sample space
   cmap = ConstraintMap() # map from ibex constraints to boolean variables

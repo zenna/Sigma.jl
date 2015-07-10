@@ -1,12 +1,12 @@
 ## Abstract Independent Metropolis Sampliing
 ## ==========================================
 
-@doc """Abstract Independent Metropolis Sampliing samples events in preimage
+"""Abstract Independent Metropolis Sampliing samples events in preimage
   uniformly in convergence of the Markov Chain.
-  This algorithm is useful for high dimensional problems""" ->
+  This algorithm is useful for high dimensional problems"""
 immutable AIM <: MCMCAlgorithm end
 
-@doc "Proposes a box using refinement" ->
+"Proposes a box using refinement"
 function proposebox_tl{D <: Domain}(X::RandVar, box::D;
                                     split::Function = weighted_partial_split,
                                     maxdepth::Int = 1000,
@@ -84,7 +84,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   error("Unexpected Branch")
 end
 
-@doc "Uniform sample of subset of preimage of Y under f unioned with X." ->
+"Uniform sample of subset of preimage of Y under f unioned with X."
 function pre_mc{D <: Domain}(Y::RandVar{Bool},
                              init_box::D,
                              niters::Integer,
@@ -142,6 +142,6 @@ function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int; ncores = 2  , args
 end
 
 # Propose boxes in parallel
-function propose_pmap_tl{D<:Domain}(stack::Vector{Tuple{D,Float64,Float64}})
+function propose_pmap_tl{D<:Domain}(stack::Vector{@compat Tuple{D,Float64,Float64}})
   pop!(stack)
 end

@@ -1,8 +1,8 @@
 ## Model
 ## =====
 
-@doc """Generates a 'model' from X given that Y is true, a model is like a sample
-  except that it does not follow any wel ldefined distribution""" ->
+"""Generates a 'model' from X given that Y is true, a model is like a sample
+  except that it does not follow any wel ldefined distribution"""
 function preimage_model(Y::DRealRandVar{Bool})
   dreal_model = DReal.model(Y)
   !is_satisfiable(Y.ctx) && "Cannot draw model from unsatisfiable condition"
@@ -31,8 +31,8 @@ function model2(X::AllRandVars, Y::DRealRandVar{Bool})
   call(X,rand(preimage_sample))
 end
 
-@doc """Generates a 'model' from X given that Y is true, a model is like a sample
-  except that it does not follow any well defined distribution""" ->
+"""Generates a 'model' from X given that Y is true, a model is like a sample
+  except that it does not follow any well defined distribution"""
 function model(X::AllRandVars, Y::RandVar{Bool})
   Ydreal = convert(DRealRandVar{Bool}, Y)
   model2(X,Ydreal)

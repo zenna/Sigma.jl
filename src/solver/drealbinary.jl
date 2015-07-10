@@ -3,7 +3,7 @@
 
 typealias DimToVar Dict{Int,DReal.Ex}
 
-@doc "A Lisp SExpr" ->
+"A Lisp SExpr"
 immutable SExpr
   ex::String
 end

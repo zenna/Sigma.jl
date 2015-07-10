@@ -1,10 +1,10 @@
 ## Unconditional Sampling
 ## ======================
 
-@doc "Generate an unconditioned random sample from X" ->
+"Generate an unconditioned random sample from X"
 rand{T}(X::ExecutableRandVar{T}) = call(X,LazyRandomVector(Float64))
 
-@doc "Generate `n` unconditioned random samples from distribution of X" ->
+"Generate `n` unconditioned random samples from distribution of X"
 rand{T}(X::ExecutableRandVar{T}, n::Integer) =
   T[call(X, LazyRandomVector(Float64)) for i = 1:n]
 
@@ -15,7 +15,7 @@ rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
 
 ## RandVar{Bool} Preimage Samples
 ## ==============================
-@doc "`n` abstract samples from preimage: Y^-1({true})" ->
+"`n` abstract samples from preimage: Y^-1({true})"
 function abstract_sample_partition(Y::RandVar{Bool},
                          n::Integer;
                          partition_alg::Type{BFSPartition} = BFSPartition,
@@ -25,7 +25,7 @@ function abstract_sample_partition(Y::RandVar{Bool},
   rand(preiamge, n)
 end
 
-@doc "`n` point Sample from preimage: Y^-1({true})" ->
+"`n` point Sample from preimage: Y^-1({true})"
 function point_sample_partition(Y::RandVar{Bool},
                       n::Integer;
                       partition_alg::Type{BFSPartition} = BFSPartition,
@@ -39,7 +39,7 @@ end
 
 ## Conditional Sampling
 ## ====================
-@doc "`n` conditional samples from `X` given `Y` is true" ->
+"`n` conditional samples from `X` given `Y` is true"
 function cond_sample{T}(X::ExecutableRandVar{T},
                      Y::RandVar{Bool},
                      n::Integer;
@@ -50,7 +50,7 @@ function cond_sample{T}(X::ExecutableRandVar{T},
   RT[call(X, sample) for sample in preimage_samples]
 end
  
-@doc "`n` abstract Conditional samples from `X` given `Y` is true" ->
+"`n` abstract Conditional samples from `X` given `Y` is true"
 function abstract_cond_sample{T}(X::ExecutableRandVar{T},
                      Y::RandVar{Bool},
                      n::Integer;
@@ -63,7 +63,7 @@ end
 
 ## Markokv Chain Conditional Sampling
 ## ==================================
-@doc "`n` approximate point Sample from preimage: Y^-1({true})" ->
+"`n` approximate point Sample from preimage: Y^-1({true})"
 function point_sample_mc(Y::RandVar{Bool},
                       n::Integer;
                       mc_alg::Type{AIM} = AIM,

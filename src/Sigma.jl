@@ -2,6 +2,7 @@
 module Sigma
 
 using DReal
+using Docile
 
 using Distributions
 using AbstractDomains

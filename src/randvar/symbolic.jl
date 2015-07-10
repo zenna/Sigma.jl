@@ -1,6 +1,6 @@
 ## SymbolicRandVar
 ## ===============
-@doc "Return a Set of dimension indices of a random variable" ->
+"Return a Set of dimension indices of a random variable"
 function dims(X::SymbolicRandVar)
   # Do a depth first search and find union of dimensions of all OmegaRandVars
   dimensions = Set{Int}()
@@ -19,7 +19,7 @@ function dims(X::SymbolicRandVar)
   dimensions
 end
 
-@doc "Apply a random variable to some randomness" ->
+"Apply a random variable to some randomness"
 call(X::SymbolicRandVar,ω) = lambda(X)(ω)
 
 function isequal(X::SymbolicRandVar,Y::SymbolicRandVar)
@@ -38,7 +38,7 @@ end
 
 ## Constant Random Variable
 ## ========================
-@doc "A constant value. A constant function which 'ignores' input, e.g. ω->5" ->
+"A constant value. A constant function which 'ignores' input, e.g. ω->5"
 immutable ConstantRandVar{T} <: SymbolicRandVar{T}
   val::T
 end
@@ -62,7 +62,7 @@ real{T}(X::SymbolicRandVar{T}) = X
 
 ## Omega Random Variable
 ## =====================
-@doc "Simplest RandVar: ω->ω[dim] - extracts dim component of omega" ->
+"Simplest RandVar: ω->ω[dim] - extracts dim component of omega"
 immutable OmegaRandVar{T} <: SymbolicRandVar{T}
   dim::Int
 end

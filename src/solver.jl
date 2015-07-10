@@ -1,5 +1,5 @@
-@doc """Solvers inference problems.  Used mostly as an enumeration for different
-  inference procedures, e.g. `rand(X,Y,DRealSolver)`""" ->
+"""Solvers inference problems.  Used mostly as an enumeration for different
+   inference procedures, e.g. `rand(X,Y,DRealSolver)`"""
 abstract Solver
 
 # abstract DReal <: Solver

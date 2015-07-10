@@ -1,6 +1,6 @@
 ## (Conditional) Probability Queries
 ## =================================
-@doc "Lower and upper bounds for marginal probability that Y is true" ->
+"Lower and upper bounds for marginal probability that Y is true"
 function prob(Y::RandVar{Bool};
               partition_alg::Type{BFSPartition} = BFSPartition,
               args...)

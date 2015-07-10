@@ -124,7 +124,7 @@ end
 # ## =======================
 
 # import Base:all
-@doc "Is every element in Xs true, returns Bool-valued RandVar" ->
+"Is every element in Xs true, returns Bool-valued RandVar"
 function all{N}(Xs::RandArray{Bool,N})
   x = Xs[1]
   for i = 2:length(Xs)

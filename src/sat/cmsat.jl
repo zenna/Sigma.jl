@@ -1,9 +1,9 @@
 ## Literal
 ## =======
-@doc "A Boolean Variable" ->
+"A Boolean Variable"
 typealias BoolVar Int
 
-@doc "A Boolean Literal: a variable or its negation" ->
+"A Boolean Literal: a variable or its negation"
 type CMLit
   cxx
 end
@@ -33,7 +33,7 @@ show(io::IO, lit::CMLit) = print(io, string(lit))
 ## Clause
 ## ======
 
-@doc "A disjunction of literals A ∨ B ∨ !C" ->
+"A disjunction of literals A ∨ B ∨ !C"
 type CMClause
   cxx
 end
