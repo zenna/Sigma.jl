@@ -15,4 +15,4 @@ before_install:
   - sudo apt-get install libstdc++6 libpcre3-dev julia -y
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
-  - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.test("Sigma")'
+  - julia -e 'Pkg.init(); Pkg.clone(pwd()); Pkg.checkout("AbstractDomains"); Pkg.checkout("Lens"); Pkg.test("Sigma")'
