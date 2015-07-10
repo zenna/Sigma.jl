@@ -31,8 +31,11 @@ typealias AllRandVars Union(RandVar, RandArray)
 for finame in ["symbolic.jl",
                "executable.jl",
                "randarray.jl"]
+  @show "including $finame"
   include(joinpath("randvar", finame))
 end
+
+@show "Got here"
 
 # Call An Arbitrary Simple Composite type with an ω
 # This calling is quite naive, it just calls all the fields of the type

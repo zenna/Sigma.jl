@@ -1,17 +1,17 @@
-## Conversion of Sigma Function into dReal expression
+## Conversion of Sigma Function into DReal expression
 ## ==================================================
 
-typealias DimToVar Dict{Int,dReal.Ex}
+typealias DimToVar Dict{Int,DReal.Ex}
 
 type DRealRandVar{T} <: RandVar{T}
-  ex::dReal.Ex{T}
-  ctx::dReal.Context
+  ex::DReal.Ex{T}
+  ctx::DReal.Context
   dimtovar::DimToVar
 end
 
 dims(X::DRealRandVar) = Set{Int}(collect(keys(X.dimtovar)))
 
-## Compie a Sigma Random Variable into a dReal Variable
+## Compie a Sigma Random Variable into a DReal Variable
 function convert{T}(::Type{DRealRandVar{T}}, X::RandVar{T})
   ctx = Context(qf_nra)
 
@@ -25,11 +25,11 @@ function convert{T}(::Type{DRealRandVar{T}}, X::RandVar{T})
   DRealRandVar{T}(ex,ctx,dimtovar)
 end
 
-function expand(X::ConstantRandVar, dimtovar::DimToVar, ctx::dReal.Context)
+function expand(X::ConstantRandVar, dimtovar::DimToVar, ctx::DReal.Context)
   X.val
 end
 
-function expand(X::OmegaRandVar, dimtovar::DimToVar, ctx::dReal.Context)
+function expand(X::OmegaRandVar, dimtovar::DimToVar, ctx::DReal.Context)
   dimtovar[X.dim]
 end
 
@@ -37,7 +37,7 @@ for (name, op) in all_functional_randvars
   eval(
   quote
   # Real
-  function expand(X::$name, dimtovar::DimToVar, ctx::dReal.Context)
+  function expand(X::$name, dimtovar::DimToVar, ctx::DReal.Context)
     ($op)(ctx, [expand(arg,dimtovar,ctx) for arg in args(X)]...)
   end
   end)
@@ -55,12 +55,12 @@ function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
     lb = (>=)(ctx, X.dimtovar[dim], ω[dim].l)
     ub = (<=)(ctx, X.dimtovar[dim], ω[dim].u)
     # push!(debugstring, "(assert",lb,")")
-    dReal.add!(ctx,lb)
+    DReal.add!(ctx,lb)
     # push!(debugstring, "(assert",ub,")")
-    dReal.add!(ctx,ub)
+    DReal.add!(ctx,ub)
   end
   # push!(debugstring, "(assert",X.ex,")")
-  dReal.add!(ctx, X.ex)
+  DReal.add!(ctx, X.ex)
   # push!(debugstring, "(check-sat)")
 
   ## 1. ∃ω ∈ A ∩ X : Does A contain any point X?
@@ -75,13 +75,13 @@ function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
     ub = (<=)(ctx,X.dimtovar[dim],ω[dim].u)
     # push!(debugstring, "(assert",lb,")")
-    dReal.add!(ctx,lb)
+    DReal.add!(ctx,lb)
     # push!(debugstring, "(assert",ub,")")
-    dReal.add!(ctx,ub)
+    DReal.add!(ctx,ub)
   end
   notex = (!)(ctx,X.ex)
   # push!(debugstring, "(assert", notex,")")
-  dReal.add!(ctx, notex)
+  DReal.add!(ctx, notex)
 
   # ∃ω ∈ A \ X : Does A contain any point not in X?
   # push!(debugstring, "(check-sat)")

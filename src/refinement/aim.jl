@@ -34,7 +34,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
       @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = AbstractBool[]
 
-      # Due to bug in dReal we're getting both a query and its negation unsat
+      # Due to bug in DReal we're getting both a query and its negation unsat
       for child in children
         try
           child_status = call(X, child[1])

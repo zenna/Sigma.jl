@@ -19,7 +19,7 @@ cxx"""
 """
 @compat Libdl.dlopen("libcryptominisat-2.9.9.so", Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
 
-import dReal:model
+import DReal:model
 
 # include("sat/sat.jl")
 include("sat/cmsat.jl")

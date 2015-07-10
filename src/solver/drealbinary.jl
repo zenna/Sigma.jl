@@ -1,7 +1,7 @@
-## Conversion of Sigma Function into dReal expression
+## Conversion of Sigma Function into DReal expression
 ## ==================================================
 
-typealias DimToVar Dict{Int,dReal.Ex}
+typealias DimToVar Dict{Int,DReal.Ex}
 
 @doc "A Lisp SExpr" ->
 immutable SExpr
@@ -49,7 +49,7 @@ lambda_expr(X::RandVar) = Expr(:(->),:ω,convert(Expr,X))
 lambda(X::RandVar) = eval(lambda_expr(X))
 
 
-## Parsing Output of dReal
+## Parsing Output of DReal
 ## =======================
 function parse_sat_status(satstatus::String)
   # @show satstatus[1:20]
@@ -66,7 +66,7 @@ end
 
 # Parse a floatingpoint/integer from a string
 numregex = "[-+]?[0-9]*\.?[0-9]+"
-# Regex to extract variable assignments in model from dReal text output
+# Regex to extract variable assignments in model from DReal text output
 modelregex = Regex("(\\w*) : \\[($numregex),\\s*($numregex)\\]")
 
 # Add extra SMT2 information to complete program
@@ -87,7 +87,7 @@ function check(program::SExpr)
   f = open(withext,"w")
   write(f,program.ex)
   close(f)
-  satstatus = parse_sat_status(readall(`dReal $withext`))
+  satstatus = parse_sat_status(readall(`DReal $withext`))
   rm(withext)
   satstatus
 end
@@ -152,13 +152,13 @@ end
 #     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
 #     ub = (<=)(ctx,X.dimtovar[dim], ω[dim].u)
 #     println("(assert",lb,")")
-#     dReal.add!(ctx,lb)
+#     DReal.add!(ctx,lb)
 #     println("(assert",ub,")")
-#     dReal.add!(ctx,ub)
+#     DReal.add!(ctx,ub)
 #   end
 # #   push_ctx!(ctx) #2
 #   println("(assert",X.ex,")")
-#   dReal.add!(ctx, X.ex)
+#   DReal.add!(ctx, X.ex)
 # #   println("About to check pop case")
 #   println("(check-sat)")
 #   pos_case = is_satisfiable(ctx)
@@ -173,14 +173,14 @@ end
 #     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
 #     ub = (<=)(ctx,X.dimtovar[dim],ω[dim].u)
 #     println("(assert",lb,")")
-#     dReal.add!(ctx,lb)
+#     DReal.add!(ctx,lb)
 #     println("(assert",ub,")")
-#     dReal.add!(ctx,ub)
+#     DReal.add!(ctx,ub)
 #   end
 # #   println("About to check neg case")
 #   notex = (!)(ctx,X.ex)
 #   println("(assert",notex,")")
-#   dReal.add!(ctx, notex)
+#   DReal.add!(ctx, notex)
 
 #   # 2. ∃ω ∈ A \ X : Does A contain any point not in X?
 #   println("(check-sat)")

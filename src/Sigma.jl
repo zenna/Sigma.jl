@@ -1,7 +1,7 @@
 
 module Sigma
 
-using dReal
+using DReal
 
 using Distributions
 using AbstractDomains
