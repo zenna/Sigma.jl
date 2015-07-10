@@ -1,7 +1,6 @@
 using Sigma
 
-tests = ["query",
-         "randvarai"]
+tests = ["query"]
 
 println("Running tests:")
 
