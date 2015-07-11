@@ -2,14 +2,21 @@
 
 Sigma supports four kinds of inference query:
 
-- Probability queries ("what is the probability of `X`?")
-- Conditional probability queries ("what is the probability of `X` given that `Y` is true?")
-- Sampling: sample from `X`
-- Conditional Sampling: sample from `X` given `Y`
+- Probability queries - probability of `X`?
+- Conditional probability queries - probability of `X` given that `Y` is true
+- Sampling - sample from `X`
+- Conditional Sampling: sample from `X` given that `Y` is true
 
 ## Probability Queries
 
 Probability queries are done by `prob`.  For example:
+
+
+.. function:: prob(X::RandVar{Bool}, Y::RandVar{BOOl})
+
+    Return a tuple of parameters. 
+
+    **Note:** Let ``d`` be a distribution of type ``D``, then ``D(params(d)...)`` will construct exactly the same distribution as ``d``.
 
 ```julia
 X = uniform(0,1)
