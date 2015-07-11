@@ -1,6 +1,7 @@
 # Inference Queries
 
 Sigma supports four kinds of inference query:
+
 - Probability queries ("what is the probability of `X`?")
 - Conditional probability queries ("what is the probability of `X` given that `Y` is true?")
 - Sampling: sample from `X`
@@ -34,7 +35,8 @@ x = prob(Y > 0.0, X > 0.0)
 mid(x)
 ```
 
-Note:
+__Note:__
+
 - Probability and conditional probability queries will only work for relatively low dimensional problems.  You can find the dimensionality of your problem using `ndims`.
 
 ## Sampling
