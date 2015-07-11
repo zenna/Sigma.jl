@@ -15,10 +15,10 @@ Then, we create a uniform distribution ``X`` and draw samples using ``rand``:
 
 .. code-block:: julia
 
-    julia> X = uniform(0,1)
+    julia> x = uniform()
     RandVar{Float64}
 
-    julia> x = rand(d, 100)
+    julia> rand(x, 100)
     100-element Array{Float64,1}:
       0.376264
      -0.405272
