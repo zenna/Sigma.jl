@@ -26,6 +26,7 @@ import Base: one, zero, norm, similar
 import Base: real
 import Base: var
 import Base: in
+import Base: collect
 
 import Base:  asin,
               sqrt,

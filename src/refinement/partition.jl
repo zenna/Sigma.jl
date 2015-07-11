@@ -16,6 +16,9 @@ function measure(p::ApproxPartition)
   Interval(lb,ub)
 end
 
+"Get an over approximation"
+collect{D}(p::ApproxPartition{D}) = vcat(p.under, p.rest)
+
 ## Sampling
 ## ========
 
