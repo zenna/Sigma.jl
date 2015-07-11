@@ -8,3 +8,8 @@ function prob(Y::RandVar{Bool};
   partition = pre_partition(Y, init_box, partition_alg; args...)
   measure(partition)
 end
+
+function prob(Y::SymbolicRandVar{Bool}; RandVarType = default_randvar(), args...)
+  executable_Y = convert(RandVarType{Bool}, Y)
+  prob(executable_Y, args...)
+end
