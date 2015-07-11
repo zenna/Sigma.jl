@@ -8,28 +8,35 @@ Sigma supports four kinds of inference query:
 - Sampling - sample from `X`
 - Conditional Sampling: sample from `X` given that `Y` is true
 
-## Probability Queries
-
+Probability Queries
+-------------------
 Probability queries are done by `prob`.  For example:
 
+Testing inline math $x^2$, testing inline math \(X^2+5\).
 
-.. function:: prob(X::RandVar{Bool}, Y::RandVar{BOOl})
+$$
+X^3 = 3
+$$
 
-    Return a tuple of parameters. 
+.. function:: prob(X::RandVar{Bool})
 
-    **Note:** Let ``d`` be a distribution of type ``D``, then ``D(params(d)...)`` will construct exactly the same distribution as ``d``.
+    Return a the probability that X is true.
 
-```julia
-X = uniform(0,1)
-Y = uniform(0,1)
-prob(X + Y > 1)
-```
+    $$
+    \mathbb{P}(X)
+    $$ 
+
+.. code-block:: julia
+
+  X = uniform(0,1)
+  Y = uniform(0,1)
+  prob(X + Y > 1)
 
 Conditional Probability queries are also done with `prob`, but expect two boolean RandVars as input
 
-```julia
-prob(Y > 0.0,X > 0.0)
-```
+.. code-block:: julia
+
+  prob(Y > 0.0,X > 0.0)
 
 ### Probability bounds
 You may notice that Sigma returns __probability bounds__, i.e. an interval with a lower and upper bound, instead of a single number.
