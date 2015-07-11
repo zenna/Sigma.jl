@@ -1,4 +1,5 @@
-# Inference Queries
+Inference Queries
+=================
 
 Sigma supports four kinds of inference query:
 
