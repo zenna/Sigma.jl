@@ -3,22 +3,19 @@ Inference Queries
 
 Sigma supports four kinds of inference query:
 
-- Probability queries - probability of ``X``?
-- Conditional probability queries - probability of `X` given that `Y` is true
+- Probability queries - probability of ``X``
+- Conditional probability queries - probability of ``X`` given that ``Y`` is true
 - Sampling - sample from ``X``
 - Conditional Sampling: sample from ``X`` given that ``Y`` is true
 
 Probability Queries
 -------------------
-Probability queries are done by `prob`.  For example:
+Probability queries are done by ``prob``.
 
 .. function:: prob(X::RandVar{Bool})
 
     Return a the probability that X is true.
-    Returns an interval :math:`I = [a,b]`, such that
-
-    .. math::
-      a \leq P(X) \leq b
+    Returns an interval :math:`I = [a,b]`, such that math::`a \leq P(X) \leq b`.
 
 .. code-block:: julia
 
@@ -28,15 +25,12 @@ Probability queries are done by `prob`.  For example:
 
 Conditional Probability Queries
 -------------------------------
-Conditional Probability queries are also done with `prob`, but expect two boolean RandVars as input:
+Conditional probability queries are also done with ``prob``, but it expects two boolean RandVars as input:
 
 .. function:: prob(X::RandVar{Bool}, Y::RandVar{Bool})
 
     Return :math:`P(X \vert Y)` : the conditional probability that X is true given Y is true.
-    Returns an interval :math:`I = [a,b]` such that
-
-    .. math::
-      a \leq P(X \vert Y) \leq b 
+    Returns an interval :math:`I = [a,b]` such that :math::`a \leq P(X \vert Y) \leq b`.
 
 .. code-block:: julia
 
@@ -75,8 +69,8 @@ To sample from any random variable use ``rand``
   rand(X)
 
 
-Sampling
----------
+Conditional Sampling
+--------------------
 
 Just like ``prob``, to conditionally sample use ``rand`` with the second argument with the ``RandVar{Bool}`` you want to condition on:
 

@@ -148,7 +148,10 @@ export
 
   # RandVars
   DRealRandVar,
-  DRealBinaryRandVar
+  DRealBinaryRandVar,
+
+  # From abstract domains
+  mid
 
 include("util.jl")
 include("domains.jl")
