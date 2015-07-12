@@ -15,7 +15,6 @@ function prob(XY::RandVar{Bool},
   init_box = unit_box(LazyBox{Float64}, dims(Y))
   Y_partition = pre_partition(Y, init_box, partition_alg; args...)
   Y_measure = measure(Y_partition)
-  @show Y_measure
   isequal(Y_measure, zero(Y_measure)) && error("Cannot condition on unsatisfiable events")
 
   XY_partition = pre_partition(XY, init_box, partition_alg; args...) 
