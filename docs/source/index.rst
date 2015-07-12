@@ -23,6 +23,7 @@ Contents:
 
    starting
    modelling
+   randarray
    queries
 
    

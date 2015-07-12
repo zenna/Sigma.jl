@@ -20,6 +20,9 @@ sqr{T <: Real}(x::T) = x * x
 rand_select(v::Vector) = v[rand(DiscreteUniform(1, length(v)))]
 pnormalize{T <: Real}(v::Vector{T}) = (v/sum(v))::Vector{Float64}
 
+## Type stuff
+fields(X) = [getfield(X, field) for field in fieldnames(X)]
+
 ## Printing
 fmt = "%.32f"
 @eval dofmt(x) = @sprintf($fmt, x)

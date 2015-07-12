@@ -1,6 +1,10 @@
 "Random Variables are functions from the sample space to some other space"
 abstract RandVar{T}
 
+"All RandVars have an id which is used to make them independent"
+typealias Id Integer
+
+
 "A symbolic *canonical* representation of a random variable"
 abstract SymbolicRandVar{T} <: RandVar{T}
 

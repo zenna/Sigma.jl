@@ -1,5 +1,5 @@
 Building Probabilistic Models
------------------------------
+=============================
 
 Building probabilistic models in Sigma is simple.  A probabilistic model is simply a random variable.  Sigma provides a collection of functions which return random variables.  Arguably the simplest random variable is the standard uniform, which is created by ``uniform``:
 

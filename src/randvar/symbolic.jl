@@ -22,11 +22,11 @@ end
 "Apply a random variable to some randomness"
 call(X::SymbolicRandVar,ω) = lambda(X)(ω)
 
-function isequal(X::SymbolicRandVar,Y::SymbolicRandVar)
+function isequal(X::SymbolicRandVar, Y::SymbolicRandVar)
   # Equivalent Random variables should (at least) have same type and #args
   typeof(X) != typeof(Y) && (return false)
-  x_args = args(X)
-  y_args = args(Y)
+  x_args = fields(X)
+  y_args = fields(Y)
   length(x_args) != length(y_args) && (return false)
   for i = 1:length(x_args)
     !isequal(x_args[i],y_args[i]) && (return false)
@@ -73,6 +73,34 @@ omega_component{T<:Real}(i,OmegaType::Type{T}=Float64) = OmegaRandVar{OmegaType}
 omega_component{T<:Real}(OmegaType::Type{T}=Float64) = OmegaRandVar{OmegaType}(genint())
 
 isequal(X::OmegaRandVar,Y::OmegaRandVar) = isequal(X.dim,Y.dim)
+
+## Primitive Rand Variables
+## ========================
+
+"Uniformly distributed RandVar"
+immutable UniformRandVar{T <: Real, A <: Real} <: SymbolicRandVar{T}
+  dim::Id
+  lb::SymbolicRandVar{T}
+  ub::SymbolicRandVar{T}
+end
+
+"Normally distributed RandVar"
+immutable NormalRandVar{T <: Real, A <: Real} <: SymbolicRandVar{T}
+  dim::Id
+  μ::SymbolicRandVar{T}
+  σ::SymbolicRandVar{T}
+end
+
+args(X::NormalRandVar) = @compat tuple(X.μ, X.σ)
+dims(X::NormalRandVar) = union(X.dim, dims(X.μ), dims(X.σ))
+
+"Beta distributed RandVar"
+immutable BetaRandVar{T <: Real, A <: Real} <: SymbolicRandVar{T}
+  dim::Id
+  α::SymbolicRandVar{T}
+  β::SymbolicRandVar{T}
+end
+
 
 ## Real × Real -> Real
 ## ===================
