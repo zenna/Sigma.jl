@@ -7,8 +7,8 @@ Random arrays are values of the type ``RandArray{T}``.
 Fixed Size Random Array
 -----------------------
 
-The simplest (and currently only) type of random array is essentially just a normal (dense) arrays of ``RandVar``s.
-``RandArray``s are created with primitive multivariate random variable construcotrs.  One simple example is ``mvuniform`` where ``mv`` stands for multivariate:
+The simplest (and currently only) type of random array is essentially just a normal (dense) arrays of values of type ``RandVar``.
+A ``RandArray`` is created using a primitive multivariate random variable construcotr.  One simple example is ``mvuniform`` where ``mv`` stands for multivariate:
 
 .. code-block:: julia
 
