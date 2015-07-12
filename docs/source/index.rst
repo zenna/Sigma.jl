@@ -24,11 +24,12 @@ Contents:
    starting
    modelling
    randarray
+   univariate
+
    queries
 
    
    license
-   help
 
 
 
