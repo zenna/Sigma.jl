@@ -1,7 +1,7 @@
 Building Probabilistic Models
 =============================
 
-Building probabilistic models in Sigma is simple.  A probabilistic model is simply a random variable.  Sigma provides a collection of functions which return random variables.  Arguably the simplest random variable is the standard uniform, which is created by ``uniform``:
+Building probabilistic models in Sigma is simple.  A probabilistic model is simply a random variable.  Sigma provides a collection of functions which construct random variables.  Arguably the simplest random variable is the standard uniform, which is created by ``uniform``:
 
 .. code-block:: julia
 
@@ -27,7 +27,7 @@ Of course Sigma has random variables of type other than ``Float64``.  To sample 
   x = flip(0.6)
     RandVar{Bool}
 
-Similarly boolean functions can be applied to ``RandVar{Bool}``
+Similarly, boolean functions can be applied to ``RandVar{Bool}``
 
 .. code-block:: julia
 

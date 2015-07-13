@@ -8,7 +8,7 @@ Fixed Size Random Array
 -----------------------
 
 The simplest (and currently only) type of random array is essentially just a normal (dense) arrays of values of type ``RandVar``.
-A ``RandArray`` is created using a primitive multivariate random variable construcotr.  One simple example is ``mvuniform`` where ``mv`` stands for multivariate:
+A ``RandArray`` is created using a primitive multivariate random variable constructor.  One simple example is ``mvuniform`` where ``mv`` stands for multivariate:
 
 .. code-block:: julia
 
@@ -54,7 +54,7 @@ Like normal arrays, A ``RandArray`` can be created with uninitialized values:
 
   Sigma.RandArray(Float64, 5,5)
 
-A ``RandArray`` can also be initialised from a normal arrays of either constants or ``RandVar``s, so long as they are all of the same type.
+A ``RandArray`` can also be initialised from a normal arrays of either constants or values of type ``RandVar``, so long as they are all of the same type.
 
 .. code-block:: julia
 

@@ -92,7 +92,7 @@ immutable NormalRandVar{T <: Real, A <: Real} <: SymbolicRandVar{T}
 end
 
 args(X::NormalRandVar) = @compat tuple(X.μ, X.σ)
-dims(X::NormalRandVar) = union(X.dim, dims(X.μ), dims(X.σ))
+dims(X::NormalRandVar) = Set{Int}(X.dim, dims(X.μ)..., dims(X.σ)...)
 
 "Beta distributed RandVar"
 immutable BetaRandVar{T <: Real, A <: Real} <: SymbolicRandVar{T}

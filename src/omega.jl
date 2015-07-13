@@ -12,6 +12,7 @@
 LazyOmega() = LazyBox(Float64)
 LazyOmega{T<:Real}(T2::Type{T}) = LazyBox(T2)
 
+"Create a Euclidean unit box with dimensions `dims`"
 function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
   box = LazyBox(T)
   for dim in dims

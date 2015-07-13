@@ -27,9 +27,13 @@ lambda(X::SymbolicRandVar) = eval(lambda_expr(X))
 
 ## For Random Variables
 
+convert(::Type{Distributions.Normal}, X::NormalRandVar) = 
+  Distributions.Normal(X.μ.val, X.σ.val)
+
 function convert(::Type{Expr}, X::NormalRandVar)
   if isa(X.μ, ConstantRandVar) && isa(X.σ, ConstantRandVar)
-    Expr(:call, :quantile, Distributions.Normal(X.μ.val, X.σ.val), X.dim, :ω)
+    x_dist = convert(Distributions.Normal, X)
+    Expr(:call, :quantile, x_dist, X.dim, :ω)
   else
     error("RandVar Parameters unsupported")
   end

@@ -17,7 +17,7 @@ Then, we create a uniform distribution ``x`` and draw 100 samples from it using 
     julia> rand(x, 100)
     100-element Array{Float64,1}:
       0.376264
-     -0.405272
+      0.492391
      ...
 
 Then we can find the probability that ``x^2`` is greater than 0.6:
