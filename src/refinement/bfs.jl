@@ -8,7 +8,7 @@ function pre_partition{D <: Domain}(Y::RandVar{Bool},
                                     init_box::D,
                                     ::Type{BFSPartition};
                                     precision::Float64 = DEFAULT_PREC,
-                                    dontstop::Function = loose_bounds,
+                                    dontstop::Function = loose_bounds_limited,
                                     args...)
   under = Deque{D}()     # Partition of under approximation of Y-1({true})
   rest = Deque{D}()      # (Partition of over approximation of Y-1({true})) \ under
@@ -53,3 +53,7 @@ function loose_bounds(under, rest, i; delta = 1e-3, do_every_i::Int = 100)
     return true
   end
 end
+
+"Stops when precision is reached or time or memory constraints exhausted"
+loose_bounds_limited(under, rest, i) =
+  iters_left(under,rest,i) && memory_left(under, rest, i) && loose_bounds(under, rest, i) 
