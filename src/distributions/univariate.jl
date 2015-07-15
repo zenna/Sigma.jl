@@ -12,7 +12,7 @@ flip{T<:Real}(p::Lift{T} = 0.5, i::Id = genint()) = p >= omega_component(i)
 
 # Exponential
 "exponentially distributed random variable"
-exponential{T<:Real}(λ::Lift{T}, id::Id = genint()) = (-log(1-omega_component(i)))/λ
+exponential{T<:Real}(λ::Lift{T}, i::Id = genint()) = (-log(1-omega_component(i)))/λ
 
 # Logistic
 "Logistic exponentially distributed random variable"
@@ -45,3 +45,18 @@ normal(μ::Float64, σ::Float64, i::Id = genint()) = normal(ConstantRandVar(μ),
 
 "Standard normal μ = 0.0 σ = 1.0"
 normal(i::Id = genint()) = normal(0.0, 1.0, i) 
+
+## Discrete Distributions
+## ======================
+
+# Poisson
+"Constructs Poisson distributed random variable constructor"
+function poisson{T<:Real}(λ::SymbolicRandVar{T}, id::Id = genint())
+  PoissonRandVar{Int64, Float64}(id, λ)
+end 
+
+poisson(λ::Float64, id::Id = genint()) = poisson(ConstantRandVar(λ), id)
+@compat poisson(λ::Integer, id::Id = genint()) = poisson(Float64(λ), id)
+
+"Standard Poisson λ = 1.0"
+poisson(id::Id = genint()) = poisson(1.0, id) 

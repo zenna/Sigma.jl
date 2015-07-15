@@ -33,3 +33,12 @@ function convert(::Type{Expr}, X::NormalRandVar)
     error("RandVar Parameters unsupported")
   end
 end
+
+function convert(::Type{Expr}, X::PoissonRandVar)
+  if isa(X.λ, ConstantRandVar)
+    x_dist = convert(Distributions.Poisson, X)
+    Expr(:call, :quantile, x_dist, :(ω[$X.dim]))
+  else
+    error("RandVar Parameters unsupported")
+  end
+end

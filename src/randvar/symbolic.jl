@@ -76,45 +76,6 @@ omega_component{T<:Real}(OmegaType::Type{T}=Float64) = OmegaRandVar{OmegaType}(g
 isequal(X::OmegaRandVar,Y::OmegaRandVar) = isequal(X.dim,Y.dim)
 has_single_dim(X::OmegaRandVar) = true
 
-## Primitive Rand Variables
-## ========================
-
-abstract ElementaryRandVar{T} <: SymbolicRandVar{T}
-
-immutable ArcSineRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} <: ElementaryRandVar{T}
-  dim::Id
-  a::A
-  b::B
-end
-
-"Uniformly distributed RandVar"
-immutable UniformRandVar{T <: Real, A <: Real} <: ElementaryRandVar{T}
-  dim::Id
-  lb::SymbolicRandVar{T}
-  ub::SymbolicRandVar{T}
-end
-
-args(X::UniformRandVar) = @compat tuple(X.lb, X.ub)
-
-"Normally distributed RandVar"
-immutable NormalRandVar{T <: Real, A <: Real} <: ElementaryRandVar{T}
-  dim::Id
-  μ::SymbolicRandVar{T}
-  σ::SymbolicRandVar{T}
-end
-
-args(X::NormalRandVar) = @compat tuple(X.μ, X.σ)
-
-"Beta distributed RandVar"
-immutable BetaRandVar{T <: Real, A <: Real} <: ElementaryRandVar{T}
-  dim::Id
-  α::SymbolicRandVar{T}
-  β::SymbolicRandVar{T}
-end
-
-dims(X::ElementaryRandVar) = union([Set(X.dim), map(dims, args(X))...]...)::Set{Int}
-has_single_dim(X::ElementaryRandVar) = true
-
 ## Real × Real -> Real
 ## ===================
 real_real_real = ((:PlusRandVar,:+),(:MinusRandVar,:-),(:TimesRandVar,:*),(:DivideRandVar,:/), (:PowRandVar,:(^)))

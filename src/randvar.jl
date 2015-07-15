@@ -32,6 +32,7 @@ typealias Lift{T} Union(T,SymbolicRandVar{T})
 typealias AllRandVars Union(RandVar, RandArray)
 
 include("randvar/symbolic.jl")
+include("randvar/elementary.jl")
 include("randvar/executable.jl")
 include("randvar/randarray.jl")
 
