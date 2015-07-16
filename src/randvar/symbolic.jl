@@ -183,9 +183,9 @@ IneqExpr = Union(GTRandVar,GTERandVar,LTERandVar, LTRandVar,EqRandVar,NeqRandVar
 LogicalExpr = Union(OrRandVar,AndRandVar, BicondRandVar, NotRandVar)
 
 # All Functional expressions
-FuncionalExpr = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, IfElseRandVar)
+CompositeRandVar = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, IfElseRandVar)
 
-args{T<:FuncionalExpr}(X::T) = X.args
+args{T<:CompositeRandVar}(X::T) = X.args
 
 ## Printing
 ## ========
