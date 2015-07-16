@@ -6,9 +6,9 @@ dims(X::ElementaryRandVar) = union([Set(X.dim), map(dims, args(X))...]...)::Set{
 has_single_dim(X::ElementaryRandVar) = true
 
 ## Continuous RandVars 
-## ===================
+## ===================Arcsine
 
-immutable ArcSineRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} <: ElementaryRandVar{T}
+immutable ArcsineRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} <: ElementaryRandVar{T}
   dim::Id
   a::A
   b::B

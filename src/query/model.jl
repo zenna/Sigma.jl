@@ -1,6 +1,8 @@
 ## Model
 ## =====
 
+import DReal.model
+
 """Generates a 'model' from X given that Y is true, a model is like a sample
   except that it does not follow any wel ldefined distribution"""
 function preimage_model(Y::DRealRandVar{Bool})

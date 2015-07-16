@@ -42,3 +42,7 @@ function convert(::Type{Expr}, X::PoissonRandVar)
     error("RandVar Parameters unsupported")
   end
 end
+
+function convert{T <: ElementaryRandVar}(::Type{Expr}, X::T)
+  Expr(:call, :quantile, T, [convert(Expr, arg) for arg in args(X)]..., :(ω[$X.dim]))
+end
