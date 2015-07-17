@@ -136,7 +136,11 @@ end
 # ## Arithmetic
 # ## ==========
 
+# Ambiguity Fixes
 (.^){N}(::Base.MathConst{:e}, XS::RandArray{Base.MathConst{:e}, N}) = RandArray((.^)(e,XS.array))
+(-){N}(x::Bool, Y::RandArray{Bool,N}) = convert(Int, x) - convert(RandVar{Int}, Y) #FIX ME TESTME: THis prolly doesn't work
+(+){N}(x::Bool, Y::RandArray{Bool,N}) = convert(Int, x) + convert(RandVar{Int}, Y) #FIX ME TESTME: THis prolly doesn't work
+(+){N}(Y::RandArray{Bool,N}, x::Bool) = convert(RandVar{Int}, Y) + convert(Int, x) #FIX ME TESTME: THis prolly doesn't work
 
 # # Here, we extract the arrays of both args and apply op
 for op = (:+, :-, :*, :.*, :/, :&, :|, :.^)

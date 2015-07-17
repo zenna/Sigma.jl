@@ -45,7 +45,7 @@ immutable ConstantRandVar{T} <: SymbolicRandVar{T}
   val::T
 end
 
-args(X::ConstantRandVar) = Set{RandVar}()
+args(X::ConstantRandVar) = tuple()
 dims(X::ConstantRandVar) = Set{Int}()
 # QUESTION: Would this ever be called? Do we need to overload functiosn for all constants?
 (==)(X::ConstantRandVar, Y::ConstantRandVar) = ConstantRandVar{Bool}(X.val == Y.val)

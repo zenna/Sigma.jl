@@ -38,52 +38,36 @@ for (name, op) in all_functional_randvars
   end)
 end
 
-# 1. If I'm a composite RandVar then expand all my children
-# function expand(X::CompositeRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
-#   ($op)(ctx, [expand(arg,sym_to_var,ctx) for arg in args(X)]...)
+# ## Ambiguity
+# function expand(X::ClosedFormQuantileRandVar, sym_to_var::SymbToVar, ctx::DReal.Context, args::ConstantRandVar...)
+#   expr = quantile_expr(X)
+#   expand(expr, sym_to_var, ctx::DReal.Context, args(expr)...)
 # end
 
-# 2. If I'm an elementary randvar with constant arguments, do the interval trick
-for Elem in subtypes(ElementaryRandVar)
-  # Number of arguments
-  nparams = num_params(Elem)
-
-  @eval function expand{T}(X::$Elem{T, $([ConstantRandVar for i = 1:nparams])...}, sym_to_var::SymbToVar, ctx::DReal.Context)
+# 3. If I'm an elementary randvar with random parameters and closed fom quantile
+function expand{T}(X::ClosedFormQuantileRandVar{T}, sym_to_var::SymbToVar, ctx::DReal.Context)
+  # If all args are constant do the interval trick
+  if all([isa(arg, ConstantRandVar) for arg in args(X)])
     if haskey(sym_to_var, X)
       sym_to_var[X]
     else
       # Auxilary variable unbounded
       sym_to_var[X] = Var(ctx, T)
     end
-  end
-
-end
-
-# 3. If I'm an elementary randvar with random parameters and closed fom quantile
-#, then treat as (1) 
-for Elem in subtypes(ClosedFormQuantileRandVar)
-  # Number of arguments
-  nparams = num_params(Elem)
-
-  @eval function expand{T}(X::$Elem{T, $([SymbolicRandVar for i = 1:nparams])...}, sym_to_var::SymbToVar, ctx::DReal.Context)
+  # Otherwise expand it symbolically
+  else
     expand(quantile_expr(X), sym_to_var, ctx::DReal.Context)
   end
 end
 
-# 4. If I'm an elementary randvar with random parameters and no-closed form
-# quantile then treat children as 1 and me as 2
-for Elem in subtypes(ElementaryRandVar)
-  # Number of arguments
-  nparams = num_params(Elem)
-
-  @eval function expand{T}(X::$Elem{T, $([SymbolicRandVar for i = 1:nparams])...}, sym_to_var::SymbToVar, ctx::DReal.Context)
-    # expand(quantile_expr(X), sym_to_var, ctx::DReal.Context)
-    if haskey(sym_to_var, X)
-      sym_to_var[X]
-    else
-      # Auxilary variable unbounded
-      sym_to_var[X] = Var(ctx, Float64, -Inf, Inf)
-    end
+# # 2. If not closedform elementary randvar , do the interval trick
+# if arguments not constant then we'll get error at bound stage
+function expand{T}(X::ElementaryRandVar{T}, sym_to_var::SymbToVar, ctx::DReal.Context)
+  if haskey(sym_to_var, X)
+    sym_to_var[X]
+  else
+    # Auxilary variable unbounded
+    sym_to_var[X] = Var(ctx, T)
   end
 end
 
@@ -101,44 +85,11 @@ function expand(X::OmegaRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
   end
 end
 
-
-# function expand(X::NormalRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
-#   if haskey(sym_to_var, X)
-#     sym_to_var[X]
-#   else
-#     # Auxilary variable unbounded
-#     sym_to_var[X] = Var(ctx, Float64, -Inf, Inf)
-#   end
-# end
-
-# function expand(X::PoissonRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
-#   if haskey(sym_to_var, X)
-#     sym_to_var[X]
-#   else
-#     # Auxilary variable unbounded
-#     # FIXME: use opensmt unbounded
-#     sym_to_var[X] = Var(ctx, Int64)
-#   end
-# end
-
-# # If it hss constant argument parents we can do this substituion
-# # if not then do the expression
-# function expand(X::UniformRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
-#   if isa(X.lb, ConstantRandVar) && isa(X.ub, ConstantRandVar)
-#     if haskey(sym_to_var, X)
-#       sym_to_var[X]
-#     else
-#       sym_to_var[X] = Var(ctx, Float64)
-#     end
-#   else
-#     expand((x.lb - x.ub)*omega_component(X.dim) + x.lb, sym_to_var, ctx::DRea.Context)
-#   end
-# end
-
 ## Calling DReal RandVars with input sets
 ## ======================================
 
-function quantile{T<:Distribution}(::Type{T}, A::Interval, args...)
+# FIXME: A should be an interval or a real, need a type for this, or do i
+function quantile{T<:Distribution}(::Type{T}, A, args...)
   dist = T(args...)
   quantile(dist, A)
 end
@@ -148,13 +99,13 @@ function bounds(X::OmegaRandVar, A::AbstractOmega)
   A[X.dim]
 end
 
-"Returns lower and upper bounds for Normal RandVar as function of event A"
-function bounds{T <: ElementaryRandVar}(X::T, args::Tuple, A::AbstractOmega)
-  arg_bounds = [bounds(arg, A) for arg in args]
+"Returns lower and upper bounds for Elementary RandVar as function of event A"
+function bounds{T <: ElementaryRandVar}(X::T, A::AbstractOmega)
+  arg_bounds = [bounds(arg, A) for arg in args(X)]
   quantile(distribution_type(T), A[X.dim], arg_bounds...)
 end
 
-"Returns lower and upper bounds for Normal RandVar as function of event A"
+"Returns lower and upper bounds for Constant RandVar as function of event A"
 bounds(X::ConstantRandVar, A::AbstractOmega) = X.val
 
 # FIXME: maybe lb and upper bound should be T but quantiles return Float and DReal has no mk_num for Ints
@@ -180,7 +131,7 @@ function is_sat(ex::Ex{Bool}, X::DRealRandVar{Bool}, A::AbstractOmega)
 
   ## Define subset (box) of Omega using assertions
   for (symb, var) in X.sym_to_var
-    @show interval = bounds(symb, args(symb), A)
+    interval = bounds(symb, A)
     add_bound_constraints!(ctx, var, interval.l, interval. u)
   end
 

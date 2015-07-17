@@ -51,7 +51,6 @@ import Base:  asin,
               sign
 
 # import Lens:benchmark
-import Distributions: quantile
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
@@ -151,7 +150,10 @@ export
   DRealBinaryRandVar,
 
   # From abstract domains
-  mid
+  mid,
+
+  isapprox,
+  quantile
 
 include("util.jl")
 include("domains.jl")

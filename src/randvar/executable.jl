@@ -24,25 +24,6 @@ convert(::Type{Expr}, X::OmegaRandVar) = :(ω[$(X.dim)])
 lambda_expr(X::SymbolicRandVar) = Expr(:(->),:ω,convert(Expr,X))
 lambda(X::SymbolicRandVar) = eval(lambda_expr(X))
 
-function convert(::Type{Expr}, X::NormalRandVar)
-  if isa(X.μ, ConstantRandVar) && isa(X.σ, ConstantRandVar)
-    x_dist = convert(Distributions.Normal, X)
-    Expr(:call, :quantile, x_dist, :(ω[$X.dim]))
-  else
-    # FIXME
-    error("RandVar Parameters unsupported")
-  end
-end
-
-function convert(::Type{Expr}, X::PoissonRandVar)
-  if isa(X.λ, ConstantRandVar)
-    x_dist = convert(Distributions.Poisson, X)
-    Expr(:call, :quantile, x_dist, :(ω[$X.dim]))
-  else
-    error("RandVar Parameters unsupported")
-  end
-end
-
 function convert{T <: ElementaryRandVar}(::Type{Expr}, X::T)
-  Expr(:call, :quantile, T, [convert(Expr, arg) for arg in args(X)]..., :(ω[$X.dim]))
+  Expr(:call, :quantile, distribution_type(T), :(ω[$X.dim]), [convert(Expr, arg) for arg in args(X)]...)
 end
