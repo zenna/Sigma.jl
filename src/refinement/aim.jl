@@ -19,9 +19,9 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   
   A::D = box
   lens(:refine,time_ns())
-  image::AbstractBool = call(X, A)
+  @show image::AbstractBool = call(X, A)
   while (niters <= 1000) && (depth <= maxdepth)
-    # @show A
+    A, image
     if issmall(A, precision)
       lens(:depth, depth)
       lens(:refine,time_ns())
@@ -114,6 +114,7 @@ function pre_mc{D <: Domain}(Y::RandVar{Bool},
     loga = nextlogp + logq - logp - nextlogq
     a = exp(loga)
 
+    @show nextbox
     # MH accept/reject step
     if a >= 1 || rand() < a
       naccepted += 1

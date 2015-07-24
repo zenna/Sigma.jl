@@ -1,13 +1,11 @@
 ## Conversion of Sigma Function into DReal expression
 ## ==================================================
-
-typealias DimToVar Dict{Int,DReal.Ex}
-
 "A Lisp SExpr"
 immutable SExpr
   ex::String
 end
 
+"A RandVar that calls the DReal binary executable (more stable than C-API)"
 type DRealBinaryRandVar{T} <: RandVar{T}
   dims::Set{Int}
   sexpr::SExpr
@@ -43,8 +41,6 @@ end
 convert(::Type{SExpr}, X::ConstantRandVar) = SExpr(string(X.val))
 #add one for julia/c++ indexing mismatch, basically a HACK
 convert(::Type{SExpr}, X::OmegaRandVar) = SExpr(string("omega",X.dim))
-
-
 lambda_expr(X::RandVar) = Expr(:(->),:ω,convert(Expr,X))
 lambda(X::RandVar) = eval(lambda_expr(X))
 
@@ -61,13 +57,6 @@ function parse_sat_status(satstatus::String)
     return true
   end
 end
-#   Dict("sat" => SAT, "unsat" => UNSAT)[strip(satstatus)]
-# end
-
-# Parse a floatingpoint/integer from a string
-numregex = "[-+]?[0-9]*\.?[0-9]+"
-# Regex to extract variable assignments in model from DReal text output
-modelregex = Regex("(\\w*) : \\[($numregex),\\s*($numregex)\\]")
 
 # Add extra SMT2 information to complete program
 function headerfooter(program::Vector{SExpr})
@@ -132,6 +121,7 @@ function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
   # @show pos_case
   # @show neg_case
   if pos_case & neg_case tf
+# end
   elseif pos_case t
   elseif neg_case f
   else
@@ -140,60 +130,3 @@ function call(X::DRealBinaryRandVar{Bool}, ω::AbstractOmega{Float64})
     println(merge(full_neg_program).ex)
   end
 end
-
-# # Returns an abstract bool
-# function call(X::DRealRandVar{Bool},ω::AbstractOmega{Float64})
-#   # 1. ∃ω ∈ A ∩ X : Does A contain any point X?
-#   ctx = X.ctx
-#   push_ctx!(ctx) #1
-#   println("(push 1)")
-#   for dim in dims(ω)
-# #     @show dim
-#     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
-#     ub = (<=)(ctx,X.dimtovar[dim], ω[dim].u)
-#     println("(assert",lb,")")
-#     DReal.add!(ctx,lb)
-#     println("(assert",ub,")")
-#     DReal.add!(ctx,ub)
-#   end
-# #   push_ctx!(ctx) #2
-#   println("(assert",X.ex,")")
-#   DReal.add!(ctx, X.ex)
-# #   println("About to check pop case")
-#   println("(check-sat)")
-#   pos_case = is_satisfiable(ctx)
-# #   @show pos_case
-#   println("(pop 1)")
-#   pop_ctx!(ctx) #undo from 2 to here
-# #   println("About to push")
-#   println("(push 1)")
-#   push_ctx!(ctx) #3
-#   for dim in dims(ω)
-# #     @show dim
-#     lb = (>=)(ctx,X.dimtovar[dim],ω[dim].l)
-#     ub = (<=)(ctx,X.dimtovar[dim],ω[dim].u)
-#     println("(assert",lb,")")
-#     DReal.add!(ctx,lb)
-#     println("(assert",ub,")")
-#     DReal.add!(ctx,ub)
-#   end
-# #   println("About to check neg case")
-#   notex = (!)(ctx,X.ex)
-#   println("(assert",notex,")")
-#   DReal.add!(ctx, notex)
-
-#   # 2. ∃ω ∈ A \ X : Does A contain any point not in X?
-#   println("(check-sat)")
-#   neg_case = is_satisfiable(ctx)
-# #   @show pos_case
-#   println("(pop 1)")
-#   println("; end")
-#   pop_ctx!(ctx) #roll back to 3
-# #   pop_ctx!(ctx) #roll back to 1
-#   if pos_case & neg_case tf
-#   elseif pos_case t
-#   elseif neg_case f
-#   else
-#     error("Query or its negation must be true")
-#   end
-# end
