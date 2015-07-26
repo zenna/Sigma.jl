@@ -44,7 +44,7 @@ function flip{T<:Real}(p::Lift{T}, id::Int = genint())
 end
 
 "Standard Bernoulli p = 0.5"
-flip(id::Id = genint()) = normal(0.0, 1.0, id)
+flip(id::Id = genint()) = flip(0.5, id)
 
 "Poisson distributed random variable constructor"
 function poisson{T<:Real}(λ::SymbolicRandVar{T}, id::Id = genint())
