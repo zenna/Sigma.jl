@@ -24,7 +24,7 @@ end
 "Lower and upper bounds for marginal probability that 'Y' is true"
 function prob(Y::SymbolicRandVar{Bool}; RandVarType = default_randvar(), args...)
   executable_Y = convert(RandVarType{Bool}, Y)
-  prob(executable_Y, args...)
+  prob(executable_Y; args...)
 end
 
 "Lower/upper bounds for conditional probability that `X` is true given `Y` is true"

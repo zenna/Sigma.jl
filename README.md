@@ -52,8 +52,9 @@ julia> prob(x^2 > 0.6)
 Then we can introduce an exponentially distributed variable ``y``, and find the probability that ``x^2`` is greater than 0.6 under the condition that the sum of ``x`` and ``y`` is less than 1
 
 ```julia
+julia> y = exponential(0.5)
 julia> prob(x^2 > 0.6, x + y < 1)
-[0.054948257132298 0.05985202998882717]
+[0.053548951048950494 0.06132144691466614]
 ```
 
 Then, instead of computing conditional probabilities, we can sample from ``x`` under the same condition:
