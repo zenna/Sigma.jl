@@ -1,5 +1,5 @@
 ## KL-Distribution Test
-## =================
+## ====================
 holesizes = logspace(-1,-10,3)
 problems = [Simplex(8,        #ndims
                     [:sample_distribution,:accumulative_KL, :total_time,],
@@ -19,6 +19,59 @@ function kl()
   record(algorithms,problems;
          runname = "kl",prefix=benchdir,savedb=false,exceptions=false)
 end
+
+# The idea is KL runs the actual test, but then there are a bunch of
+# analyses that we want to run from that data.
+
+# An analysis is a function from the data to some other set
+# Then there is the visualisation of that analysis
+
+# So maybe I should have a type for this in DynamicAnalysis
+
+# I'm not sure what I even want here, what I want is to know how well or poorly
+# my algorithms are doing, and whether improvements are actually improvements.
+# To know this  I need to be able to see over many changes of algorithm how
+# performance changes.  This means I need to decide on the relevant performance
+# Metrics.
+
+# For simplex for example there are a bunch of runs that I've set up that measure
+# e.g. runtime vs holesize or runtime vs dimensionality or runtime vs distribution
+# or a histogram of depths.
+
+# Example Analyses
+# - Show me the KL divergences over this set of problems for my algorithm and church
+# - Overlay the histograms of depths for AIM using random split vs uniform split for simplex
+# - Overlay the histograms of depths for AIM using random split vs uniform split for parameter estimation
+
+# Observations
+# An analysis could 'belong' to a single or multiple different problems
+# The data may exist for an analysis to compute or it may need to be computed
+
+# Proposal
+# Make a type Analysis which simply takes in some data
+# computes the output
+# Which can be viewed in many forms
+
+"""An abstract analysis takes in Input data of type I,
+and returns an output analysis of type O"""
+abstract Analysis{I, O}
+
+typealias VertexSamples = Vector{Float64}
+
+"""A KL Analysis computes the KL Divergence.
+Takes in samples over time and produces output of KL vs time"""
+immutable KLAnalysis <: Analysis{VertexSamples, R}
+  f::Function
+end
+
+# issues
+# - there are many ways teh input could be different
+#
+
+KLAnalysis()
+
+## Analyses
+## ========
 
 function count(ndims)
   results = DynamicAnalysis.all_records() |> r->DynamicAnalysis.where(r,:runname,j->j=="kl") |> r->DynamicAnalysis.where(r,:problem,j->j.ndims == ndims)
