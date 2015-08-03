@@ -82,13 +82,19 @@ function simplexbenchmark(a::Algorithm, m::AllRandVars, b::Simplex)
   results
 end
 
+## Algorithm-dependent implementations of sample
+## ============================================
+
 benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
 
 function sample(a::SigmaSMT, model, condition, nsamples)
   @show model
   @show condition
   @show nsamples
-  rand(model,condition,nsamples,a.sampler,a.solver;cores = a.ncores, split = a.split)
+  rand(model,condition,nsamples; preimage_sampler = a.preimage_sampler,
+                                 RandVarType = a.randvartype,
+                                 cores = a.ncores,
+                                 split = a.split)
 end
 
 ## Rejection Sampler
@@ -133,4 +139,4 @@ end
 ## Runs
 ## ====
 include("runs/kl.jl")
-include("runs/dimensions.jl")
+# include("runs/dimensions.jl")

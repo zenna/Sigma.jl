@@ -4,8 +4,8 @@
 # SMT Based
 immutable SigmaSMT <: Algorithm
   capture::Vector{Symbol}
-  solver::Type{Solver}
-  sampler::Function
+  randvartype::DataType
+  preimage_sampler::Function
   ncores::Int
   split::Function
 end
@@ -55,4 +55,4 @@ end
 # hash(a::SigmaSMT, h::Uint) = deephash(a,h)
 
 # function isequal(a::SigmaSMT, b::SigmaSMT)
-#   
+#

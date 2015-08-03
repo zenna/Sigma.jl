@@ -1,21 +1,23 @@
 ## Distribution Test
 ## =================
 holesizes = logspace(-1,-10,3)
-problems = [Simplex(8,[:sample_distribution, :accumulative_KL,
-                       :total_time,],1000,0.01)]
+problems = [Simplex(8,        #ndims
+                    [:sample_distribution,:accumulative_KL, :total_time,],
+                    5,        #nsamples
+                    0.01)]    #holesize
 
 mh_captures = [:samples]
 all_splits = [rand_partial_split]
 
-SMTalgorithms = [SigmaSMT(mh_captures, solver, sampler, nprocs, split)
+algorithms = [SigmaSMT(mh_captures, randvartype, sampler, nprocs, split)
   for nprocs = [1],
-      solver = [DRealSolverBinary],
+      randvartype = [DRealRandVar],
       split = all_splits,
-      sampler = [Sigma.pre_tlmh_parallel]][:]
+      sampler = [Sigma.point_sample_mc]][:]
 
 function kl()
-  record(AIalgorithms,problems;
-         runname = "kl",prefix=benchdir,savedb=true,exceptions=false)
+  record(algorithms,problems;
+         runname = "kl",prefix=benchdir,savedb=false,exceptions=false)
 end
 
 function count(ndims)

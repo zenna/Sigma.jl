@@ -16,7 +16,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   depth = 0
   logq = 0.0 # == log(1.0)
   prevolfrac = 1.0
-  
+
   A::D = box
   lens(:refine,time_ns())
   @show image::AbstractBool = call(X, A)
@@ -70,11 +70,11 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
       rand_index = rand(Categorical(weights))
       A = children[rand_index][1]
       status = statuses[rand_index]
-      
+
       # Shouldn't go to empty children
       assert(!isequal(status,f))
       logq += log(weights[rand_index])
-      
+
       depth += 1; niters += 1
       lens(:children_split, weights, children, depth, niters)
     elseif isequal(image, f) # Condition is unsatisfiable
@@ -84,7 +84,7 @@ function proposebox_tl{D <: Domain}(X::RandVar, box::D;
   error("Unexpected Branch")
 end
 
-"Uniform sample of subset of preimage of Y under f unioned with X."
+"Uniform sample of subset of preimage of `Y` under `f` unioned with `X`."
 function pre_mc{D <: Domain}(Y::RandVar{Bool},
                              init_box::D,
                              niters::Integer,
@@ -92,8 +92,8 @@ function pre_mc{D <: Domain}(Y::RandVar{Bool},
                              precision::Float64 = DEFAULT_PREC,
                              parallel::Bool = false,
                              args...)
-  
-  @compat stack::Vector{Tuple{D,Float64,Float64}} = parallel ? 
+
+  @compat stack::Vector{Tuple{D,Float64,Float64}} = parallel ?
     genstack(Y,init_box,niters; args...) : Tuple{D,Float64,Float64}[]
 
   boxes = D[]
@@ -132,7 +132,7 @@ function pre_mc{D <: Domain}(Y::RandVar{Bool},
 end
 
 
-## Parallel 
+## Parallel
 ## ========
 
 function genstack{D<:Domain}(Y::RandVar,box::D,nsamples::Int; ncores = 2  , args...)

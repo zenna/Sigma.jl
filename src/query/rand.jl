@@ -8,7 +8,7 @@ rand{T}(X::ExecutableRandVar{T}) = call(X,LazyRandomVector(Float64))
 rand{T}(X::ExecutableRandVar{T}, n::Integer) =
   T[call(X, LazyRandomVector(Float64)) for i = 1:n]
 
-rand{T}(X::SymbolicRandVar{T}, n::Integer) = 
+rand{T}(X::SymbolicRandVar{T}, n::Integer) =
   rand(convert(ExecutableRandVar{T},X),n)
 
 rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
@@ -49,7 +49,7 @@ function cond_sample{T}(X::ExecutableRandVar{T},
   preimage_samples = preimage_sampler(Y, n; args...)
   RT[call(X, sample) for sample in preimage_samples]
 end
- 
+
 "`n` abstract Conditional samples from `X` given `Y` is true"
 function abstract_cond_sample{T}(X::ExecutableRandVar{T},
                      Y::RandVar{Bool},
@@ -67,10 +67,10 @@ end
 function point_sample_mc(Y::RandVar{Bool},
                       n::Integer;
                       mc_alg::Type{AIM} = AIM,
-                      sampler::Function = point_sample,
+                      chain_sampler::Function = point_sample,
                       args...)
   init_box = unit_box(LazyBox{Float64}, dims(Y))
-  chain = pre_mc(Y, init_box, n, mc_alg; args...)
+  chain_sampler = pre_mc(Y, init_box, n, mc_alg; args...)
   sampler(chain)
 end
 
