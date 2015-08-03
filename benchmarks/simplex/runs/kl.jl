@@ -1,4 +1,4 @@
-## Distribution Test
+## KL-Distribution Test
 ## =================
 holesizes = logspace(-1,-10,3)
 problems = [Simplex(8,        #ndims
