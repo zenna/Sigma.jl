@@ -1,17 +1,22 @@
 ## Motion Planning 3D Benchmark
 ## =========================
-# using Sigma
+using Sigma
 
+# Use for functions which should take a normal or equivalently typed randarray
 typealias Point AbstractVector
 typealias Vec AbstractVector
 typealias Mat AbstractMatrix
-# Use for functions which should take a normal or equivalently typed randarray
 
 # A geometric entity of N dimensions
 abstract Entity{N}
 
 immutable Rectangle <: Entity{2}
   bounds::Mat{Float64}
+end
+
+immutable Circle <: Entity{2}
+  center::Vec{Float64}
+  r
 end
 
 # ## Edges
@@ -50,10 +55,24 @@ function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
+# Does not intersect
 function intersects(e1::ParametricEdge, e2::ParametricEdge)
   s = intersect_segments(e1.coords[:,1], e1.coords[:,2],
                          e2.coords[:,1], e2.coords[:,2])
   (s < 0) | (s > 1)
+end
+
+function intersects(e1::ParametricEdge, circle::Circle)
+  rayorig = e1.coords[:,1]
+  raydir = e1.coords[:,2]
+  r = circle.r
+  f = rayorig - circle.center # Vector from center sphere to ray start
+  a = dot(raydir, raydir)
+  b = 2.0 * dot(f,raydir)
+  c = dot(f,f) - r*r
+
+  # discriminant
+  b*b-4*a*c < 0
 end
 
 intersects(e1::ParametricEdge, e2::Edge) = intersects(e1, parametric(e2))
@@ -76,57 +95,59 @@ function validpath(points, obstacles, origin, dest)
   ispointinpoly(points[:,1],origin) & ispointinpoly(points[:,end], dest) & avoid_obstacles(points,obstacles)
 end
 
-function test_mp2d(path_length::Integer)
-  points = mvuniform(-1,0,10,2,path_length*2)
+function test_mp2d(obstacles, path_length::Integer)
+  points = mvuniform(0,10,2, path_length)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
   dest = Rectangle([9.9 9.9
                     10.0 10.0])
-  obstacles = [Edge(ed) for ed in
-               Array[[8.01 3.01; 1.02 9],
-                     [0.5 3.08; 2.02 9.04],
-                     [0.0 9.99; 3 5.04]]]
-#   obs = map(points_to_parametric, obstacles)
-  good_path = validpath(points,obstacles,origin,dest)
+  # obstacles = [Circle([5.0, 5.0], 3.0)]
+  # obstacles = [Edge(ed) for ed in
+  #              Array[[8.01 3.01; 1.02 9],
+  #                    [0.5 3.08; 2.02 9.04],
+  #                    [0.0 9.99; 3 5.04]]]
+  #   obs = map(points_to_parametric, obstacles)
+  good_path = validpath(points, obstacles, origin, dest)
   points, good_path
 end
 
 # ## Test
 # ## ====
-model, condition = test_mp2d(4)
-# Sigma.dims(condition)
+obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
+model, condition = test_mp2d(obstacles, 4)
+sample = rand(model, condition; precision = 0.01) / 10.0
+# sample = [1.64807   1.8789  74.3919  65.4604  99.5862  55.8671  99.3301  99.2311
+#           1.24775  10.3224  33.2845  49.7916  88.6606  26.1991  98.028   99.5821]
 
-# a = Sigma.build_init_box(condition,Set{IBEX.ExprSymbol}())
-# using Cxx
-abstract_samples  = Sigma.pre_tlmh(condition,1)
-print(abstract_samples[])
 
-# a = abstract_samples[1]
-# rand(a)
-# call(model[1,1],rand(a))
-# sample = rand(model,condition,1)
-# Sigma.dims(condition)
-# origin = Rectangle([0.0 0.0
-#                     0.2 0.2])
-# dest = Rectangle([.9 .9
-#                   1.0 1.0])
-# obstacles = [Edge(ed) for ed in
-#              Array[[8.01 3.01; 1.02 9],
-#                    [0.5 3.08; 2.02 9.04],
-#                    [0.0 9.99; 3 5.04]]]
-# validpath(points, obstacles, origin, dest)
-# ## Draw
 
 include("../vis.jl")
-function drawthething(sample)
-  obstacles = Array[[8.01 3.01; 1.02 9],
-                    [0.5 3.08; 2.02 9.04],
-                    [0.0 9.99; 3 5.04]]
-  lines = make_compose_lines(obstacles)
 
-  points = call(model, rand(sample))
-  b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
-  draw_lines(b,lines)
+function gencompose(c::Circle)
+  (context(units=UnitBox(0, 0, 10, 10)),
+   Compose.circle(c.center[1], c.center[2], c.r),
+   linewidth(.5mm),
+   stroke(Compose.RGB(rand(),rand(),rand())),
+   fill(nothing))
 end
 
-drawthething(abstract_samples[1])
+function drawthething(points, obstacles)
+  # obstacles = Array[[8.01 3.01; 1.02 9],
+  #                   [0.5 3.08; 2.02 9.04],
+  #                   [0.0 9.99; 3 5.04]]
+  # lines = make_compose_lines(obstacles)
+
+  b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
+  @show c_lines = get_lines(b)
+  @show c_obstacles = map(gencompose, obstacles)
+  @show all_items = vcat(c_lines, c_obstacles)#Any[c_lines..., c_obstacles...]
+
+  apply(compose, vcat(context(), all_items))
+  # draw_lines(b,lines)
+end
+
+
+op = drawthething(sample, obstacles)
+img = SVG("path.svg", 4inch, 4(sqrt(3)/2)inch)
+draw(img, op)
+# ## Draw

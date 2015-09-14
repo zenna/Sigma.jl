@@ -2,9 +2,9 @@ Primitive Univariate Random Variable
 ====================================
 
 The following is a list of the primitive univariate random variables currently
-supported in Sigma.  In addition to categorising random variables by their. by
-their output type, we distinguish between random variables which can and cannot
-be expressed in closed form.  This is because there are currently restrictions
+supported in Sigma.  In addition to categorising random variables by their output
+type, we distinguish between random variables which can and cannot be expressed
+in closed form.  This is because there are currently restrictions
 on where random variables without a closed form solution (e.g. normal) can be
 used.
 

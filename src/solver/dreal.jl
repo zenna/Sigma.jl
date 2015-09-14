@@ -19,6 +19,11 @@ dims(X::DRealRandVar) = union(map(dims, keys(X.sym_to_var))...)::Set{Int}
 # 3. If I'm an elementary randvar with random parameters and closed fom quantile, then treat as 1
 # 4. If I'm an elementary randvar with random parameters and no-closed form quantile then treat children as 1 and me as 1
 
+function set_precision!(Y::DRealRandVar, precision::Float64)
+  println("Setting DReal RandVar precision to $precision")
+  DReal.set_precision!(Y.ctx, precision)
+end
+
 "Construct DReal.RandVar from Symbolic RandVar"
 function convert{T}(::Type{DRealRandVar{T}}, X::SymbolicRandVar{T})
   ctx = Context(qf_nra)
@@ -109,7 +114,6 @@ end
 bounds(X::ConstantRandVar, A::AbstractOmega) = X.val
 
 # FIXME: maybe lb and upper bound should be T but quantiles return Float and DReal has no mk_num for Ints
-
 function add_bound_constraints!{T}(ctx::DReal.Context, X::DReal.Ex{T}, lb::Float64, ub::Float64)
   # DReal currently has trouble with infinities, so just dont add the contraint
   # Since we know it is unbounded anyway
@@ -136,6 +140,7 @@ function is_sat(ex::Ex{Bool}, X::DRealRandVar{Bool}, A::AbstractOmega)
   # push!(debugstring, "(push 1)")
 
   ## Define subset (box) of Omega using assertions
+  ## For each variable - add constraints on its lower and upper bounds 
   for (symb, var) in X.sym_to_var
     interval = bounds(symb, A)
     add_bound_constraints!(ctx, var, interval.l, interval. u)

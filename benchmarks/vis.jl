@@ -21,6 +21,17 @@ function make_compose_lines(point_pairs)
   [Compose.line([pair(o[:,1]), pair(o[:,2])]) for o in point_pairs]
 end
 
+function get_lines(lines...)
+  all_lines = apply(vcat,lines)
+  x = map(l->(context(units=UnitBox(0, 0, 10, 10)),
+              l,
+              linewidth(.5mm),
+              stroke(rand_color()),
+              fill(nothing)),
+          all_lines)
+  x
+end
+
 function draw_lines(lines...)
   all_lines = apply(vcat,lines)
   x = map(l->(context(units=UnitBox(0, 0, 10, 10)),

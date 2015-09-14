@@ -1,5 +1,6 @@
 # Parallel Map, copy/pasted from Julia with minor adaption
 function pmaplm(f, lsts...; err_retry=true, err_stop=false, ncores = 1)
+    @show ncores
     len = length(lsts)
 
     @compat results = Dict{Int,Any}()

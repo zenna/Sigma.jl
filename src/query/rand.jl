@@ -41,10 +41,10 @@ end
 ## ====================
 "`n` conditional samples from `X` given `Y` is true"
 function cond_sample{T}(X::ExecutableRandVar{T},
-                     Y::RandVar{Bool},
-                     n::Integer;
-                     preimage_sampler::Function = point_sample_mc,
-                     args...)
+                        Y::RandVar{Bool},
+                        n::Integer;
+                        preimage_sampler::Function = point_sample_mc,
+                        args...)
   RT = rangetype(X)
   preimage_samples = preimage_sampler(Y, n; args...)
   RT[call(X, sample) for sample in preimage_samples]
@@ -70,12 +70,13 @@ function point_sample_mc(Y::RandVar{Bool},
                       chain_sampler::Function = point_sample,
                       args...)
   init_box = unit_box(LazyBox{Float64}, dims(Y))
-  chain_sampler = pre_mc(Y, init_box, n, mc_alg; args...)
-  sampler(chain)
+  chain = pre_mc(Y, init_box, n, mc_alg; args...)
+  chain_sampler(chain)
 end
 
 ## Convenience
 ## ===========
+"When `X` is a normal rand var"
 function rand{T}(X::SymbolicRandVar{T},
                  Y::SymbolicRandVar{Bool},
                  n::Integer;
@@ -83,10 +84,11 @@ function rand{T}(X::SymbolicRandVar{T},
                  args...)
   @show RandVarType
   executable_Y = convert(RandVarType{Bool}, Y)
-  executable_X = convert(ExecutableRandVar{T}, X)
+  executable_X = convert_psuedo(ExecutableRandVar{T}, X)
   cond_sample(executable_X, executable_Y, n; args...)
 end
 
+"When `X` is a composite type rand var"
 function rand(X,
               Y::SymbolicRandVar{Bool},
               n::Integer;
@@ -99,6 +101,7 @@ function rand(X,
   [call_type(X, sample) for sample in preimage_samples]
 end
 
+"When `X` is a rand var"
 function rand(X::RandArray,
               Y::SymbolicRandVar{Bool},
               n::Integer;

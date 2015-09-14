@@ -112,7 +112,7 @@ function nonlinearplan(points)
   points,good_path
 end
 
-points = iidmeta(Float64,i->uniformmeta(i,0,10),2,6)
+points = mvuniform(0.0, 10.0, 2,6)
 points, condition = nonlinearplan(points)
 @show condition.smt
 # s = cond_sample_tlmh(points,condition,1)

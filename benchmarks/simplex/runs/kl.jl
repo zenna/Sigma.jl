@@ -1,3 +1,4 @@
+
 ## KL-Distribution Test
 ## ====================
 holesizes = logspace(-1,-10,3)
@@ -17,58 +18,48 @@ algorithms = [SigmaSMT(mh_captures, randvartype, sampler, nprocs, split)
 
 function kl()
   record(algorithms,problems;
-         runname = "kl",prefix=benchdir,savedb=false,exceptions=false)
+         runname = "kl",
+         prefix=benchdir,
+         savedb=false,
+         exceptions=false)
 end
 
-# The idea is KL runs the actual test, but then there are a bunch of
-# analyses that we want to run from that data.
+## This needs a rethink
+# How do I want to use this in the end
+# a = [run(analysis) or analysis in all_analyses]
+# # layer...
+# typealias DiscreteDistribution Dict{Int, Float64}
+#
+"returns an output analysis of type O"
+abstract Analysis{O}
 
-# An analysis is a function from the data to some other set
-# Then there is the visualisation of that analysis
-
-# So maybe I should have a type for this in DynamicAnalysis
-
-# I'm not sure what I even want here, what I want is to know how well or poorly
-# my algorithms are doing, and whether improvements are actually improvements.
-# To know this  I need to be able to see over many changes of algorithm how
-# performance changes.  This means I need to decide on the relevant performance
-# Metrics.
-
-# For simplex for example there are a bunch of runs that I've set up that measure
-# e.g. runtime vs holesize or runtime vs dimensionality or runtime vs distribution
-# or a histogram of depths.
-
-# Example Analyses
-# - Show me the KL divergences over this set of problems for my algorithm and church
-# - Overlay the histograms of depths for AIM using random split vs uniform split for simplex
-# - Overlay the histograms of depths for AIM using random split vs uniform split for parameter estimation
-
-# Observations
-# An analysis could 'belong' to a single or multiple different problems
-# The data may exist for an analysis to compute or it may need to be computed
-
-# Proposal
-# Make a type Analysis which simply takes in some data
-# computes the output
-# Which can be viewed in many forms
-
-"""An abstract analysis takes in Input data of type I,
-and returns an output analysis of type O"""
-abstract Analysis{I, O}
-
-typealias VertexSamples = Vector{Float64}
+"Data of relational data X vs Y"
+immutable XY{X,Y}
+  xdata::Vector{X}
+  ydata::Vector{Y}
+  xlabel::String
+  ylabel::String
+end
 
 """A KL Analysis computes the KL Divergence.
 Takes in samples over time and produces output of KL vs time"""
-immutable KLAnalysis <: Analysis{VertexSamples, R}
-  f::Function
+immutable KLAnalysis <: Analysis{XY{Float64, Int}}
+  f::XY{Float64, Int}
 end
 
-# issues
-# - there are many ways teh input could be different
-#
+function KLAnalysis(allsamples::Vector{Float64}, truth::DiscreteDistribution)
+  for i = 1:length(allsamples)
+    samples = allsamples[1:i]
+    v = vertex_distribution(samples,ndims,0.01)
+    truth = groundtruth(ndims)
+    push!(kls,KLsafe(truth,v))
+  end
+  kls
+  XY{Float64,Int64}(samples, )
+end
 
-KLAnalysis()
+run(x::KLAnalysis) = x.XY
+
 
 ## Analyses
 ## ========

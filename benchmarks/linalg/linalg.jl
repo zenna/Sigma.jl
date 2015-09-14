@@ -1,4 +1,5 @@
 using Sigma
+using Lens
 
 srand(1234)
 
@@ -35,3 +36,17 @@ A = uniform(0,1)
 B = exponential(.5)
 rand(A, A^2/sin(A) > 0.45 * atan(B))
 rand(A, A < -1)
+
+## Non Negative Matrix Factorisation
+## ==================================
+dist(A,B; epsilon = 1.0) = sum([(A[i] - B[i])^2 for i = 1:length(A)]) < epsilon
+
+function nmf(V, W, H)
+  dist(V, W*H)
+end
+
+W = mvuniform(0.0,10.0,4,2)
+H = mvuniform(0.0,10.0,2,4)
+V = rand(4,4)
+
+nmf(V, W, H)

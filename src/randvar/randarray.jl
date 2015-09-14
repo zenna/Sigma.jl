@@ -10,7 +10,7 @@ RandArray(T::DataType, nrows::Int64, ncols::Int64) =
   RandArray{T,2}(Array(RandVar{T},nrows,ncols))
 RandArray{T<:Real}(a::Array{T}) = RandArray(Any[ConstantRandVar(x) for x in a])
 
-RandArray{T<:SymbolicRandVar}(a::Array{T}) = RandArray(Any[a...])
+RandArray{T<:SymbolicRandVar}(a::Array{T}) = RandArray(convert(Array{Any},a))
 
 # Fall back when type inference fails
 function RandArray(xs::Array{Any,2})

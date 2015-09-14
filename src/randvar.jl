@@ -21,11 +21,19 @@ type RandArray{T,N} <: DenseArray{T,N}
   array::Array{RandVar{T},N}
 end
 
+"A matrix of compiled random variables"
+type ExecutableRandArray{T, N} <: DenseArray{T,N}
+  array::Array{ExecutableRandVar{T},N}
+end
+
 "The type of the range of a random variable"
 rangetype{T}(X::RandVar{T}) = T
 
 "Number of dimensions of a random variable"
 ndims(X::RandVar) = length(dims(X))
+
+"Set Precision - Generic does nothing"
+function set_precision!(Y::RandVar, precision::Float64) end
 
 ## Aliases
 typealias Lift{T} Union(T,SymbolicRandVar{T})

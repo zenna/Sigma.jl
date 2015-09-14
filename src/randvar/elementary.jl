@@ -8,9 +8,10 @@ num_params{T <: ElementaryRandVar}(X::Type{T}) = length(fieldnames(X)) - 1
 
 abstract ClosedFormQuantileRandVar{T} <: ElementaryRandVar{T}
 
-## Continuous RandVars 
-## ===================Arcsine
+## Continuous RandVars
+## ===================
 
+"Arcsine"
 immutable ArcsineRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} <: ElementaryRandVar{T}
   dim::Id
   a::A

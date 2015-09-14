@@ -66,7 +66,7 @@ else
 end
 
 ## Global Cosntants
-const DEFAULT_PREC = 0.0001 #precision
+const DEFAULT_PREC = 0.1 #precision
 
 export
   # Random Variables
