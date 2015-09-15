@@ -16,7 +16,7 @@ DREAL_BINARY_SOLVER_ON && include(joinpath("solver","drealbinary.jl"))
 include(joinpath("solver","z3binary.jl"))
 
 # Set the default rrand var
-global global_randvar = DRealRandVar
+global global_randvar = SymbolicRandVar
 default_randvar() = (global global_randvar; global_randvar)
 function set_default_randvar!{T<:RandVar}(R::Type{T})
   println("Setting default solver to $R")
