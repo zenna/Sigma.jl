@@ -57,6 +57,13 @@ function sample_variance{T,N}(samples::Vector{Array{T,N}})
   sum(distances) / (length(samples) - 1)
 end
 
+function sample_variance(samples::Vector)
+  centerofmass::Array = mean(samples)
+  distances = [sqrt(sum((sample - centerofmass).^2)) for sample in samples]
+  sum(distances) / (length(samples) - 1)
+end
+
+
 results, stats = capture(()->benchmark_nmf(3,2,3,100,0.01,0.001), [:distance, :sat_check, :post_loop])
 
 timediffs = vcat(get(stats, proc_id=1, lensname=:sat_check), get(stats, proc_id=1, lensname=:sat_check))

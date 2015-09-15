@@ -113,12 +113,23 @@ end
 
 # ## Test
 # ## ====
-obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
-model, condition = test_mp2d(obstacles, 4)
-sample = rand(model, condition; precision = 0.01) / 10.0
+function mpgo()
+  obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
+  model, condition = test_mp2d(obstacles, 6)
+  sample = rand(model, condition, 100; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
+end
+
+resultsgo, statsgo = capture(mpgo, [:distance, :sat_check, :post_loop])
+
+
 # sample = [1.64807   1.8789  74.3919  65.4604  99.5862  55.8671  99.3301  99.2311
 #           1.24775  10.3224  33.2845  49.7916  88.6606  26.1991  98.028   99.5821]
 
+function gettiming(results)
+  timediffs2 = vcat([get(statsgo, proc_id=i, lensname=:sat_check) for i = 2:nprocs()]...)
+  timediffs2 =  float(map(i->float(i)/1e9, timediffs2))
+  mean(timediffs2), std(timediffs2)
+end
 
 
 include("../vis.jl")
