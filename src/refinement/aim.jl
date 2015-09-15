@@ -205,7 +205,7 @@ function genstack{D<:Domain}(
     propose_box = propose_integrated_n,
     args...)
   println("Using $ncores cores to generate $nsamples")
-  samplespercore = div(nsamples,ncores)
+  samplespercore = div(nsamples,ncores) + 1
   lst = [i for i = 1:ncores]
   g = _ -> propose_box(Y,box; nsamples = samplespercore, args...)
   a = pmaplm(g, lst; ncores = min(nprocs(),ncores))
