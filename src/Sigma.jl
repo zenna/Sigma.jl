@@ -54,15 +54,15 @@ import Base:  asin,
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
-
-# Solvers
-global const DREAL_SOLVER_ON = true
-global const DREAL_BINARY_SOLVER_ON = true
+import DReal: model, set_precision!
 
 if VERSION < v"0.4.0-dev"
-  include("Sigma1.jl")
+  call(f::Function, x) = f(x)
+  juliadir = joinpath(homedir(),".julia","v0.3")
+
+  include("Sigmajl3.jl")
 else
-  include("Sigma2.jl")
+  include("Sigmajl4.jl")
 end
 
 ## Global Cosntants
@@ -160,7 +160,6 @@ include("domains.jl")
 include("omega.jl")
 include("randvar.jl")
 include("interop.jl")
-include("solver.jl")
 include("refinement.jl")
 include("query.jl")
 include("distributions.jl")

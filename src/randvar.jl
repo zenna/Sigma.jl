@@ -4,7 +4,6 @@ abstract RandVar{T}
 "All RandVars have an id which is used to make them independent"
 typealias Id Integer
 
-
 "A symbolic *canonical* representation of a random variable"
 abstract SymbolicRandVar{T} <: RandVar{T}
 
@@ -43,6 +42,19 @@ include("randvar/symbolic.jl")
 include("randvar/elementary.jl")
 include("randvar/executable.jl")
 include("randvar/randarray.jl")
+
+## Specific solver-based randvars
+include("randvar/dreal.jl")
+
+# Set the default rrand var
+global global_randvar = DRealRandVar
+default_randvar() = (global global_randvar; global_randvar)
+function set_default_randvar!{T<:RandVar}(R::Type{T})
+  println("Setting default solver to $R")
+  global global_randvar
+  global_randvar = T
+end
+
 
 # Call An Arbitrary Simple Composite type with an ω
 # This calling is quite naive, it just calls all the fields of the type

@@ -1,7 +1,19 @@
+## Design Decisions
+#
+# - should we have extra code for where hte number of smaples is 1 or just have
+# generic routines which return first element of an array.
+#
+# - Second majo design question is who what kind of random variable to pass to the solver
+# initially we tried to make the preimage smaplers agnostic to what type of random variable
+# it was passed.  The randvar need only implement call(X, A).  However
+# -- If the algorith is parallelised, it may need generate the C typed rand Varvar
+# -- sol 1. Make these preimage samplers expect the RandVar type and they can do their own conversion
+# -- sol 2. Have some kind of buffer between the different cases
+
+# How might that work, well we say
+
 ## Unconditional Sampling
 ## ======================
-
-"Generate an unconditioned random sample from X"
 rand{T}(X::ExecutableRandVar{T}) = call(X,LazyRandomVector(Float64))
 
 "Generate `n` unconditioned random samples from distribution of X"
@@ -11,125 +23,99 @@ rand{T}(X::ExecutableRandVar{T}, n::Integer) =
 rand{T}(X::SymbolicRandVar{T}, n::Integer) =
   rand(convert(ExecutableRandVar{T},X),n)
 
-rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
-
 ## RandVar{Bool} Preimage Samples
 ## ==============================
+
+# Note args named x_sampler sample *from* x, e.g.
+# partition_sampler samples set from partition (not a partition itself)
+
 "`n` abstract samples from preimage: Y^-1({true})"
-function abstract_sample_partition(Y::RandVar{Bool},
-                         n::Integer;
-                         partition_alg::Type{BFSPartition} = BFSPartition,
-                         args...)
-  init_box = unit_box(LazyBox{Float64}, dims(Y))
-  partition = pre_partition(Y, init_box, partition_alg; args...)
+function abstract_sample_partition(
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    partition_alg::Type{BFSPartition} = BFSPartition,
+    args...)
+
+  partition = pre_partition(Y, partition_alg; args...)
   rand(preiamge, n)
 end
 
 "`n` point Sample from preimage: Y^-1({true})"
-function point_sample_partition(Y::RandVar{Bool},
-                      n::Integer;
-                      partition_alg::Type{BFSPartition} = BFSPartition,
-                      sampler::Function = point_sample,
-                      args...)
-  init_box = unit_box(LazyBox{Float64}, dims(Y))
-  p = pre_partition(Y, init_box, partition_alg; args...)
+function point_sample_partition{T<:PartitionAlgorithm}(
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    partition_alg::Type{T} = BFSPartition,
+    partition_sampler::Function = point_sample,
+    args...)
+  # FIXME: Float64 too specific
+  p = pre_partition(Y, partition_alg; args...)
   s_p = SampleablePartition(p)
-  sampler(s_p, n)
-end
-
-## Conditional Sampling
-## ====================
-"`n` conditional samples from `X` given `Y` is true"
-function cond_sample{T}(X::ExecutableRandVar{T},
-                        Y::RandVar{Bool},
-                        n::Integer;
-                        preimage_sampler::Function = point_sample_mc,
-                        args...)
-  RT = rangetype(X)
-  preimage_samples = preimage_sampler(Y, n; args...)
-  RT[call(X, sample) for sample in preimage_samples]
-end
-
-"`n` abstract Conditional samples from `X` given `Y` is true"
-function abstract_cond_sample{T}(X::ExecutableRandVar{T},
-                     Y::RandVar{Bool},
-                     n::Integer;
-                     abstract_preimage_sampler::Function = abstract_sample_partition,
-                     args...)
-  RT = rangetype(X)
-  preimage_samples = abstract_sample_partition(Y, n; args...)
-  RT[call(X, sample) for sample in preimage_samples]
+  partition_sampler(s_p, n)
 end
 
 ## Markokv Chain Conditional Sampling
 ## ==================================
-"`n` approximate point Sample from preimage: Y^-1({true})"
-function point_sample_mc(Y::RandVar{Bool},
-                      n::Integer;
-                      mc_alg::Type{AIM} = AIM,
-                      chain_sampler::Function = point_sample,
-                      args...)
-  init_box = unit_box(LazyBox{Float64}, dims(Y))
-  chain = pre_mc(Y, init_box, n, mc_alg; args...)
+"`n` approximate point sample from preimage: Y^-1({true})"
+function point_sample_mc{T<:MCMCAlgorithm}(
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    ChainAlg::Type{T} = AMS,    # Generate Markov Chain of samples
+    chain_sampler::Function = point_sample, # Sample from Markov Chain
+    args...)
+
+  # FIXME: Float64 too specific
+  chain = pre_mc(Y, n, ChainAlg; args...)
   chain_sampler(chain)
 end
 
-## Convenience
-## ===========
-"When `X` is a normal rand var"
-function rand{T}(X::SymbolicRandVar{T},
-                 Y::SymbolicRandVar{Bool},
-                 n::Integer;
-                 RandVarType = default_randvar(),
-                 args...)
-  @show RandVarType
-  executable_Y = convert(RandVarType{Bool}, Y)
-  executable_X = convert_psuedo(ExecutableRandVar{T}, X)
-  cond_sample(executable_X, executable_Y, n; args...)
-end
+## Samples from X given Y
+## ======================
 
-"When `X` is a composite type rand var"
-function rand(X,
-              Y::SymbolicRandVar{Bool},
-              n::Integer;
-              RandVarType = default_randvar(),
-              preimage_sampler::Function = point_sample_mc,
-              args...)
-  @show RandVarType
-  executable_Y = convert(RandVarType{Bool}, Y)
-  preimage_samples = preimage_sampler(executable_Y, n; args...)
-  [call_type(X, sample) for sample in preimage_samples]
+# FIXME, this is not the best way to do it.  This method, finds the preiamge samples
+# Then just runs them using interva arithmetic.  In order to do this properly you
+# need to pave both ways
+
+"`n` conditional samples from `X` given `Y` is true"
+function rand{T}(
+    X::SymbolicRandVar{T},
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    preimage_sampler::Function = point_sample_mc,
+    args...)
+  executable_X = convert_psuedo(ExecutableRandVar{T}, X)
+  @show "Got here1"
+  preimage_samples = preimage_sampler(Y, n; args...)
+  T[call(X, sample) for sample in preimage_samples]
 end
 
 "When `X` is a rand var"
-function rand(X::RandArray,
-              Y::SymbolicRandVar{Bool},
-              n::Integer;
-              RandVarType = default_randvar(),
-              preimage_sampler::Function = point_sample_mc,
-              args...)
+function rand{T}(
+    X::RandArray{T},
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    RandVarType::Type = default_randvar(),
+    preimage_sampler::Function = point_sample_mc,
+    args...)
+  executable_X = convert_psuedo(ExecutableRandArray{T}, X)
   executable_Y = convert(RandVarType{Bool}, Y)
   preimage_samples = preimage_sampler(executable_Y, n; args...)
-  [call(X, sample) for sample in preimage_samples]
+  Array{T}[call(X, sample) for sample in preimage_samples]
 end
 
-function rand(X::RandArray,
-              Y::SymbolicRandVar{Bool};
-              args...)
-  rand(X,Y,1;args...)[1]
-end
-
-rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args...)[1]
-
-function rand(X::Tuple,
-              Y::SymbolicRandVar{Bool},
-              n::Integer;
-              RandVarType = default_randvar(),
-              preimage_sampler::Function = point_sample_mc,
-              args...)
-  @show typeof(RandVarType)
+"Sample from a tuple of values `(X_1, X_2, ..., X_m) conditioned on `Y`"
+function rand(
+    X::Tuple,
+    Y::SymbolicRandVar{Bool},
+    n::Integer;
+    RandVarType::Type = default_randvar(),
+    preimage_sampler::Function = point_sample_mc,
+    args...)
   executable_Y = convert(RandVarType{Bool}, Y)
   preimage_samples = preimage_sampler(executable_Y, n; args...)
+
+  # There are two natural ways to return the tuples
+  # 1. tuple of m (num in tuple) vectors, each n samples long
+  # 2. vector of `n` tuples of length `m` <-- we do this oen
 
   # types = map(x->Vector{rangetype(x)}, X)
   samples = Any[]
@@ -140,3 +126,15 @@ function rand(X::Tuple,
   end
   tuple(samples...)
 end
+
+## One Sample
+## ==========
+
+"Generate a sample from a rand array `Xs` conditioned on `Y`"
+rand(Xs::RandArray, Y::SymbolicRandVar{Bool}; args...) =  rand(X,Y,1;args...)[1]
+
+"Generate a sample from a randvar `X` conditioned on `Y`"
+rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args...)[1]
+
+"Generate an unconditioned random sample from X"
+rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]

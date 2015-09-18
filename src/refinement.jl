@@ -20,7 +20,8 @@ end
 
 include("refinement/partition.jl")
 include("refinement/chain.jl")
-include("refinement/aim.jl")
-include("refinement/bfs.jl")
+include("refinement/mcmc.jl")
 
-SIGMA_SOLVER_ON && include(joinpath("refinement","aimcxx.jl"))
+# Specific algorithms
+include("refinement/ams.jl")
+include("refinement/bfs.jl")

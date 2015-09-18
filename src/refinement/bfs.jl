@@ -4,12 +4,14 @@
 immutable BFSPartition <: PartitionAlgorithm end
 
 # Preimage of Y under F, unioned with X
-function pre_partition{D <: Domain}(Y::RandVar{Bool},
-                                    init_box::D,
-                                    ::Type{BFSPartition};
-                                    precision::Float64 = DEFAULT_PREC,
-                                    dontstop::Function = loose_bounds_limited,
-                                    args...)
+function pre_partition{D <: Domain}(
+    Y::RandVar{Bool},
+    init_box::D,
+    ::Type{BFSPartition};
+    precision::Float64 = DEFAULT_PREC,
+    dontstop::Function = loose_bounds_limited,
+    args...)
+
   under = Deque{D}()     # Partition of under approximation of Y-1({true})
   rest = Deque{D}()      # (Partition of over approximation of Y-1({true})) \ under
   push!(under, init_box)
@@ -44,7 +46,7 @@ iters_left(under, rest, i; limit::Int = 1000) = i < limit
 
 "returns true (i.e. continue) when lower and upper probability bounds are far"
 function loose_bounds(under, rest, i; delta = 1e-3, do_every_i::Int = 100)
-  # For speed check only every do_every_i-th iteration 
+  # For speed check only every do_every_i-th iteration
   if i % do_every_i == 0
     partition = ApproxPartition(collect(rest), collect(under))
     prob_bounds = measure(partition)
@@ -56,4 +58,4 @@ end
 
 "Stops when precision is reached or time or memory constraints exhausted"
 loose_bounds_limited(under, rest, i) =
-  iters_left(under,rest,i) && memory_left(under, rest, i) && loose_bounds(under, rest, i) 
+  iters_left(under,rest,i) && memory_left(under, rest, i) && loose_bounds(under, rest, i)

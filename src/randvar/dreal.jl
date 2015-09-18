@@ -140,7 +140,7 @@ function is_sat(ex::Ex{Bool}, X::DRealRandVar{Bool}, A::AbstractOmega)
   # push!(debugstring, "(push 1)")
 
   ## Define subset (box) of Omega using assertions
-  ## For each variable - add constraints on its lower and upper bounds 
+  ## For each variable - add constraints on its lower and upper bounds
   for (symb, var) in X.sym_to_var
     interval = bounds(symb, A)
     add_bound_constraints!(ctx, var, interval.l, interval. u)
@@ -180,3 +180,36 @@ function call(X::DRealRandVar{Bool}, A::AbstractOmega)
     error("Solver error: Query or its negation must be true")
   end
 end
+
+
+"Returns some subet A ⊆ init_box s.t. Y(A) == true.  Also returns probability it sampled that box"
+function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args...)
+  DReal.push_ctx!(Y.ctx)
+
+  ## Define subset (box) of Omega using assertions
+  for (symb, var) in Y.sym_to_var
+    interval = bounds(symb, init_box)
+    add_bound_constraints!(Y.ctx, var, interval.l, interval. u)
+  end
+  DReal.add!(Y.ctx, Y.ex)
+
+  issat = DReal.is_satisfiable()
+
+  !issat && error("Cannot condition on unsatisfiable events")
+
+  A = LazyBox(Float64) #FIXME Float64 too speific?
+  for (symb, var) in Y.sym_to_var
+    A[symb.dim] = model(Y.ctx, var)
+  end
+
+  # I believe all the boxes are going to have the same size, so assuming that's true
+  # we can just return some constant for the size.
+
+  # As for the box itself, we need to return an abstract omega.
+  dummy_ex = first(Y.sym_to_var)[2]
+  logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
+  DReal.pop_ctx!(Y.ctx)
+  A, logq, 1.0
+end
+
+cleanup(Y::DRealRandVar) = DReal.delete_ctx!(Y.ctx)

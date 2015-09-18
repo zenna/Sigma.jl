@@ -23,7 +23,7 @@ collect{D}(p::ApproxPartition{D}) = vcat(p.under, p.rest)
 ## ========
 
 "A partition which is efficient for drawing many samples."
-type SampleablePartition {D<:Domain}
+type SampleablePartition{D<:Domain}
   over::Vector{D}
   last_under::Int
   cat::Categorical
@@ -61,3 +61,14 @@ function point_sample_exact(p::SampleablePartition, Y::RandVar{Bool}; maxtries =
   error("Could not get sample in $maxtries tries")
 end
 
+# Preimage of Y under F, unioned with X
+function pre_partition{T}(
+    Y::SymbolicRandVar{Bool},
+    ::Type{T};
+    RandVarType::Type = default_randvar(),
+    args...)
+
+  init_box = unit_box(LazyBox{Float64}, dims(Y))
+  Y_conv = convert(RandVarType, Y)
+  pre_partition(Y_conv, init_box, T; args...)
+end
