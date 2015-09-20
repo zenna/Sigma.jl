@@ -124,14 +124,16 @@ function rand(
   # 2. vector of `n` tuples of length `m` <-- we do this oen
 
   # types = map(x->Vector{rangetype(x)}, X)
-  samples = Any[]
+  samples = Array[]
   for x in X
     RT = rangetype(x)
     executable_X = executionalize(x)
     xsamples = RT[call(executable_X, sample) for sample in preimage_samples]
     push!(samples, xsamples)
   end
-  tuple(samples...)
+  samples
+  map(tuple, samples...)
+  # tuple(samples...)
 end
 
 ## One Sample
@@ -148,3 +150,6 @@ rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args..
 
 "Generate an unconditioned random sample from X"
 rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
+
+"Generate single conditionam sample of tuple `X` of RandVar/Arrays given `Y`"
+rand(X::Tuple, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1;args...)[1]

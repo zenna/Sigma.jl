@@ -93,9 +93,13 @@ function propose_boxes{D <: Domain}(
     init_box::D,
     nsamples::Integer;
     RandVarType::Type = default_randvar(),
+    precision::Float64 = default_precision(),
     args...)
 
   Y_conv = convert(RandVarType{Bool}, Y)
+  set_precision!(Y_conv, precision)
+
+  # DReal.opensmt_print_expr(Y_conv.ex.e)
   @compat samples = Array(Tuple{D,Float64,Float64}, nsamples)
   for i = 1:nsamples
     before = time_ns()

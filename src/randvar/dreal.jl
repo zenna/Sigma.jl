@@ -38,7 +38,8 @@ for (name, op) in all_functional_randvars
   quote
   # Real
   function expand(X::$name, sym_to_var::SymbToVar, ctx::DReal.Context)
-    ($op)(ctx, [expand(arg,sym_to_var,ctx) for arg in args(X)]...)
+    rvargs = [expand(arg,sym_to_var,ctx) for arg in args(X)]
+    ($op)(ctx, rvargs...)
   end
   end)
 end
@@ -184,22 +185,22 @@ end
 
 "Returns some subet A ⊆ init_box s.t. Y(A) == true.  Also returns probability it sampled that box"
 function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args...)
-  DReal.push_ctx!(Y.ctx)
+  @show DReal.push_ctx!(Y.ctx)
 
   ## Define subset (box) of Omega using assertions
   for (symb, var) in Y.sym_to_var
-    interval = bounds(symb, init_box)
+    @show interval = bounds(symb, init_box)
     add_bound_constraints!(Y.ctx, var, interval.l, interval. u)
   end
   DReal.add!(Y.ctx, Y.ex)
 
-  issat = DReal.is_satisfiable()
+  @show issat = DReal.is_satisfiable()
 
   !issat && error("Cannot condition on unsatisfiable events")
 
-  A = LazyBox(Float64) #FIXME Float64 too speific?
+  @show A = LazyBox(Float64) #FIXME Float64 too speific?
   for (symb, var) in Y.sym_to_var
-    A[symb.dim] = model(Y.ctx, var)
+    A[symb.dim] = @show model(Y.ctx, var)
   end
 
   # I believe all the boxes are going to have the same size, so assuming that's true
@@ -207,7 +208,7 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
 
   # As for the box itself, we need to return an abstract omega.
   dummy_ex = first(Y.sym_to_var)[2]
-  logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
+  @show logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
   DReal.pop_ctx!(Y.ctx)
   A, logq, 1.0
 end

@@ -46,7 +46,7 @@ normal(i::Id = genint()) = normal(0.0, 1.0, i)
 
 
 "Bernoulli distributed random variable"
-flip{T<:Real}(p::Lift{T}, id::Int = genint()) = p > omega_component(id)
+flip{T<:Real}(p::Lift{T}, id::Int = genint()) = p >= omega_component(id)
 
 "Standard Bernoulli p = 0.5"
 flip(id::Id = genint()) = flip(0.5, id)

@@ -28,7 +28,8 @@ Contents:
 
    queries
 
-   
+   algorithms
+
    license
 
 
@@ -39,4 +40,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

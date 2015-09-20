@@ -4,14 +4,14 @@ using Sigma
 using Base.Test
 
 A = Sigma.flip()
-B = Sigma.flip()
+B = Sigma.flip(0.9)
 C = Sigma.flip()
 
-a, b, c = rand((A, B, C), A! & !B & !C, 1)
+a, b, c = rand((A, B, C), !A & !B & !C)
 @test !a & !b & !c
 
+a, b, c = rand((A, B, C), (A & B) | C)
+@test (a & b) | c
 
-formula = (A & B) | C
-a, b, c = rand((A, B, C), formula, 1)
-@show a, b, c
-@test (a[1] & b[1]) | c[1]
+a, b, c = rand((A, B, C), (A & B) | !C & A)
+@test (a & b) | !c & a
