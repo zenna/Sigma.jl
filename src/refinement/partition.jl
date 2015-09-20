@@ -66,9 +66,11 @@ function pre_partition{T}(
     Y::SymbolicRandVar{Bool},
     ::Type{T};
     RandVarType::Type = default_randvar(),
+    precision = default_precision(),
     args...)
 
   init_box = unit_box(LazyBox{Float64}, dims(Y))
   Y_conv = convert(RandVarType, Y)
+  set_precision!(Y_conv, precision)
   pre_partition(Y_conv, init_box, T; args...)
 end

@@ -104,7 +104,7 @@ function propose_boxes{D <: Domain}(
     lens(:sat_check, after-before)
   end
   cleanup(Y_conv)
-  samples
+  @show samples
 end
 
 ## Parallel
@@ -167,7 +167,7 @@ function pre_mc(
     parallel::Bool = true,
     args...)
 
-  init_box = unit_box(LazyBox{Float64}, dims(Y))
+  @show init_box = unit_box(LazyBox{Float64}, dims(Y))
   if parallel && nprocs() > 1
     boxes = propose_boxes_parallel(Y, init_box, nsamples; RandVarType = RandVarType, args...)
   else

@@ -23,6 +23,14 @@ rand{T}(X::ExecutableRandVar{T}, n::Integer) =
 rand{T}(X::SymbolicRandVar{T}, n::Integer) =
   rand(convert(ExecutableRandVar{T},X),n)
 
+##  Rand Arrays
+"Generate `n` unconditioned random array samples from distribution of X"
+rand{T}(X::ExecutableRandArray{T}, n::Integer) =
+  Array{T}[call(X, LazyRandomVector(Float64)) for i = 1:n]
+
+"Generate `n` unconditioned random array samples from distribution of X"
+rand{T,N}(Xs::RandArray{T,N}, n::Integer) = rand(convert(ExecutableRandArray{T},Xs),n)
+
 ## RandVar{Bool} Preimage Samples
 ## ==============================
 
@@ -82,10 +90,10 @@ function rand{T}(
     n::Integer;
     preimage_sampler::Function = point_sample_mc,
     args...)
+
   executable_X = convert_psuedo(ExecutableRandVar{T}, X)
-  @show "Got here1"
   preimage_samples = preimage_sampler(Y, n; args...)
-  T[call(X, sample) for sample in preimage_samples]
+  T[call(executable_X, sample) for sample in preimage_samples]
 end
 
 "When `X` is a rand var"
@@ -93,13 +101,12 @@ function rand{T}(
     X::RandArray{T},
     Y::SymbolicRandVar{Bool},
     n::Integer;
-    RandVarType::Type = default_randvar(),
     preimage_sampler::Function = point_sample_mc,
     args...)
+
   executable_X = convert_psuedo(ExecutableRandArray{T}, X)
-  executable_Y = convert(RandVarType{Bool}, Y)
-  preimage_samples = preimage_sampler(executable_Y, n; args...)
-  Array{T}[call(X, sample) for sample in preimage_samples]
+  preimage_samples = preimage_sampler(Y, n; args...)
+  Array{T}[call(executable_X, sample) for sample in preimage_samples]
 end
 
 "Sample from a tuple of values `(X_1, X_2, ..., X_m) conditioned on `Y`"
@@ -107,11 +114,10 @@ function rand(
     X::Tuple,
     Y::SymbolicRandVar{Bool},
     n::Integer;
-    RandVarType::Type = default_randvar(),
     preimage_sampler::Function = point_sample_mc,
     args...)
-  executable_Y = convert(RandVarType{Bool}, Y)
-  preimage_samples = preimage_sampler(executable_Y, n; args...)
+
+  preimage_samples = preimage_sampler(Y, n; args...)
 
   # There are two natural ways to return the tuples
   # 1. tuple of m (num in tuple) vectors, each n samples long
@@ -121,7 +127,8 @@ function rand(
   samples = Any[]
   for x in X
     RT = rangetype(x)
-    xsamples = RT[call(x, sample) for sample in preimage_samples]
+    executable_X = executionalize(x)
+    xsamples = RT[call(executable_X, sample) for sample in preimage_samples]
     push!(samples, xsamples)
   end
   tuple(samples...)
@@ -131,7 +138,10 @@ end
 ## ==========
 
 "Generate a sample from a rand array `Xs` conditioned on `Y`"
-rand(Xs::RandArray, Y::SymbolicRandVar{Bool}; args...) =  rand(X,Y,1;args...)[1]
+rand(Xs::RandArray, Y::SymbolicRandVar{Bool}; args...) =  rand(Xs,Y,1;args...)[1]
+
+"Generate a sample from a rand array `Xs` conditioned on `Y`"
+rand(Xs::Ex, Y::SymbolicRandVar{Bool}; args...) =  rand(Xs,Y,1;args...)[1]
 
 "Generate a sample from a randvar `X` conditioned on `Y`"
 rand(X::SymbolicRandVar, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1; args...)[1]

@@ -109,12 +109,6 @@ start(Xs::RandArray) = start(Xs.array)
 next(Xs::RandArray, state) = next(Xs.array, state)
 done(Xs::RandArray, state) = done(Xs.array, state)
 
-# # PERF: use list comprehensions for speed
-function rand{T,N}(Xs::RandArray{T,N})
-  ret::Array{T,N} = call(Xs,LazyRandomVector(Float64))
-  return ret
-end
-
 ## Arbitrary Array  Functions
 @compat similar{T,N}(X::RandArray{T,N}, elem_type, dims::Tuple{Vararg{Int}}) = RandArray(T,dims...)
 # @compat similar{T}(X::RandArray{T,1}, elem_type::Type{RandVar{Float64}}, dims::Tuple{Int64}) = RandArray(T)

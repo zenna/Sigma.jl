@@ -65,9 +65,6 @@ else
   include("Sigmajl4.jl")
 end
 
-## Global Cosntants
-const DEFAULT_PREC = 0.1 #precision
-
 export
   # Random Variables
   RandVar,
@@ -158,6 +155,7 @@ export
 include("util.jl")
 include("domains.jl")
 include("omega.jl")
+include("precision.jl")
 include("randvar.jl")
 include("interop.jl")
 include("refinement.jl")
