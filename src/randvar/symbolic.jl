@@ -34,7 +34,7 @@ function isequal(X::SymbolicRandVar, Y::SymbolicRandVar)
     !isequal(x_args[i],y_args[i]) && (return false)
   end
   true
-end  
+end
 
 @compat in{T}(X::SymbolicRandVar, bounds::Tuple{Lift{T},Lift{T}}) = (X >= bounds[1]) & (X <=  bounds[2])
 
@@ -108,10 +108,11 @@ end
 
 # Real -> _<:Floating
 ## ==================
-real_floating = ((:ExpRandVar,:exp), (:LogRandVar,:log), (:SinRandVar,:sin),
-          (:CosRandVar,:cos), (:TanRandVar,:tan), (:AsinRandVar,:asin),
-          (:AcosRandVar,:acos), (:AtanRandVar,:atan), (:SinhRandVar,:sinh),
-          (:CoshRandVar,:cosh), (:TanhRandVar,:tanh), (:Atan2RandVar,:atan2))
+real_floating = (
+  (:SqrtRandVar, :sqrt), (:ExpRandVar,:exp), (:LogRandVar,:log), (:SinRandVar,:sin),
+  (:CosRandVar,:cos), (:TanRandVar,:tan), (:AsinRandVar,:asin),
+  (:AcosRandVar,:acos), (:AtanRandVar,:atan), (:SinhRandVar,:sinh),
+  (:CoshRandVar,:cosh), (:TanhRandVar,:tanh), (:Atan2RandVar,:atan2))
 
 for (name,op) in real_floating
   eval(
@@ -183,7 +184,7 @@ IneqExpr = Union(GTRandVar,GTERandVar,LTERandVar, LTRandVar,EqRandVar,NeqRandVar
 LogicalExpr = Union(OrRandVar,AndRandVar, BicondRandVar, NotRandVar)
 
 # All Functional expressions
-CompositeRandVar = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, IfElseRandVar)
+CompositeRandVar = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, SqrtRandVar, IfElseRandVar)
 
 args{T<:CompositeRandVar}(X::T) = X.args
 

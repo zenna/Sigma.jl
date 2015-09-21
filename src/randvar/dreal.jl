@@ -78,9 +78,7 @@ function expand{T}(X::ElementaryRandVar{T}, sym_to_var::SymbToVar, ctx::DReal.Co
 end
 
 # 5. If Constant just return value
-function expand(X::ConstantRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
-  X.val
-end
+expand(X::ConstantRandVar, sym_to_var::SymbToVar, ctx::DReal.Context) = X.val
 
 # 6. If Omega just return value
 function expand(X::OmegaRandVar, sym_to_var::SymbToVar, ctx::DReal.Context)
@@ -142,9 +140,9 @@ function is_sat(ex::Ex{Bool}, X::DRealRandVar{Bool}, A::AbstractOmega)
 
   ## Define subset (box) of Omega using assertions
   ## For each variable - add constraints on its lower and upper bounds
-  for (symb, var) in X.sym_to_var
+  for (symb, vari) in X.sym_to_var
     interval = bounds(symb, A)
-    add_bound_constraints!(ctx, var, interval.l, interval. u)
+    add_bound_constraints!(ctx, vari, interval.l, interval. u)
   end
 
   DReal.add!(ctx, ex)
@@ -185,22 +183,22 @@ end
 
 "Returns some subet A ⊆ init_box s.t. Y(A) == true.  Also returns probability it sampled that box"
 function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args...)
-  @show DReal.push_ctx!(Y.ctx)
+  DReal.push_ctx!(Y.ctx)
 
   ## Define subset (box) of Omega using assertions
-  for (symb, var) in Y.sym_to_var
-    @show interval = bounds(symb, init_box)
-    add_bound_constraints!(Y.ctx, var, interval.l, interval. u)
+  for (symb, vari) in Y.sym_to_var
+    interval = bounds(symb, init_box)
+    add_bound_constraints!(Y.ctx, vari, interval.l, interval. u)
   end
   DReal.add!(Y.ctx, Y.ex)
 
-  @show issat = DReal.is_satisfiable()
+  issat = DReal.is_satisfiable()
 
   !issat && error("Cannot condition on unsatisfiable events")
 
-  @show A = LazyBox(Float64) #FIXME Float64 too speific?
+  A = LazyBox(Float64) #FIXME Float64 too speific?
   for (symb, var) in Y.sym_to_var
-    A[symb.dim] = @show model(Y.ctx, var)
+    A[symb.dim] = model(Y.ctx, var)
   end
 
   # I believe all the boxes are going to have the same size, so assuming that's true
@@ -208,7 +206,7 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
 
   # As for the box itself, we need to return an abstract omega.
   dummy_ex = first(Y.sym_to_var)[2]
-  @show logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
+  logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
   DReal.pop_ctx!(Y.ctx)
   A, logq, 1.0
 end

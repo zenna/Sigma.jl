@@ -69,10 +69,7 @@ export
   # Random Variables
   RandVar,
   RandArray,
-  RandArray,
-  RandVarAI,
   dims,
-
 
   # Abstract Domains
   rangetype,
@@ -84,13 +81,8 @@ export
 
   # Inference queries
   prob,
-  prob_bfs,
   sample_mean,
-  cond_prob_mh,
-  cond_prob_bfs,
-  cond_sample,
-  cond_sample_mh,
-  cond_sample_bfs,
+
   setindex,
   model,
 
@@ -104,9 +96,6 @@ export
   flip,
   exponential,
   logistic,
-  betarv,
-  gamma,
-  categorical,
   geometric,
   discreteuniform,
   iid,
@@ -120,8 +109,6 @@ export
   @noexpand,
 
   #utils
-  to_dimacs,
-  rand_select,
   sqr,
   ≊,
   pnormalize,
@@ -139,12 +126,8 @@ export
   plot_sample_cond_density,
   plot_sample_density,
 
-  #Solver
-  DRealSolver,
-
   # RandVars
   DRealRandVar,
-  DRealBinaryRandVar,
 
   # From abstract domains
   mid,

@@ -58,3 +58,10 @@ end
 
 "Standard Poisson λ = 1.0"
 poisson(id::Id = genint()) = poisson(1.0, id)
+
+"Poisson distributed random variable constructor"
+function discreteuniform(a::Lift{Int64}, b::Lift{Int64}, id::Id = genint())
+  DiscreteUniformRandVar{Int64, Int64, Int64}(id,
+    convert(SymbolicRandVar{Int64}, a),
+    convert(SymbolicRandVar{Int64}, b))
+end

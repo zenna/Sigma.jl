@@ -18,6 +18,4 @@ positive_mammogram = ifelse(breast_cancer,flip(0.8),flip(0.096))
 
 # Queries
 prob(positive_mammogram)
-prob_sampled(positive_mammogram, nsamples = 100000)
-cond_prob(breast_cancer, positive_mammogram, box_budget = 1E5, max_iters = 1E5)
-cond_prob_sampled(breast_cancer, positive_mammogram)
+prob(breast_cancer, positive_mammogram)

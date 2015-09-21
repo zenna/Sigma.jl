@@ -16,22 +16,23 @@ ratio_V(n) = V(n) / 2^n
 ## n dim box will be within the enclosed sphere.
 ## Approximates volume of nball ground-truth
 function unit_n_ball(num_dims::Integer)
-  ncube = [uniform(i,-1.,1.) for i in 1:num_dims]
-  sphere = sqrt(sum(map(sqr,ncube))) < 1
-  ncube,sphere
+  ncube = mvuniform(-1.0, 1.0, num_dims)
+  sphere = sqrt(sum([x^2 for x in ncube])) < 1.0
+  ncube, sphere
 end
 
 ## Prob that point within n dim box will be element of smaller cube
 ## of side length 1 10th
 function unit_n_box(lenratio::Float64, num_dims::Integer)
   @assert 0 < lenratio <= 1
-  bigcube = [uniform(i,-1.,1.) for i in 1:num_dims]
-  smallcube  = map(x->(x>-lenratio) & (x < lenratio), bigcube)
+  bigcube = mvuniform(-1.0, 1.0, num_dims)
+  smallcube  = [(x > -lenratio) & (x < lenratio) for x in bigcube]
   smallcube_cond = apply(&, smallcube)
   bigcube, smallcube_cond
 end
 
-for dimrange = 1:5
-  bigcube, smallcube_cond = unit_n_box(lenratio,i)
-  sampler = rand(bigcube[1], smallcube_cond)
-end
+model, condition = unit_n_ball(10)
+rand(model, condition)
+
+model, condition = unit_n_box(0.5, 10)
+rand(model, condition)

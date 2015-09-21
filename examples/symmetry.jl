@@ -8,7 +8,5 @@ function issymmetric(x)
   x[1:middle-1] == x[length(x):-1:middle]
 end
 
-Xs = iid(Int64, i->discreteuniform(i,1,25), 200)
-c = issymmetric(Xs)
-sample = cond_sample_mh(Xs,c,1)
-@test issymmetric(sample)
+Xs = mvuniform(0,25,100)
+sample = rand(Xs, issymmetric(Xs))

@@ -21,7 +21,7 @@ using Sigma
 
 # Usage
 
-[Read the (work-in-progress) documentation](http://sigmajl.readthedocs.org/en/latest/) or see the quick start belong
+[Read the documentation](http://sigmajl.readthedocs.org/en/latest/) or see the quick start belong
 
 # Quick Start
 First we need to include Sigma

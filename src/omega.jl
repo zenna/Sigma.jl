@@ -14,11 +14,11 @@ LazyOmega{T<:Real}(T2::Type{T}) = LazyBox(T2)
 
 "Create a Euclidean unit box with dimensions `dims`"
 function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
-  box = LazyBox(T)
+  abox = LazyBox(T)
   for dim in dims
-    box[dim] = Interval{T}(zero(T), one(T))
+    abox[dim] = Interval{T}(zero(T), one(T))
   end
-  box
+  abox
 end
 
 "All kinds of Omega"

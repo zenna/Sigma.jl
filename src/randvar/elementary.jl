@@ -3,7 +3,7 @@
 
 abstract ElementaryRandVar{T} <: SymbolicRandVar{T}
 dims(X::ElementaryRandVar) = union([Set(X.dim), map(dims, args(X))...]...)::Set{Int}
-has_single_dim(X::ElementaryRandVar) = true
+has_single_dim(::ElementaryRandVar) = true
 num_params{T <: ElementaryRandVar}(X::Type{T}) = length(fieldnames(X)) - 1
 
 abstract ClosedFormQuantileRandVar{T} <: ElementaryRandVar{T}
@@ -16,7 +16,7 @@ immutable ArcsineRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} 
   dim::Id
   a::A
   b::B
-  ArcSineRandVar{T<:Real}(dim::Id, a::SymbolicRandVar{T}, b::SymbolicRandVar{T}) = new{T, T, T}(id,a,b)
+  ArcSineRandVar{T1<:Real}(dim::Id, a::SymbolicRandVar{T1}, b::SymbolicRandVar{T1}) = new{T1, T1, T1}(dim, a, b)
 end
 
 "Uniformly distributed RandVar"
@@ -26,7 +26,7 @@ immutable UniformRandVar{T <: Real, A <: Real, B <: Real} <: ClosedFormQuantileR
   ub::SymbolicRandVar{B}
 end
 
-quantile_expr(x::UniformRandVar) = (x.lb - x.ub) * omega_component(X.dim) + x.lb
+quantile_expr(x::UniformRandVar) = (x.lb - x.ub) * omega_component(x.dim) + x.lb
 
 args(X::UniformRandVar) = @compat tuple(X.lb, X.ub)
 
@@ -80,6 +80,8 @@ immutable DiscreteUniformRandVar{T <: Integer, A <: Integer, B <: Integer} <: El
   a::SymbolicRandVar{A}
   b::SymbolicRandVar{B}
 end
+
+args(X::DiscreteUniformRandVar) = tuple(X.a, X.b)
 
 "Uniformly distributed RandVar"
 immutable PoissonRandVar{T <: Real, A <: Real} <: ClosedFormQuantileRandVar{T}
