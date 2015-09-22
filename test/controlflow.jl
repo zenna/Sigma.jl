@@ -1,7 +1,7 @@
 using Base.Test
 using Sigma
 import Sigma: LazyOmega, flip
-
+import AbstractDomains: tf, f, t
 # When cond is a random variable, @If and ifelse return a random variable
 begin
   local x = flip(0.6)

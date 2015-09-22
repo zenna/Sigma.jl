@@ -1,5 +1,12 @@
 
 module Sigma
+
+deps_dir = joinpath(joinpath(Pkg.dir("Sigma"),"deps"))
+prefix = joinpath(deps_dir,"usr")
+src_dir = joinpath(prefix,"src")
+bin_dir = joinpath(prefix,"bin")
+lib_dir = joinpath(prefix,"lib")
+
 include("DReal/DReal.jl")
 
 using .DReal
@@ -56,7 +63,7 @@ import Base:  asin,
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
-import DReal: model, set_precision!
+import .DReal: model, set_precision!
 
 if VERSION < v"0.4.0-dev"
   call(f::Function, x) = f(x)

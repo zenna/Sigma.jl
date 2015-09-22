@@ -1,8 +1,6 @@
 ## Model
 ## =====
 
-import DReal.model
-
 """Generates a 'model' from X given that Y is true, a model is like a model
   except that it does not follow any wel ldefined distribution"""
 function abstract_model(Y::DRealRandVar{Bool})
