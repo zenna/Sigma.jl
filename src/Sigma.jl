@@ -1,7 +1,9 @@
 
 module Sigma
+include("DReal/DReal.jl")
 
-using DReal
+using .DReal
+# using DReal
 using Docile
 
 using Distributions
@@ -147,6 +149,7 @@ include("distributions.jl")
 include("split.jl")
 include("pmaplm.jl")
 include("show.jl")
+
 
 # Hack to avoid loading Gadfly each time
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")

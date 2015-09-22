@@ -198,7 +198,7 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
 
   A = LazyBox(Float64) #FIXME Float64 too speific?
   for (symb, var) in Y.sym_to_var
-    A[symb.dim] = model(Y.ctx, var)
+    A[symb.dim] = DReal.model(Y.ctx, var)
   end
 
   # I believe all the boxes are going to have the same size, so assuming that's true

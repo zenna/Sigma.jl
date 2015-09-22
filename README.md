@@ -21,7 +21,7 @@ using Sigma
 
 # Usage
 
-[Read the documentation](http://sigmajl.readthedocs.org/en/latest/) or see the quick start belong
+[Read the documentation](http://sigmajl.readthedocs.org/en/latest/), look at the [examples](https://github.com/zenna/Sigma.jl/tree/master/examples), or see the quick start below.
 
 # Quick Start
 First we need to include Sigma
