@@ -25,11 +25,9 @@ function pre_partition{D <: Domain}(
     # If all of the box is within preimage keep it
     if isequal(image,t) || issmall(box, precision)
       push!(rest, box)
-      @show "pushing"
 
     # Otherwise split it into disjoint subsets and repeat for each part
     elseif isequal(image,tf)
-      @show "splitting"
       for child in mid_split(box)
         push!(under, child)
       end
@@ -52,7 +50,6 @@ function loose_bounds(under, rest, i; delta = 0.05, do_every_i::Int = 100)
   if i % do_every_i == 0
     partition = ApproxPartition(collect(rest), collect(under))
     prob_bounds = measure(partition)
-    @show measure(prob_bounds)
     return measure(prob_bounds) > delta
   else
     return true
