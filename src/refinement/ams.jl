@@ -103,7 +103,7 @@ function propose_boxes{D <: Domain}(
   @compat samples = Array(Tuple{D,Float64,Float64}, nsamples)
   for i = 1:nsamples
     before = time_ns()
-    @time samples[i] = preimage_proposal(Y_conv, init_box; args...)
+    samples[i] = preimage_proposal(Y_conv, init_box; args...)
     after = time_ns()
     lens(:sat_check, after-before)
   end

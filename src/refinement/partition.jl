@@ -70,7 +70,7 @@ function pre_partition{T}(
     args...)
 
   init_box = unit_box(LazyBox{Float64}, dims(Y))
-  Y_conv = convert(RandVarType, Y)
+  Y_conv = convert(RandVarType{Bool}, Y)
   set_precision!(Y_conv, precision)
-  pre_partition(Y_conv, init_box, T; args...)
+  pre_partition(Y_conv, init_box, T; precision=precision, args...)
 end

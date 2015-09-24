@@ -153,3 +153,6 @@ rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
 
 "Generate single conditionam sample of tuple `X` of RandVar/Arrays given `Y`"
 rand(X::Tuple, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1;args...)[1]
+
+"Generate single sample from random array"
+rand(X::RandArray; args...) = rand(X, 1)[1]
