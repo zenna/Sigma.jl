@@ -7,7 +7,7 @@ You can use it to specify probabilistic models as normal Julia programs, and per
 
 # Installation
 
-Sigma is built on top of Julia.  Sigma is currently highly unstable and hence not yet in the official Julia Package repository.  You can still (try to) install it from a Julia REPL with
+Sigma is built on top of Julia.  Sigma currently runs on linux only. Sigma is currently highly unstable and hence not yet in the official Julia Package repository.  You can still (try to) install it from a Julia REPL with
 
 ```julia
 Pkg.clone("https://github.com/zenna/Sigma.jl.git")
