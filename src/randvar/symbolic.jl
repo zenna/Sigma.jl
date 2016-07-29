@@ -176,15 +176,15 @@ ifelse{T<:Real}(A::SymbolicRandVar{Bool}, B::T, C::SymbolicRandVar{T}) = IfElseR
 
 # Unions
 ## =====
-BinaryRealExpr = Union(PlusRandVar, MinusRandVar, TimesRandVar,DivideRandVar,PowRandVar)
-UnaryRealExpr = Union(UnaryPlusRandVar,UnaryMinusRandVar,AbsRandVar)
-TrigExpr = Union(ExpRandVar,LogRandVar,SinRandVar,CosRandVar,TanRandVar,AsinRandVar,
-                 AcosRandVar,AtanRandVar,SinhRandVar,CoshRandVar,TanhRandVar,Atan2RandVar)
-IneqExpr = Union(GTRandVar,GTERandVar,LTERandVar, LTRandVar,EqRandVar,NeqRandVar)
-LogicalExpr = Union(OrRandVar,AndRandVar, BicondRandVar, NotRandVar)
+BinaryRealExpr = Union{PlusRandVar, MinusRandVar, TimesRandVar,DivideRandVar,PowRandVar}
+UnaryRealExpr = Union{UnaryPlusRandVar,UnaryMinusRandVar,AbsRandVar}
+TrigExpr = Union{ExpRandVar,LogRandVar,SinRandVar,CosRandVar,TanRandVar,AsinRandVar,
+                 AcosRandVar,AtanRandVar,SinhRandVar,CoshRandVar,TanhRandVar,Atan2RandVar}
+IneqExpr = Union{GTRandVar,GTERandVar,LTERandVar, LTRandVar,EqRandVar,NeqRandVar}
+LogicalExpr = Union{OrRandVar,AndRandVar, BicondRandVar, NotRandVar}
 
 # All Functional expressions
-CompositeRandVar = Union(BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, SqrtRandVar, IfElseRandVar)
+CompositeRandVar = Union{BinaryRealExpr, UnaryRealExpr, TrigExpr, IneqExpr, LogicalExpr, SqrtRandVar, IfElseRandVar}
 
 args{T<:CompositeRandVar}(X::T) = X.args
 

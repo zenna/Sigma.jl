@@ -22,13 +22,13 @@ function unit_box{T<:Real}(::Type{LazyBox{T}}, dims::Set{Int})
 end
 
 "All kinds of Omega"
-typealias Omega{T} Union(Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T}, Dict{Int,T})
+typealias Omega{T} Union{Vector{T},HyperBox{T}, LazyBox{T}, LazyRandomVector{T}, Dict{Int,T}}
 
 "Abstract representations of sample space - euclidean box"
-typealias AbstractOmega{T} Union(HyperBox{T}, LazyBox{T})
+typealias AbstractOmega{T} Union{HyperBox{T}, LazyBox{T}}
 
 "A concrete (i.e. not abstract) element ω in sample space Ω"
-typealias ConcreteOmega{T} Union(Vector{T}, LazyRandomVector{T})
+typealias ConcreteOmega{T} Union{Vector{T}, LazyRandomVector{T}}
 
 "Build an omega of `n` dimensions"
 abstract_omega(n::Int) = HyperBox([Interval(0.0,1.0) for i = 1:n])

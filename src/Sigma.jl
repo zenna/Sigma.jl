@@ -7,12 +7,7 @@ src_dir = joinpath(prefix,"src")
 bin_dir = joinpath(prefix,"bin")
 lib_dir = joinpath(prefix,"lib")
 
-include("DReal/DReal.jl")
-
-using .DReal
-# using DReal
-using Docile
-
+using DReal
 using Distributions
 using AbstractDomains
 using Lens
@@ -36,6 +31,36 @@ import Base: real
 import Base: var
 import Base: in
 import Base: collect
+import Base: setindex!,
+             hcat,
+             vcat,
+             .^,
+             .*,
+             .>,
+             .>=,
+             .<,
+             .<=,
+             .==,
+             .!=,
+             transpose,
+             ctranspose,
+             ==,
+             ^,
+             +,
+             -,
+             *,
+             /,
+             >,
+             >=,
+             <=,
+             <,
+             <,
+             <,
+             !=,
+             |,
+             &,
+             !
+
 
 import Base:  asin,
               sqrt,
@@ -63,7 +88,7 @@ import Base:  asin,
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
-import .DReal: model, set_precision!
+import DReal: model, set_precision!
 
 if VERSION < v"0.4.0-dev"
   call(f::Function, x) = f(x)

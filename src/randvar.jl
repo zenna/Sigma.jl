@@ -35,8 +35,8 @@ ndims(X::RandVar) = length(dims(X))
 function set_precision!(::RandVar, precision::Float64) end
 
 ## Aliases
-typealias Lift{T} Union(T,SymbolicRandVar{T})
-typealias AllRandVars Union(RandVar, RandArray)
+typealias Lift{T} Union{T,SymbolicRandVar{T}}
+typealias AllRandVars Union{RandVar, RandArray}
 
 include("randvar/symbolic.jl")
 include("randvar/elementary.jl")

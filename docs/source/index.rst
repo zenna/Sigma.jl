@@ -22,7 +22,7 @@ Contents:
    :maxdepth: 2
 
    starting
-   modelling
+   modeling
    randarray
    univariate
 
