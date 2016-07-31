@@ -1,7 +1,7 @@
 
 module Sigma
 
-deps_dir = joinpath(joinpath(Pkg.dir("Sigma"),"deps"))
+deps_dir = joinpath(dirname(@__FILE__),"..","deps")
 prefix = joinpath(deps_dir,"usr")
 src_dir = joinpath(prefix,"src")
 bin_dir = joinpath(prefix,"bin")
