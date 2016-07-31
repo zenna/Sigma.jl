@@ -5,6 +5,10 @@ You can use it to specify probabilistic models as normal Julia programs, and per
 
 [![Build Status](https://travis-ci.org/zenna/Sigma.jl.svg?branch=master)](https://travis-ci.org/zenna/Sigma.jl)
 
+
+[![Sigma](http://pkg.julialang.org/badges/Sigma_0.4.svg)](http://pkg.julialang.org/?pkg=Sigma&ver=0.4)
+[![Sigma](http://pkg.julialang.org/badges/Sigma_0.5.svg)](http://pkg.julialang.org/?pkg=Sigma&ver=0.5)
+
 # Installation
 
 Sigma is built on top of Julia.  Sigma currently runs on linux only. Sigma is currently highly unstable, beware.
