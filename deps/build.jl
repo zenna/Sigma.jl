@@ -5,7 +5,7 @@ extension = @osx? "zip" : "tar.gz"
 file_name = "dReal-$version-$os_string-shared-libs.$extension"
 file_url = "https://github.com/zenna/dreal3/releases/download/v$version/$file_name"
 @show file_url
-deps_dir = joinpath(joinpath(Pkg.dir("Sigma"),"deps"))
+deps_dir = dirname(@__FILE__)
 prefix = joinpath(deps_dir,"usr")
 
 @show deps_dir
