@@ -5,7 +5,8 @@ holesizes = logspace(-1,-10,3)
 problems = [Simplex(8,        #ndims
                     [:sample_distribution,:accumulative_KL, :total_time,],
                     5,        #nsamples
-                    0.01)]    #holesize
+                    0.01,
+                    mvuniform(-2,2,8))]    #holesize
 
 mh_captures = [:samples]
 all_splits = [rand_partial_split]
@@ -17,18 +18,20 @@ algorithms = [SigmaSMT(mh_captures, randvartype, sampler, nprocs, split)
       sampler = [Sigma.point_sample_mc]][:]
 
 function kl()
-  record(algorithms,problems;
+  record(algorithms, problems;
          runname = "kl",
          prefix=benchdir,
-         savedb=false,
          exceptions=false)
 end
 
+kl()
+
+## Analysis
 ## This needs a rethink
 # How do I want to use this in the end
 # a = [run(analysis) or analysis in all_analyses]
 # # layer...
-# typealias DiscreteDistribution Dict{Int, Float64}
+typealias DiscreteDistribution Dict{Int, Float64}
 #
 "returns an output analysis of type O"
 abstract Analysis{O}

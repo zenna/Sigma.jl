@@ -4,12 +4,12 @@
 # Simplex. If the regions are of equal size then we should expect an equal
 # number of samples in each region.
 
-# The vertex coordinates for an ndim simplex
-# From http://people.sc.fsu.edu/~jburkardt/m_src/simplex_coordinates/
+"""The vertex coordinates for an ndim simplex
+From http://people.sc.fsu.edu/~jburkardt/m_src/simplex_coordinates/"""
 function simplex_coordinates(n::Int)
   x = zeros(Float64, n, n+1)
   for i = 1 : n
-    x[i,i] = sqrt ( 1.0 - sum ( x[1:i-1,i].^2 ) );
+    x[i,i] = sqrt(1.0 - sum(x[1:i-1,i].^2))
     for j = i+1: n+1
       b = (-1.0/n - (x[1:i-1,i]' * x[1:i-1,j])) / x[i,i]
       x[i,j] = b[1]
@@ -18,7 +18,7 @@ function simplex_coordinates(n::Int)
   return x
 end
 
-# Is point p in box with center region and halfwidth halfwidth
+"Is point p in box with center region and halfwidth halfwidth"
 function point_near_region(p, region, halfwidth)
   conds = Array(Any,length(p))
   for i = 1:length(p)
@@ -27,8 +27,8 @@ function point_near_region(p, region, halfwidth)
   (&)(conds...)
 end
 
-# Constrain a point to be within a region around the vertices of a simplex
-function simplex(n::Int, box, holesize)
+"Constrain a point to be within a region around the vertices of a simplex"
+function simplex(n::Int, box::RandArray, holesize)
   vertexcoords = simplex_coordinates(n)
   conds = RandVar{Bool}[]
   for i = 1:n+1
@@ -37,13 +37,13 @@ function simplex(n::Int, box, holesize)
   box,(|)(conds...)
 end
 
-# Ground truth histrogram
+"Ground truth histrogram"
 groundtruth(ndims) = [i::Int => (1/(ndims+1))::Float64 for i = 1:(ndims+1)]
 
-# Constrain a point to be within a region around the vertices of a simplex
+"Constrain a point to be within a region around the vertices of a simplex"
 simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
 
-# From a set of samples compute discrete distribution over the vertices
+"From a set of samples compute discrete distribution over the vertices"
 function vertex_distribution(samples,n,holesize)
   vertexcoords = simplex_coordinates(n)
   counts =  DefaultDict(Int, Float64, 0.0)
@@ -60,21 +60,22 @@ end
 
 ## Benchmark
 ## =========
+"""Sample from a prior over R^ndim constrained to cubes of size holesize around
+vertices of ndim Simplex"""
 immutable Simplex <: Problem
   ndims::Int
   capture::Vector{Symbol}
   nsamples::Int
   holesize::Float64
+  prior::RandArray
 end
 
-# ==(a::Simplex, b::Simplex) = equiv(a,b)
-# hash(s::Simplex, h::Uint) = deephash(s,h)
-
-function simplexbenchmark(a::Algorithm, m::AllRandVars, b::Simplex)
+function benchmark(a::Algorithm, b::Simplex)
+  print("Starting Sampler")
   Sigma.restart_counter!()
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
   groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
-  model, condition = simplex(b.ndims, m, b.holesize)
+  model, condition = simplex(b.ndims, b.prior, b.holesize)
   @show b.nsamples
 
   value, results = capture(()->sample(a,model,condition,b.nsamples), captures)
@@ -84,22 +85,18 @@ end
 
 ## Algorithm-dependent implementations of sample
 ## ============================================
-
-benchmark(a::SigmaSMT, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
-
+"Sample with SMT based solver"
 function sample(a::SigmaSMT, model, condition, nsamples)
   @show model
   @show condition
   @show nsamples
-  rand(model,condition,nsamples; preimage_sampler = a.preimage_sampler,
-                                 RandVarType = a.randvartype,
-                                 cores = a.ncores,
-                                 split = a.split)
+  rand(model, condition, nsamples; preimage_sampler = a.preimage_sampler,
+                                   RandVarType = a.randvartype,
+                                   cores = a.ncores,
+                                   split = a.split)
 end
 
-## Rejection Sampler
-benchmark(a::SigmaRej, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
-
+"Sample with rejection sampling"
 function sample(a::SigmaRej, X::AllRandVars, Y::RandVar{Bool}, nsamples::Integer)
   box = Sigma.LazyOmega(Float64)
   for dim in dims(Y)
@@ -127,14 +124,10 @@ function sample(a::SigmaRej, X::AllRandVars, Y::RandVar{Bool}, nsamples::Integer
   return samples
 end
 
-
-## Sigma BFS
-benchmark(a::SigmaBFS, b::Simplex) = simplexbenchmark(a, mvuniform(-2,2,b.ndims), b)
-
+"Sample using breadth first search"
 function sample(a::SigmaBFS, X::AllRandVars, Y::RandVar{Bool}, nsamples::Integer)
   Sigma.rand_bfs(X,Y,nsamples)
 end
-
 
 ## Runs
 ## ====

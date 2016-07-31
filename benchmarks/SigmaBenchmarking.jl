@@ -3,6 +3,8 @@ module SigmaBenchmarking
 using Sigma
 using Lens
 using Compat
+# using DataFrames
+# using Gadfly
 
 # Split Functions
 import Sigma: weighted_mid_split, rand_partial_split,
@@ -13,8 +15,6 @@ import Sigma: Solver, DRealSolver, DRealSolverBinary, SigmaSolver
 using DynamicAnalysis
 import DynamicAnalysis: benchmark
 
-# using DataFrames
-# using Gadfly
 
 benchdir = pwd()
 
@@ -31,5 +31,14 @@ for t in benchmarks
   println(" * $benchmark_fn")
   include(benchmark_fn)
 end
+
+"""
+Evaluate the performance of Sigma on a bench marks.
+
+- each benchmark is contained within its own folder (e.g. ./simplex)
+- each folder contains a julia file of the same name (e.g. simplex/simplex.jl)
+
+"""
+SigmaBenchmarking
 
 end

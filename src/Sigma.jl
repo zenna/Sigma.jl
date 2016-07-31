@@ -84,20 +84,14 @@ import Base:  asin,
               min,
               sign
 
+import Base: call
+juliadir = joinpath(homedir(),".julia","v0.4")
+
 # import Lens:benchmark
 
 import AbstractDomains: dims, Interval, Boxes
 import Distributions: quantile
 import DReal: model, set_precision!
-
-if VERSION < v"0.4.0-dev"
-  call(f::Function, x) = f(x)
-  juliadir = joinpath(homedir(),".julia","v0.3")
-
-  include("Sigmajl3.jl")
-else
-  include("Sigmajl4.jl")
-end
 
 export
   # Random Variables
@@ -187,5 +181,32 @@ include("show.jl")
 vispath = joinpath(juliadir, "Sigma","src","vis.jl")
 
 loadvis() = include(vispath)
+
+"""
+A library for probabilistic programming.
+
+API Overview
+- randvar.jl contains random variable types
+  `SymbolicRandVar' is the type used when constructed models, essentially an AST
+- `randvars/elementary.jl` containts primitive random variables, uniform, normal
+   etc.
+- `randvars/symbolic.jl` has functions for constructing complex SymbolicRandVars
+   pointwise, by implementing common functions.
+
+
+"""
+Sigma
+
+
+
+
+
+
+
+
+
+
+
+
 
 end
