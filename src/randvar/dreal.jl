@@ -206,7 +206,8 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
 
   # As for the box itself, we need to return an abstract omega.
   dummy_ex = first(Y.sym_to_var)[2]
-  logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
+  logq = 0.5
+  # logq = DReal.opensmt_get_model_logprob(Y.ctx.ctx, dummy_ex.e)
   DReal.pop_ctx!(Y.ctx)
   A, logq, 1.0
 end
