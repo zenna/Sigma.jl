@@ -36,7 +36,7 @@ function abstract_cond_model{T}(X::ExecutableRandVar{T},
                                 Y::RandVar{Bool})
   RT = rangetype(X)
   abstract_preimage_model = abstract_model(Y)
-  call(X, preimage_model)
+  X(preimage_model)
 end
 
 "`n` conditional models from `X` given `Y` is true"
@@ -45,7 +45,7 @@ function cond_model{T}(X::ExecutableRandVar{T},
   RT = rangetype(X)
   abstract_preimage_model = abstract_model(Y)
   preimage_model = mid(abstract_preimage_model)
-  call(X, preimage_model)
+  X(preimage_model)
 end
 
 ## Convenience

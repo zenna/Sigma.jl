@@ -9,7 +9,7 @@
 ## ================================
 
 dims(X::ExecutableRandVar) = X.dims
-call(X::ExecutableRandVar, ω::Omega) = X.func(ω)
+(X::ExecutableRandVar)(ω::Omega) = X.func(ω)
 convert{T}(::Type{ExecutableRandVar{T}}, X::SymbolicRandVar{T}) =
   ExecutableRandVar{T}(lambda(X), dims(X))
 
@@ -83,11 +83,11 @@ function convert_psuedo{T}(::Type{ExecutableRandArray{T}}, Xs::RandArray{T,2})
   ExecutableRandArray([convert_psuedo(ExecutableRandVar{T}, Xs.array[i,j]) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)])
 end
 
-function call{T}(Xs::ExecutableRandArray{T,1}, ω::Omega)
+function (Xs::ExecutableRandArray{T,1}){T}(ω::Omega)
   T[call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
 end
 
-function call{T}(Xs::ExecutableRandArray{T,2}, ω::Omega)
+function (Xs::ExecutableRandArray{T,2}){T}(ω::Omega)
   T[call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 end
 

@@ -27,8 +27,7 @@ immutable GaussianBump <: Bump
   y0
 end
 
-call(g::GaussianBump, x, y) = 
-  gaussian(x, y, g.A, g.a, g.b, g.c, g.x0, g.y0)
+(g::GaussianBump)(x, y) = gaussian(x, y, g.A, g.a, g.b, g.c, g.x0, g.y0)
 
 ## A Bump Solvable with a Linear Solver
 
@@ -36,13 +35,13 @@ immutable SquareBump <: Bump
   A
   x0
   y0
-end  
+end
 
-square(x, y, A, x0, y0) = ifelse((abs(x0 - x) < 0.5) & 
+square(x, y, A, x0, y0) = ifelse((abs(x0 - x) < 0.5) &
                                   ((abs(y0 - y) < 0.5)),
                                   A,
                                   0.0)
-call(l::SquareBump, x, y) = square(x, y, l.A, l.x0, l.y0)
+(l::SquareBump)(x, y) = square(x, y, l.A, l.x0, l.y0)
 
 immutable LinearBump <: Bump
   A
@@ -61,9 +60,9 @@ immutable SumOfBumps <: Terrain
   bumps::Vector{Bump}
 end
 
-call(t::SumOfBumps, x, y) = sum([call(bump, x, y) for bump in t.bumps])
+(t::SumOfBumps)(x, y) = sum([call(bump, x, y) for bump in t.bumps])
 
-@doc "Compute cost of path on map `m`" -> 
+@doc "Compute cost of path on map `m`" ->
 function cost(p::Path, t::Terrain)
   path_length = size(p,2)
   point_costs = [call(t, p[1,i], p[2,i]) for i=1:path_length]
@@ -78,7 +77,7 @@ function cost_at_interpolate(p::Path, i::Integer, t::Terrain, displace::Float64)
   call(t, ax + (bx - ax) * displace, ay + (by - ay) * displace)
 end
 
-@doc "Compute cost of path on map `m`" -> 
+@doc "Compute cost of path on map `m`" ->
 function integral_cost(p::Path, t::Terrain, samples_per_edge::Integer = 8)
   @show "Computing integral_cost"
   path_length = size(p,2)
@@ -86,12 +85,12 @@ function integral_cost(p::Path, t::Terrain, samples_per_edge::Integer = 8)
   # Interpolat a segment at some number of points per edge
   # Treat first and last point separately
   displacements = collect(linspace(0,1,samples_per_edge))[2:end-1]
-  
+
   point_costs = Any[]
   for i = 1:path_length-1
     # Add first point
     push!(point_costs, call(t, p[1,i], p[2,i]))
-    
+
     for displace in displacements
       push!(point_costs, cost_at_interpolate(p, i, t, displace))
     end
@@ -99,7 +98,7 @@ function integral_cost(p::Path, t::Terrain, samples_per_edge::Integer = 8)
   sum(point_costs)
 end
 
-@doc "Generate a random path `path_length` long, starting at `start_pos`" -> 
+@doc "Generate a random path `path_length` long, starting at `start_pos`" ->
 function gen_path(start_pos, end_pos, path_length::Integer)
   path = Sigma.RandArray(Float64, 2, path_length)
   # First position in path is at start point
@@ -113,7 +112,7 @@ function gen_path(start_pos, end_pos, path_length::Integer)
   path
 end
 
-@doc "Generate a random path `path_length` long, starting at `start_pos`" -> 
+@doc "Generate a random path `path_length` long, starting at `start_pos`" ->
 function gen_path_conditioned(start_pos, end_pos, path_length::Integer)
   path = Sigma.mvuniform(0.0, 3.0, 2, path_length)
   # First position in path is at start point
@@ -124,7 +123,7 @@ function gen_path_conditioned(start_pos, end_pos, path_length::Integer)
   for i = 1:path_length-1
     xdist = path[1,i] - path[1,i+1]
     ydist = path[2,i] - path[2,i+1]
-    c = ((xdist == 0.0) & (ydist == 0.0)) | ((xdist == 1.0) & (ydist == 0.0)) | 
+    c = ((xdist == 0.0) & (ydist == 0.0)) | ((xdist == 1.0) & (ydist == 0.0)) |
       ((xdist == -1.0) & (ydist == 0.0)) | ((xdist == 0.0) & (ydist == 1.0)) |
       ((xdist == 0.0) & (ydist == -1.0))
     # c = xdist * xdist + ydist * ydist == 1.0
@@ -135,7 +134,7 @@ function gen_path_conditioned(start_pos, end_pos, path_length::Integer)
   path, (&)(hit_end,path_constraints...)
 end
 
-@doc "Generate a random path `path_length` long, starting at `start_pos`" -> 
+@doc "Generate a random path `path_length` long, starting at `start_pos`" ->
 function gen_path_discrete(start_pos, path_length::Integer)
   path = Sigma.RandArray(Float64, 2, path_length)
   # First position in path is at start point
@@ -159,7 +158,7 @@ function gen_path_discrete(start_pos, path_length::Integer)
   path
 end
 
-@doc "Generate condition RandVar{Bool}, true iff observed path is optimal" -> 
+@doc "Generate condition RandVar{Bool}, true iff observed path is optimal" ->
 function optimal_cond(m::Terrain, observed::Path, start_pos::Pos, end_pos::Pos)
   # The cost of teh observed path is optimal
   optimal_cost = cost(observed, m)
@@ -296,32 +295,32 @@ bumps = SumOfBumps([b1, b2])
 
 # plot(z=(x,y)->bumps(x,y), x=linspace(0,5,150), y=linspace(0,5,150), Geom.contour)
 
- # Any[0.021034784876292227,0.08543943377481596] 
+ # Any[0.021034784876292227,0.08543943377481596]
  # Any[0.0016419482937858677,0.07100088752947345]
- # Any[0.0634791269179561,0.22390229903715061]   
- # Any[0.09033839983590489,0.500051715067946]    
- # Any[0.09038618301775685,0.5000458410570601]   
- # Any[0.09035668670744001,0.5000595796022183]   
- # Any[0.09033818785247995,0.5000317375871334]   
- # Any[0.09037238340826179,0.5000368246123037]   
- # Any[0.09037027725727996,0.5000468258512568]   
- # Any[0.04957249899351403,0.712245805959749]    
+ # Any[0.0634791269179561,0.22390229903715061]
+ # Any[0.09033839983590489,0.500051715067946]
+ # Any[0.09038618301775685,0.5000458410570601]
+ # Any[0.09035668670744001,0.5000595796022183]
+ # Any[0.09033818785247995,0.5000317375871334]
+ # Any[0.09037238340826179,0.5000368246123037]
+ # Any[0.09037027725727996,0.5000468258512568]
+ # Any[0.04957249899351403,0.712245805959749]
 
 # 10-element Array{Array{T,N},1}:
-#  Any[0.40851795155801246,0.5036216270076627] 
+#  Any[0.40851795155801246,0.5036216270076627]
 #  Any[0.17531285882917025,0.38015071523212934]
-#  Any[0.8465487269703872,0.37803675314930363] 
-#  Any[0.6911817113247872,0.3577910062526371]  
-#  Any[0.1324974651141683,0.41389810303190827] 
-#  Any[0.6151574536636738,0.527793390970091]   
-#  Any[0.47748840631515943,0.6733902461861059] 
-#  Any[0.8142409503260998,0.6477525989560148]  
-#  Any[0.7710383703770307,0.36125520943716977] 
+#  Any[0.8465487269703872,0.37803675314930363]
+#  Any[0.6911817113247872,0.3577910062526371]
+#  Any[0.1324974651141683,0.41389810303190827]
+#  Any[0.6151574536636738,0.527793390970091]
+#  Any[0.47748840631515943,0.6733902461861059]
+#  Any[0.8142409503260998,0.6477525989560148]
+#  Any[0.7710383703770307,0.36125520943716977]
 #  Any[0.6979151983847683,0.031075791307149093]
 
 # 5-element Array{Array{T,N},1}:
-#  Any[5.4130838964013575e-5,0.4847191447838962] 
+#  Any[5.4130838964013575e-5,0.4847191447838962]
 #  Any[2.6995102535266175e-5,0.49810742642119366]
-#  Any[5.130870877102897e-5,0.5709974893263304]  
-#  Any[5.368679145403241e-5,0.3926466421124112]  
-#  Any[4.306856174783945e-5,0.7753513345259593]  
+#  Any[5.130870877102897e-5,0.5709974893263304]
+#  Any[5.368679145403241e-5,0.3926466421124112]
+#  Any[4.306856174783945e-5,0.7753513345259593]

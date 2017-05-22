@@ -14,11 +14,11 @@
 
 ## Unconditional Sampling
 ## ======================
-rand{T}(X::ExecutableRandVar{T}) = call(X,LazyRandomVector(Float64))
+rand{T}(X::ExecutableRandVar{T}) = X(LazyRandomVector(Float64))
 
 "Generate `n` unconditioned random samples from distribution of X"
 rand{T}(X::ExecutableRandVar{T}, n::Integer) =
-  T[call(X, LazyRandomVector(Float64)) for i = 1:n]
+  T[X(LazyRandomVector(Float64)) for i = 1:n]
 
 rand{T}(X::SymbolicRandVar{T}, n::Integer) =
   rand(convert(ExecutableRandVar{T},X),n)
@@ -26,7 +26,7 @@ rand{T}(X::SymbolicRandVar{T}, n::Integer) =
 ##  Rand Arrays
 "Generate `n` unconditioned random array samples from distribution of X"
 rand{T}(X::ExecutableRandArray{T}, n::Integer) =
-  Array{T}[call(X, LazyRandomVector(Float64)) for i = 1:n]
+  Array{T}[X(LazyRandomVector(Float64)) for i = 1:n]
 
 "Generate `n` unconditioned random array samples from distribution of X"
 rand{T,N}(Xs::RandArray{T,N}, n::Integer) = rand(convert(ExecutableRandArray{T},Xs),n)
@@ -93,7 +93,7 @@ function rand{T}(
 
   executable_X = convert_psuedo(ExecutableRandVar{T}, X)
   preimage_samples = preimage_sampler(Y, n; args...)
-  T[call(executable_X, sample) for sample in preimage_samples]
+  T[executable_X(sample) for sample in preimage_samples]
 end
 
 "When `X` is a rand var"
@@ -106,7 +106,7 @@ function rand{T}(
 
   executable_X = convert_psuedo(ExecutableRandArray{T}, X)
   preimage_samples = preimage_sampler(Y, n; args...)
-  Array{T}[call(executable_X, sample) for sample in preimage_samples]
+  Array{T}[executable_X(sample) for sample in preimage_samples]
 end
 
 "Sample from a tuple of values `(X_1, X_2, ..., X_m) conditioned on `Y`"
@@ -128,7 +128,7 @@ function rand(
   for x in X
     RT = rangetype(x)
     executable_X = executionalize(x)
-    xsamples = RT[call(executable_X, sample) for sample in preimage_samples]
+    xsamples = RT[executable_X(sample) for sample in preimage_samples]
     push!(samples, xsamples)
   end
   samples

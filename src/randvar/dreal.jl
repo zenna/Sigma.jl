@@ -158,7 +158,7 @@ end
 
 """For a given event ``A`` finds X(A), i.e. are there points in a \in A
   such that X(A) is true, false or both"""
-function call(X::DRealRandVar{Bool}, A::AbstractOmega)
+function (X::DRealRandVar{Bool})(A::AbstractOmega)
   # 1. ∃ω ∈ A ∩ X : Does A contain any point X?
   # println("pos case")
   pos_case = is_sat(X.ex, X, A)

@@ -20,7 +20,7 @@ function pre_partition{D <: Domain}(
   while dontstop(under, rest, i) && !isempty(under)
     lens(:partition_loop, i, under, rest)
     box = shift!(under)
-    image = call(Y, box)
+    image = Y(box)
 
     # If all of the box is within preimage keep it
     if isequal(image,t) || issmall(box, precision)

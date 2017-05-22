@@ -55,7 +55,7 @@ point_sample(p::SampleablePartition) = point_sample(p,1)[1]
 function point_sample_exact(p::SampleablePartition, Y::RandVar{Bool}; maxtries = 1E7)
   for i = 1:maxtries
     sample = rand(p)
-    if call(Y,sample) return sample end
+    if Y(sample) return sample end
   end
   #TODO: Better error handling
   error("Could not get sample in $maxtries tries")

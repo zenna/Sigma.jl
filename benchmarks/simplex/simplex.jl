@@ -38,7 +38,7 @@ function simplex(n::Int, box::RandArray, holesize)
 end
 
 "Ground truth histrogram"
-groundtruth(ndims) = [i::Int => (1/(ndims+1))::Float64 for i = 1:(ndims+1)]
+groundtruth(ndims) = Dict(i::Int => (1/(ndims+1))::Float64 for i = 1:(ndims+1))
 
 "Constrain a point to be within a region around the vertices of a simplex"
 simplex(n::Int) = simplex(n,mvuniform(-2,2,n))
@@ -74,7 +74,7 @@ function benchmark(a::Algorithm, b::Simplex)
   print("Starting Sampler")
   Sigma.restart_counter!()
   captures::Vector{Symbol} = vcat(a.capture,b.capture)
-  groundtruth = [i => 1/(b.ndims+1) for i = 1:(b.ndims+1)]
+  groundtruth = Dict(i => 1/(b.ndims+1) for i = 1:(b.ndims+1))
   model, condition = simplex(b.ndims, b.prior, b.holesize)
   @show b.nsamples
 

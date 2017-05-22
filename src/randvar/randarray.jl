@@ -3,7 +3,6 @@ typealias RandMatrix{T} RandArray{T,2}
 
 # ## Constructors
 # ## ============
-RandArray{T,N}(xs::Array{RandVar{T},N}) = RandArray{T,N}(xs)
 RandArray(T::DataType, nrows::Int64) =
   RandArray{T,1}(Array(RandVar{T},nrows))
 RandArray(T::DataType, nrows::Int64, ncols::Int64) =
@@ -50,10 +49,10 @@ convert{T, R<:RandVar}(::Type{Array{RandVar{T}}}, arr::Vector{R}) = RandVar{T}[a
 convert{T, R<:RandVar}(::Type{Array{RandVar{T}}}, arr::Matrix{R}) =
   RandVar{T}[arr[i,j] for i=1:size(arr,1), j = 1:size(arr,2)]
 
-call{T}(Xs::RandArray{T,1}, ω::Omega) =
-  [call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
-call{T}(Xs::RandArray{T,2}, ω::Omega) =
-  [call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
+(Xs::RandArray{T,1}){T}(ω::Omega) =
+  [Xs.array[i](ω) for i = 1:size(Xs.array,1)]
+(Xs::RandArray{T,2}){T}(ω::Omega) =
+  [Xs.array[i,j](ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 
 # ## Array Access/Updating
 # ## =====================
@@ -196,8 +195,8 @@ for op = (:transpose, :ctranspose)
 end
 
 # Unary ElementWise Functions
-for op = (:abs, :asin, :sqrt, :exp, :log, :cos, :sin, :tan, :acos, :asin, :atan,
-          :cosh, :sinh, :tanh, :acosh, :asinh, :atanh, :abs, :atan2, :max, :min,
+for op = (:abs, :sqrt, :exp, :log, :cos, :sin, :tan, :acos, :asin, :atan,
+          :cosh, :sinh, :tanh, :acosh, :asinh, :atanh, :atan2, :max, :min,
           :sign)
   @eval ($op){T,N}(X::RandArray{T,N}) = RandArray{Float64,N}(map($op,X.array))
 end

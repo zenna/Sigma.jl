@@ -18,8 +18,8 @@ function dims(X::SymbolicRandVar)
   dimensions
 end
 
-"Apply a random variable to some randomness"
-call(X::SymbolicRandVar,ω) = lambda(X)(ω)
+# "Apply a random variable to some randomness"
+# call(X::SymbolicRandVar,ω) = lambda(X)(ω)
 
 # Base case is that symbolic rand vars have multiple dims
 has_single_dim(X::SymbolicRandVar) = false
@@ -58,7 +58,6 @@ norm(X::ConstantRandVar) = ConstantRandVar(norm(X.val))
 
 one{T}(::Type{SymbolicRandVar{T}}) = ConstantRandVar(one(T))
 zero{T}(::Type{SymbolicRandVar{T}}) = ConstantRandVar(zero(T))
-norm(X::ConstantRandVar) = ConstantRandVar(norm(X.val))
 
 real{T}(X::SymbolicRandVar{T}) = X
 
@@ -86,7 +85,7 @@ for (name,op) in real_real_real
     @compat args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
   end
   # (^) Fixes ambiguities. Redefined here in each loop iteration but shouldn't matter
-  (^){T1<:Real,T2<:Integer}(X::SymbolicRandVar{T1},c::T2) = PowRandVar{promote_type(T1, T2),T1,T2}((X,ConstantRandVar(c)))
+  # (^){T1<:Real,T2<:Integer}(X::SymbolicRandVar{T1},c::T2) = PowRandVar{promote_type(T1, T2),T1,T2}((X,ConstantRandVar(c)))
   ($op){T1<:Real, T2<:Real}(X::SymbolicRandVar{T1}, Y::SymbolicRandVar{T2}) = $name{promote_type(T1, T2),T1,T2}((X,Y))
   ($op){T1<:Real, T2<:Real}(X::SymbolicRandVar{T1}, c::T2) = $name{promote_type(T1, T2),T1,T2}((X,ConstantRandVar(c)))
   ($op){T1<:Real, T2<:Real}(c::T1, X::SymbolicRandVar{T2}) = $name{promote_type(T1, T2),T1,T2}((ConstantRandVar(c),X))
