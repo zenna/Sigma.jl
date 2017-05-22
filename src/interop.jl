@@ -4,7 +4,7 @@
 ## Conversion between Sigma random variaables and Distribution.jl random variables
 ## ===============================================================================
 # Generates conversion functions of form:
-# convert(::Type{Distributions.Poisson}, X::PoissonRandVar) = 
+# convert(::Type{Distributions.Poisson}, X::PoissonRandVar) =
 #   Distributions.Poisson(X.λ.val)
 
 # get_params(X::ElementaryRandVar, param_names) = [X.(p).val for p in param_names]
@@ -23,7 +23,7 @@
 convert{T <: Distributions.Distribution}(D::Type{T}, X::ElementaryRandVar) =
   T(concretize(args(X))...)
 
-interop_name{T <: ElementaryRandVar}(t::Type{T}) = symbol(string(t.name.name)[1:end-7])
+interop_name{T <: ElementaryRandVar}(t::Type{T}) = Symbol(string(t.name.name)[1:end-7])
 distribution_type{T <: ElementaryRandVar}(t::Type{T}) = getfield(Distributions, interop_name(T))
 
 ## Elementary Random Variables with Constant Parameters should be compatible
@@ -33,7 +33,7 @@ distribution_type{T <: ElementaryRandVar}(t::Type{T}) = getfield(Distributions, 
 ## Distributions.jl interface
 import Distributions: params, succprob, failprob, scale, location, shape,
   rate, ncategories, ntrials, dof
- 
+
 import Distributions: mean, var, std, median, modes, mode, skewness,
   kurtosis, isplatykurtic, isleptokurtic, ismesokurtic, entropy, entropy,
   mgf, cf
