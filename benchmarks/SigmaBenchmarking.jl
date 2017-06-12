@@ -33,7 +33,7 @@ for t in benchmarks
 end
 
 """
-Evaluate the performance of Sigma on a bench marks.
+Evaluate the performance of Sigma on a benchmarks.
 
 - each benchmark is contained within its own folder (e.g. ./simplex)
 - each folder contains a julia file of the same name (e.g. simplex/simplex.jl)

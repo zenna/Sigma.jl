@@ -1,6 +1,8 @@
 ## Motion Planning 3D Benchmark
 ## =========================
 using Sigma
+using Lens
+include("../vis.jl")
 
 # Use for functions which should take a normal or equivalently typed randarray
 typealias Point AbstractVector
@@ -119,9 +121,6 @@ function mpgo()
   sample = rand(model, condition, 100; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
 end
 
-resultsgo, statsgo = capture(mpgo, [:distance, :sat_check, :post_loop])
-
-
 # sample = [1.64807   1.8789  74.3919  65.4604  99.5862  55.8671  99.3301  99.2311
 #           1.24775  10.3224  33.2845  49.7916  88.6606  26.1991  98.028   99.5821]
 
@@ -131,8 +130,6 @@ function gettiming(results)
   mean(timediffs2), std(timediffs2)
 end
 
-
-include("../vis.jl")
 
 function gencompose(c::Circle)
   (context(units=UnitBox(0, 0, 10, 10)),
@@ -157,8 +154,16 @@ function drawthething(points, obstacles)
   # draw_lines(b,lines)
 end
 
+function main()
+  println("Running Main")
+  op = drawthething(sample, obstacles)
+  img = SVG("path.svg", 4inch, 4(sqrt(3)/2)inch)
+  draw(img, op)
+  # ## Draw
+end
 
-op = drawthething(sample, obstacles)
-img = SVG("path.svg", 4inch, 4(sqrt(3)/2)inch)
-draw(img, op)
-# ## Draw
+function run_benchmark()
+  resultsgo, statsgo = capture(mpgo, [:distance, :sat_check, :post_loop])
+end
+
+mpgo()
