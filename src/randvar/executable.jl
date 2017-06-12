@@ -84,11 +84,11 @@ function convert_psuedo{T}(::Type{ExecutableRandArray{T}}, Xs::RandArray{T,2})
 end
 
 function (Xs::ExecutableRandArray{T,1}){T}(ω::Omega)
-  T[call(Xs.array[i],ω) for i = 1:size(Xs.array,1)]
+  T[Xs.array[i](ω) for i = 1:size(Xs.array,1)]
 end
 
 function (Xs::ExecutableRandArray{T,2}){T}(ω::Omega)
-  T[call(Xs.array[i,j],ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
+  T[Xs.array[i,j](ω) for i = 1:size(Xs.array,1), j = 1:size(Xs.array,2)]
 end
 
 ## Executionalize
