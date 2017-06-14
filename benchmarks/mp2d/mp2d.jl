@@ -122,21 +122,17 @@ function test_mp2d(obstacles, path_length::Integer)
 end
 
 ## Test
-function mpgo()
+function mpgo(nsamples = 1)
   obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
   model, condition = test_mp2d(obstacles, 6)
-  sample = rand(model, condition, 100; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
+  sample = rand(model, condition, nsamples; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
 end
-
-# sample = [1.64807   1.8789  74.3919  65.4604  99.5862  55.8671  99.3301  99.2311
-#           1.24775  10.3224  33.2845  49.7916  88.6606  26.1991  98.028   99.5821]
 
 function gettiming(results)
   timediffs2 = vcat([get(statsgo, proc_id=i, lensname=:sat_check) for i = 2:nprocs()]...)
   timediffs2 =  float(map(i->float(i)/1e9, timediffs2))
   mean(timediffs2), std(timediffs2)
 end
-
 
 function gencompose(c::Circle)
   (context(units=UnitBox(0, 0, 10, 10)),
