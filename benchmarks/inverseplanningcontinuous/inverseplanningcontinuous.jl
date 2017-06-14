@@ -1,11 +1,11 @@
 # using Sigma
 # import Sigma: RandArray, uniform
 
-typealias Point AbstractVector
-typealias Vec AbstractVector
-typealias Mat AbstractMatrix
-typealias Path AbstractMatrix
-typealias Pos AbstractVector
+Point = AbstractVector
+Vec = AbstractVector
+Mat = AbstractMatrix
+Path = AbstractMatrix
+Pos = AbstractVector
 
 abstract Bump
 

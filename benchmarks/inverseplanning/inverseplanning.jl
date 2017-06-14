@@ -1,14 +1,14 @@
 using Sigma
 Sigma.restart_counter!()
 # import Base:size,getindex
-typealias Point AbstractVector
-typealias Vec AbstractVector
-typealias Mat AbstractMatrix
+Point = AbstractVector
+Vec = AbstractVector
+Mat = AbstractMatrix
 
 dist(A,B) = sum(abs(A - B)) < 0.01
 
-typealias Map Mat
-typealias Path Mat
+Map = Mat
+Path = Mat
 
 # Length of path
 path_length(p::Path) = size(p,2)

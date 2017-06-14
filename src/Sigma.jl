@@ -85,7 +85,6 @@ import Base:  asin,
               sign
 
 # import Base: exponential
-import Base: call
 juliadir = joinpath(homedir(),".julia","v0.4")
 
 # import Lens:benchmark

@@ -1,5 +1,5 @@
 # Mapping from variable SymbolicRandVars to DReal Ex{}
-typealias SymbToVar Dict{SymbolicRandVar, DReal.Ex}
+SymbToVar = Dict{SymbolicRandVar, DReal.Ex}
 
 "A Random variable represented as a expression in DReal"
 type DRealRandVar{T} <: RandVar{T}

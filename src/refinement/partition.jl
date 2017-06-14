@@ -22,13 +22,13 @@ collect{D}(p::ApproxPartition{D}) = vcat(p.under, p.rest)
 ## Sampling
 ## ========
 
-"A partition which is efficient for drawing many samples."
+"A partition which is efficient for drawing many samples"
 type SampleablePartition{D<:Domain}
   over::Vector{D}
   last_under::Int
   cat::Categorical
 
-  function SampleablePartition(under::Vector, rest::Vector)
+  function SampleablePartition{D}(under::Vector, rest::Vector) where {D<:Domain}
     over = vcat(under, rest)
     vols = Float64[measure(box) for box in over]
     pnormalize!(vols)

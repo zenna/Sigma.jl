@@ -1,12 +1,12 @@
 ## Elementary Rand Variables
 ## =========================
 
-abstract ElementaryRandVar{T} <: SymbolicRandVar{T}
+abstract type ElementaryRandVar{T} <: SymbolicRandVar{T} end
 dims(X::ElementaryRandVar) = union([Set(X.dim), map(dims, args(X))...]...)::Set{Int}
 has_single_dim(::ElementaryRandVar) = true
 num_params{T <: ElementaryRandVar}(X::Type{T}) = length(fieldnames(X)) - 1
 
-abstract ClosedFormQuantileRandVar{T} <: ElementaryRandVar{T}
+abstract type ClosedFormQuantileRandVar{T} <: ElementaryRandVar{T} end
 
 ## Continuous RandVars
 ## ===================

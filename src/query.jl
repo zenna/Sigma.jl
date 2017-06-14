@@ -1,9 +1,9 @@
 import Base: quantile, convert
 import Distributions.pnormalize!
 
-abstract InferenceAlgorithm
-abstract SamplingAlgorithm <: InferenceAlgorithm
-abstract MCMCAlgorithm <: SamplingAlgorithm
+abstract type InferenceAlgorithm end
+abstract type SamplingAlgorithm <: InferenceAlgorithm end
+abstract type MCMCAlgorithm <: SamplingAlgorithm end
 
 ## Types of algorithm
 # - Preimage Partition: pre_bfs
@@ -12,7 +12,7 @@ abstract MCMCAlgorithm <: SamplingAlgorithm
 # - Exact Conditional Abstract Sample: __
 # - Approximate Conditional Abstract Sample: ___
 # - Exact Conditional Point Sample
-# - Approximate Conditional Point Sample 
+# - Approximate Conditional Point Sample
 
 for finame in ["prob.jl",
                "rand.jl",

@@ -1,6 +1,6 @@
-typealias Point AbstractVector
-typealias Vec AbstractVector
-typealias Mat AbstractMatrix
+Point = AbstractVector
+Vec = AbstractVector
+Mat = AbstractMatrix
 
 ## 2D inverse graphics using Approximate Bayesian Computation
 ## ==========================================================

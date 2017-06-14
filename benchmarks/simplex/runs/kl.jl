@@ -31,7 +31,7 @@ kl()
 # How do I want to use this in the end
 # a = [run(analysis) or analysis in all_analyses]
 # # layer...
-typealias DiscreteDistribution Dict{Int, Float64}
+DiscreteDistribution = Dict{Int, Float64}
 #
 "returns an output analysis of type O"
 abstract Analysis{O}

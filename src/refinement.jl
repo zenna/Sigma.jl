@@ -1,11 +1,11 @@
 # Pre-image Computation:
 # ======================
 
-abstract InferenceAlgorithm
+abstract type InferenceAlgorithm end
 
-abstract PartitionAlgorithm <: InferenceAlgorithm
-abstract SamplingAlgorithm <: InferenceAlgorithm
-abstract MCMCAlgorithm <: SamplingAlgorithm
+abstract type PartitionAlgorithm <: InferenceAlgorithm end
+abstract type SamplingAlgorithm <: InferenceAlgorithm end
+abstract type MCMCAlgorithm <: SamplingAlgorithm end
 
 "A stop function used as dummy stopping criteria in while loops"
 neverstop(_...) = true

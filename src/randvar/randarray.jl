@@ -1,5 +1,5 @@
-typealias RandVector{T} RandArray{T,1}
-typealias RandMatrix{T} RandArray{T,2}
+RandVector{T} = RandArray{T,1}
+RandMatrix{T} = RandArray{T,2}
 
 # ## Constructors
 # ## ============
@@ -109,7 +109,10 @@ next(Xs::RandArray, state) = next(Xs.array, state)
 done(Xs::RandArray, state) = done(Xs.array, state)
 
 ## Arbitrary Array  Functions
-@compat similar{T,N}(X::RandArray{T,N}, elem_type, dims::Tuple{Vararg{Int}}) = RandArray(T,dims...)
+function similar{T, N}(X::RandArray{T, N}, ::Type{T}, dims::Tuple{Vararg{Int}})
+  RandArray(T, dims...)
+end
+
 # @compat similar{T}(X::RandArray{T,1}, elem_type::Type{RandVar{Float64}}, dims::Tuple{Int64}) = RandArray(T)
 # similar(::Sigma.RandArray{Float64,1}, ::Type{Sigma.RandVar{Float64}}, ::Tuple{Int64})
 
@@ -130,13 +133,15 @@ end
 # ## ==========
 
 # Ambiguity Fixes
-(.^){N}(::Base.Irrational{:e}, XS::RandArray{Base.Irrational{:e}, N}) = RandArray((.^)(e,XS.array))
+
+# FIXME: Add broadcast
+# (.^){N}(::Base.Irrational{:e}, XS::RandArray{Base.Irrational{:e}, N}) = RandArray((.^)(e,XS.array))
 (-){N}(x::Bool, Y::RandArray{Bool,N}) = convert(Int, x) - convert(RandVar{Int}, Y) #FIX ME TESTME: THis prolly doesn't work
 (+){N}(x::Bool, Y::RandArray{Bool,N}) = convert(Int, x) + convert(RandVar{Int}, Y) #FIX ME TESTME: THis prolly doesn't work
 (+){N}(Y::RandArray{Bool,N}, x::Bool) = convert(RandVar{Int}, Y) + convert(Int, x) #FIX ME TESTME: THis prolly doesn't work
 
 # # Here, we extract the arrays of both args and apply op
-for op = (:+, :-, :*, :.*, :/, :&, :|, :.^)
+for op = (:+, :-, :*, :/, :&, :|)
   @eval ($op){T<:Real}(XS::RandArray{T}, YS::RandArray{T}) = RandArray(($op)(XS.array,YS.array))
   # Interop with 'normal arrays' promote them to RandArrays
   @eval ($op){T<:Real,N}(XS::RandArray{T,N}, YS::Array{T,N}) = RandArray(($op)(XS.array,YS))
@@ -151,14 +156,14 @@ for op = (:+, :-, :*, :.*, :/, :&, :|, :.^)
   @eval ($op){T<:Real,N}(XS::RandArray{T,N}, y::T) = ($op)(XS,ConstantRandVar(y))
 end
 
-# Inequalities
-for (array_op, elem_op) = ((:.>, :>), (:.>=, :>=), (:.<, :<), (:.<=, :<=), (:(.==), :(==)), (:.!=, :!=))
-  @eval ($array_op){T,N}(XS::RandArray{T,N}, YS::RandArray{T,N}) =
-    RandArray(map((x,y)->($elem_op)(x,y), XS.array,YS.array))
-  # Interop with 'normal arrays' promote them to RandArrays
-  @eval ($array_op){T,N}(XS::RandArray{T,N}, ys::Array{T,N}) = RandArray(map((x,y)->($elem_op)(x,y), XS.array,ys))
-  @eval ($array_op){T,N}(ys::Array{T,N}, XS::RandArray{T,N}) = RandArray(map((x,y)->($elem_op)(y,x), ys,XS.array))
-end
+# # Inequalities
+# for (array_op, elem_op) = ((:.>, :>), (:.>=, :>=), (:.<, :<), (:.<=, :<=), (:(.==), :(==)), (:.!=, :!=))
+#   @eval ($array_op){T,N}(XS::RandArray{T,N}, YS::RandArray{T,N}) =
+#     RandArray(map((x,y)->($elem_op)(x,y), XS.array,YS.array))
+#   # Interop with 'normal arrays' promote them to RandArrays
+#   @eval ($array_op){T,N}(XS::RandArray{T,N}, ys::Array{T,N}) = RandArray(map((x,y)->($elem_op)(x,y), XS.array,ys))
+#   @eval ($array_op){T,N}(ys::Array{T,N}, XS::RandArray{T,N}) = RandArray(map((x,y)->($elem_op)(y,x), ys,XS.array))
+# end
 
 for op = (:(==), :!=)
   eval(

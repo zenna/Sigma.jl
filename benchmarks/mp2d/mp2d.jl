@@ -5,17 +5,19 @@ using Lens
 include("../vis.jl")
 
 # Use for functions which should take a normal or equivalently typed randarray
-typealias Point AbstractVector
-typealias Vec AbstractVector
-typealias Mat AbstractMatrix
+Point = AbstractVector
+Vec = AbstractVector
+Mat = AbstractMatrix
 
-# A geometric entity of N dimensions
-abstract Entity{N}
+"A geometric entity of N dimensions"
+abstract type Entity{N} end
 
+"2D Rectangle"
 immutable Rectangle <: Entity{2}
   bounds::Mat{Float64}
 end
 
+"Circle"
 immutable Circle <: Entity{2}
   center::Vec{Float64}
   r
@@ -38,7 +40,7 @@ function parametric(e::Edge)
   ParametricEdge(hcat(origin,dir))
 end
 
-# Is the point in the box?
+"Is the `point` in the `box`?"
 function ispointinpoly(point::Point, box::Rectangle)
   r = (point[1] >= box.bounds[1,1]) &
       (point[1] <= box.bounds[2,1]) &
@@ -47,7 +49,7 @@ function ispointinpoly(point::Point, box::Rectangle)
   r
 end
 
-# Where if anywhere, along p does it intersect segment
+"Where - if anywhere - along `p` does it intersect segment"
 function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
   @show ppos
   @show qpos
@@ -57,13 +59,14 @@ function intersect_segments(ppos::Point, pdir::Vec, qpos::Point, qdir::Vec)
   (v[2] * w[1] - v[1] * w[2]) / (v[1] * u[2] - v[2] * u[1])
 end
 
-# Does not intersect
+"Do edges `e1` and `e2` not intersect?"
 function intersects(e1::ParametricEdge, e2::ParametricEdge)
   s = intersect_segments(e1.coords[:,1], e1.coords[:,2],
                          e2.coords[:,1], e2.coords[:,2])
   (s < 0) | (s > 1)
 end
 
+"Does edge `e1` intersect with `circle`?"
 function intersects(e1::ParametricEdge, circle::Circle)
   rayorig = e1.coords[:,1]
   raydir = e1.coords[:,2]
@@ -85,6 +88,7 @@ function pairwisecompare(edges::Vector, obs)
 end
 
 # Nonlinear Check
+"Do `points` avoid `obs`tacles?"
 function avoid_obstacles(points, obs)
   # Convert poitns into edges and check whether all
   # edges miss all obstacles
@@ -93,12 +97,16 @@ function avoid_obstacles(points, obs)
   pairwisecompare(edges, obs)
 end
 
+"Are `points` valid? starts at `origin`, ends at `dest`, avoids `obstacles`?"
 function validpath(points, obstacles, origin, dest)
-  ispointinpoly(points[:,1],origin) & ispointinpoly(points[:,end], dest) & avoid_obstacles(points,obstacles)
+  is_start_ok = ispointinpoly(points[:, 1], origin)
+  avoids_obstacles = ispointinpoly(points[:,end], dest)
+  is_end_ok = avoid_obstacles(points, obstacles)
+  is_start_ok & avoids_obstacles & is_end_ok
 end
 
 function test_mp2d(obstacles, path_length::Integer)
-  points = mvuniform(0,10,2, path_length)
+  points = mvuniform(0, 10, 2, path_length)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
   dest = Rectangle([9.9 9.9
@@ -113,8 +121,7 @@ function test_mp2d(obstacles, path_length::Integer)
   points, good_path
 end
 
-# ## Test
-# ## ====
+## Test
 function mpgo()
   obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
   model, condition = test_mp2d(obstacles, 6)
