@@ -113,7 +113,7 @@ function similar{T, N}(X::RandArray{T, N}, ::Type{T}, dims::Tuple{Vararg{Int}})
   RandArray(T, dims...)
 end
 
-# @compat similar{T}(X::RandArray{T,1}, elem_type::Type{RandVar{Float64}}, dims::Tuple{Int64}) = RandArray(T)
+# similar{T}(X::RandArray{T,1}, elem_type::Type{RandVar{Float64}}, dims::Tuple{Int64}) = RandArray(T)
 # similar(::Sigma.RandArray{Float64,1}, ::Type{Sigma.RandVar{Float64}}, ::Tuple{Int64})
 
 # ## Complex Array Functions

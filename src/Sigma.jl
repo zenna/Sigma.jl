@@ -12,7 +12,7 @@ using Distributions
 using AbstractDomains
 using Lens
 using DataStructures
-using Compat
+# using Compat
 
 import Base: ifelse, cond, isequal, isinf
 import Base: sqrt, abs, promote_rule, convert, rand, getindex, string, size

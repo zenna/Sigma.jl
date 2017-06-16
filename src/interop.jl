@@ -19,7 +19,7 @@
 #   eval(:(convert(::Type{Distributions.$dist_name}, X::$(erv_type.name.name)) = $p(get_params(X, $param_names)...)))
 # end
 
-@compat concretize(args::Tuple{Vararg{ConstantRandVar}}) = [arg.val for arg in args]
+concretize(args::Tuple{Vararg{ConstantRandVar}}) = [arg.val for arg in args]
 convert{T <: Distributions.Distribution}(D::Type{T}, X::ElementaryRandVar) =
   T(concretize(args(X))...)
 

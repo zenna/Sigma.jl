@@ -3,7 +3,7 @@ function pmaplm(f, lsts...; err_retry=true, err_stop=false, ncores = 1)
     @show ncores
     len = length(lsts)
 
-    @compat results = Dict{Int,Any}()
+    results = Dict{Int,Any}()
 
     retryqueue = Any[]
     task_in_err = false

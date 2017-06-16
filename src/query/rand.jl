@@ -1,8 +1,5 @@
 ## Design Decisions
 #
-# - should we have extra code for where hte number of smaples is 1 or just have
-# generic routines which return first element of an array.
-#
 # - Second majo design question is who what kind of random variable to pass to the solver
 # initially we tried to make the preimage smaplers agnostic to what type of random variable
 # it was passed.  The randvar need only implement call(X, A).  However
@@ -10,7 +7,6 @@
 # -- sol 1. Make these preimage samplers expect the RandVar type and they can do their own conversion
 # -- sol 2. Have some kind of buffer between the different cases
 
-# How might that work, well we say
 
 ## Unconditional Sampling
 ## ======================
@@ -26,21 +22,13 @@ function rand{T}(X::SymbolicRandVar{T}, n::Integer)
   rand(xe, n)
 end
 
-##  Rand Arrays
-# "Generate `n` unconditioned random array samples from distribution of X"
-# rand{T}(X::ExecutableRandArray{T}, n::Integer) =
-#   Array{T}[X(LazyRandomVector(Float64)) for i = 1:n]
-
-# "Generate `n` unconditioned random array samples from distribution of X"
-# rand{T,N}(Xs::RandArray{T,N}, n::Integer) = rand(convert(ExecutableRandArray{T},Xs),n)
-
 ## RandVar{Bool} Preimage Samples
 ## ==============================
 
 # Note args named x_sampler sample *from* x, e.g.
 # partition_sampler samples set from partition (not a partition itself)
 
-"`n` abstract samples from preimage: Y^-1({true})"
+"`n` abstract samples from preimage: Y^-1({true}) using `partition_alg`"
 function abstract_sample_partition(
     Y::SymbolicRandVar{Bool},
     n::Integer;
@@ -99,19 +87,6 @@ function rand{T}(
   T[executable_X(sample) for sample in preimage_samples]
 end
 
-# "When `X` is a rand var"
-# function rand{T}(
-#     X::RandArray{T},
-#     Y::SymbolicRandVar{Bool},
-#     n::Integer;
-#     preimage_sampler::Function = point_sample_mc,
-#     args...)
-#
-#   executable_X = convert_psuedo(ExecutableRandArray{T}, X)
-#   preimage_samples = preimage_sampler(Y, n; args...)
-#   Array{T}[executable_X(sample) for sample in preimage_samples]
-# end
-
 "Sample from a tuple of values `(X_1, X_2, ..., X_m) conditioned on `Y`"
 function rand(
     X::Tuple,
@@ -141,9 +116,6 @@ end
 
 ## One Sample
 ## ==========
-
-# "Generate a sample from a rand array `Xs` conditioned on `Y`"
-# rand(Xs::RandArray, Y::SymbolicRandVar{Bool}; args...) =  rand(Xs,Y,1;args...)[1]
 
 "Generate a sample from a rand array `Xs` conditioned on `Y`"
 rand(Xs::Ex, Y::SymbolicRandVar{Bool}; args...) =  rand(Xs,Y,1;args...)[1]

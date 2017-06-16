@@ -36,7 +36,7 @@ function set_precision!(::RandVar, precision::Float64) end
 
 ## Aliases
 Lift{T} = Union{T,SymbolicRandVar{T}}
-include("randvar/xrandarray.jl")
+include("randvar/randarray.jl")
 AllRandVars = Union{RandVar, RandArray}
 
 include("randvar/symbolic.jl")

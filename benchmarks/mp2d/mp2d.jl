@@ -23,18 +23,17 @@ immutable Circle <: Entity{2}
   r
 end
 
-# ## Edges
-# ## =====
-# # Point Edge
+"Edge between defined by start and end points"
 immutable Edge
   points::Mat
 end
 
+"Edge defined by origin and direction vector"
 immutable ParametricEdge
   coords::Mat
 end
 
-function parametric(e::Edge)
+function ParametricEdge(e::Edge)
   origin = e.points[:,1]
   dir = e.points[:,2] - e.points[:,1]
   ParametricEdge(hcat(origin,dir))
@@ -80,7 +79,7 @@ function intersects(e1::ParametricEdge, circle::Circle)
   b*b-4*a*c < 0
 end
 
-intersects(e1::ParametricEdge, e2::Edge) = intersects(e1, parametric(e2))
+intersects(e1::ParametricEdge, e2::Edge) = intersects(e1, ParametricEdge(e2))
 
 function pairwisecompare(edges::Vector, obs)
   conditions = [intersects(e,o) for e in edges, o in obs]
@@ -100,32 +99,25 @@ end
 "Are `points` valid? starts at `origin`, ends at `dest`, avoids `obstacles`?"
 function validpath(points, obstacles, origin, dest)
   is_start_ok = ispointinpoly(points[:, 1], origin)
-  avoids_obstacles = ispointinpoly(points[:,end], dest)
-  is_end_ok = avoid_obstacles(points, obstacles)
+  is_end_ok = ispointinpoly(points[:,end], dest)
+  avoids_obstacles = avoid_obstacles(points, obstacles)
   is_start_ok & avoids_obstacles & is_end_ok
 end
 
-function test_mp2d(obstacles, path_length::Integer)
+function example_data(path_length::Integer)
+  obstacles = [Circle([5.0, 5.0], 3.0)]
   points = mvuniform(0, 10, 2, path_length)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
   dest = Rectangle([9.9 9.9
                     10.0 10.0])
-  # obstacles = [Circle([5.0, 5.0], 3.0)]
-  # obstacles = [Edge(ed) for ed in
-  #              Array[[8.01 3.01; 1.02 9],
-  #                    [0.5 3.08; 2.02 9.04],
-  #                    [0.0 9.99; 3 5.04]]]
-  #   obs = map(points_to_parametric, obstacles)
-  good_path = validpath(points, obstacles, origin, dest)
-  points, good_path
+  points, origin, dest, obstacles
 end
 
-## Test
-function mpgo(nsamples = 1)
-  obstacles = [Circle([5.0, 5.0], 3.0), Circle([4.0, 8.0], 5)]
-  model, condition = test_mp2d(obstacles, 6)
-  sample = rand(model, condition, nsamples; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
+function test_mp2d(path_length = 3, nsamples = 1)
+  points, origin, dest, obstacles = example_data(path_length)
+  good_path = validpath(points, obstacles, origin, dest)
+  sample = rand(points, good_path, nsamples; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
 end
 
 function gettiming(results)
@@ -166,7 +158,7 @@ function main()
 end
 
 function run_benchmark()
-  resultsgo, statsgo = capture(mpgo, [:distance, :sat_check, :post_loop])
+  resultsgo, statsgo = capture(test_mp2d, [:distance, :sat_check, :post_loop])
 end
 
-mpgo()
+test_mp2d()

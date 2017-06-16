@@ -36,7 +36,7 @@ function isequal(X::SymbolicRandVar, Y::SymbolicRandVar)
   true
 end
 
-@compat in{T}(X::SymbolicRandVar, bounds::Tuple{Lift{T},Lift{T}}) = (X >= bounds[1]) & (X <=  bounds[2])
+in{T}(X::SymbolicRandVar, bounds::Tuple{Lift{T},Lift{T}}) = (X >= bounds[1]) & (X <=  bounds[2])
 
 ## Constant Random Variable
 ## ========================
@@ -83,7 +83,7 @@ for (name,op) in real_real_real
   eval(
   quote
   immutable $name{T<:Real,A1<:Real,A2<:Real} <: SymbolicRandVar{T}
-    @compat args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
+    args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
   end
   # (^) Fixes ambiguities. Redefined here in each loop iteration but shouldn't matter
   # (^){T1<:Real,T2<:Integer}(X::SymbolicRandVar{T1},c::T2) = PowRandVar{promote_type(T1, T2),T1,T2}((X,ConstantRandVar(c)))
@@ -100,7 +100,7 @@ for (name,op) in real_real
   eval(
   quote
   immutable $name{T<:Real, A1<:Real} <: SymbolicRandVar{T}
-    @compat args::Tuple{SymbolicRandVar{A1}}
+    args::Tuple{SymbolicRandVar{A1}}
   end
   ($op){T<:Real}(X::SymbolicRandVar{T}) = $name{T,T}((X,))
   end)
@@ -118,7 +118,7 @@ for (name,op) in real_floating
   eval(
   quote
   immutable $name{T<:Real,A1<:Real} <: SymbolicRandVar{T}
-    @compat args::Tuple{SymbolicRandVar{A1}}
+    args::Tuple{SymbolicRandVar{A1}}
   end
   ($op){T<:Real}(X::SymbolicRandVar{T}, returntype::DataType = Float64) = $name{returntype,T}((X,))
   end)
@@ -133,7 +133,7 @@ for (name,op) in real_real_bool
   eval(
   quote
   immutable $name{T<:Real,A1<:Real,A2<:Real} <: SymbolicRandVar{T}
-    @compat args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
+    args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
   end
   ($op){T1<:Real, T2<:Real}(X::SymbolicRandVar{T1}, Y::SymbolicRandVar{T2}) = $name{Bool,T1,T2}((X,Y))
   ($op){T1<:Real, T2<:Real}(X::SymbolicRandVar{T1}, c::T2) = $name{Bool,T1,T2}((X,ConstantRandVar(c)))
@@ -148,7 +148,7 @@ for (name,op) in bool_bool_bool
   eval(
   quote
   immutable $name{T,A1,A2} <: SymbolicRandVar{Bool}
-    @compat args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
+    args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2}}
   end
   ($op)(X::SymbolicRandVar{Bool}, Y::SymbolicRandVar{Bool}) = $name{Bool,Bool,Bool}((X,Y))
   ($op)(X::SymbolicRandVar{Bool}, c::Bool) = $name{Bool,Bool,Bool}((X,ConstantRandVar(c)))
@@ -159,12 +159,12 @@ end
 ## Bool -> Bool
 ## ============
 immutable NotRandVar{T,A1} <: SymbolicRandVar{Bool}
-  @compat args::Tuple{SymbolicRandVar{A1}}
+  args::Tuple{SymbolicRandVar{A1}}
 end
 !(X::SymbolicRandVar{Bool})= NotRandVar{Bool,Bool}((X,))
 
 immutable IfElseRandVar{T,A1,A2,A3} <: SymbolicRandVar{T}
-  @compat args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2},SymbolicRandVar{A3}}
+  args::Tuple{SymbolicRandVar{A1},SymbolicRandVar{A2},SymbolicRandVar{A3}}
 end
 
 ## ifelse

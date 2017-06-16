@@ -34,7 +34,7 @@ function proposebox_tl{D <: Domain}(
     #   lens(:proposing, depth=depth, niters=niters)
     #   return A, logq, 1.0  # Assume boxes are full
     elseif isequal(image, tf)
-      @compat children::Vector{Tuple{Domain,Float64}} = split(A, depth)
+      children::Vector{Tuple{Domain,Float64}} = split(A, depth)
       statuses = AbstractBool[]
 
       # Due to bug in DReal we're getting both a query and its negation unsat
@@ -100,7 +100,7 @@ function propose_boxes{D <: Domain}(
   set_precision!(Y_conv, precision)
 
   # DReal.opensmt_print_expr(Y_conv.ex.e)
-  @compat samples = Array(Tuple{D,Float64,Float64}, nsamples)
+  samples = Array(Tuple{D,Float64,Float64}, nsamples)
   for i = 1:nsamples
     before = time_ns()
     samples[i] = preimage_proposal(Y_conv, init_box; args...)
@@ -134,7 +134,7 @@ function propose_boxes_parallel{D<:Domain}(
 end
 
 "From set of boxes run a markov chain in batch mode"
-function run_chain{D <: Domain}(boxes::Vector{@compat Tuple{D,Float64,Float64}})
+function run_chain{D <: Domain}(boxes::Vector{Tuple{D,Float64,Float64}})
   box, logq, prevolfrac = boxes[1]
   logp = logmeasure(box) + log(prevolfrac)
   chain = Array(D, length(boxes))

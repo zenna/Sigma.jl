@@ -28,7 +28,7 @@ end
 
 quantile_expr(x::UniformRandVar) = (x.lb - x.ub) * omega_component(x.dim) + x.lb
 
-args(X::UniformRandVar) = @compat tuple(X.lb, X.ub)
+args(X::UniformRandVar) = tuple(X.lb, X.ub)
 
 # "Normally distributed RandVar"
 # immutable NormalRandVar{T <: Real, A <: Real, B <: Real} <: ElementaryRandVar{T}
@@ -39,7 +39,7 @@ args(X::UniformRandVar) = @compat tuple(X.lb, X.ub)
 #
 # # param_types(X::Type{NormalRandVar}) = [Float64, Float64]
 #
-# args(X::NormalRandVar) = @compat tuple(X.μ, X.σ)
+# args(X::NormalRandVar) = tuple(X.μ, X.σ)
 
 # "Beta distributed RandVar"
 # immutable BetaRandVar{T <: Real, A <: SymbolicRandVar, B <: SymbolicRandVar} <: ElementaryRandVar{T}
@@ -89,4 +89,4 @@ args(X::DiscreteUniformRandVar) = tuple(X.a, X.b)
 #   λ::SymbolicRandVar{A}
 # end
 
-# args(X::PoissonRandVar) = @compat tuple(X.λ)
+# args(X::PoissonRandVar) = tuple(X.λ)
