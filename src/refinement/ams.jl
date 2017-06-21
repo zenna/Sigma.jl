@@ -98,9 +98,10 @@ function propose_boxes{D <: Domain}(
 
   Y_conv = convert(RandVarType{Bool}, Y)
   set_precision!(Y_conv, precision)
+  println(Y_conv.ex)
 
   # DReal.opensmt_print_expr(Y_conv.ex.e)
-  samples = Array(Tuple{D,Float64,Float64}, nsamples)
+  samples = Array{Tuple{D,Float64,Float64}}(nsamples)
   for i = 1:nsamples
     before = time_ns()
     samples[i] = preimage_proposal(Y_conv, init_box; args...)
@@ -137,7 +138,7 @@ end
 function run_chain{D <: Domain}(boxes::Vector{Tuple{D,Float64,Float64}})
   box, logq, prevolfrac = boxes[1]
   logp = logmeasure(box) + log(prevolfrac)
-  chain = Array(D, length(boxes))
+  chain = Array{D}(length(boxes))
   chain[1] = box
 
   naccepted = 0

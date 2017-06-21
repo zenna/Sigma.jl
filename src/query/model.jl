@@ -2,7 +2,7 @@
 ## =====
 
 """Generates a 'model' from X given that Y is true, a model is like a model
-  except that it does not follow any wel ldefined distribution"""
+  except that it does not follow any well defined distribution"""
 function abstract_model(Y::DRealRandVar{Bool})
   DReal.push_ctx!(Y.ctx)
 

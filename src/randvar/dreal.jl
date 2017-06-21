@@ -24,7 +24,7 @@ function set_precision!(Y::DRealRandVar, precision::Float64)
   DReal.set_precision!(Y.ctx, precision)
 end
 
-"Construct DReal.RandVar from Symbolic RandVar"
+"Construct Symbolic RandVar to DReal.RandVar from"
 function convert{T}(::Type{DRealRandVar{T}}, X::SymbolicRandVar{T})
   ctx = Context(qf_nra)
   sym_to_var = SymbToVar()
@@ -112,8 +112,10 @@ end
 "Returns lower and upper bounds for Constant RandVar as function of event A"
 bounds(X::ConstantRandVar, A::AbstractOmega) = X.val
 
-# FIXME: maybe lb and upper bound should be T but quantiles return Float and DReal has no mk_num for Ints
-function add_bound_constraints!{T}(ctx::DReal.Context, X::DReal.Ex{T}, lb::Float64, ub::Float64)
+# FIXME: maybe lb and upper bound should be T but quantiles return Float and
+# DReal has no mk_num for Ints
+function add_bound_constraints!{T}(ctx::DReal.Context, X::DReal.Ex{T},
+                                   lb::Float64, ub::Float64)
   # DReal currently has trouble with infinities, so just dont add the contraint
   # Since we know it is unbounded anyway
   if lb != -Inf
@@ -132,11 +134,8 @@ function add_bound_constraints!{T}(ctx::DReal.Context, X::DReal.Ex{T}, lb::Float
 end
 
 function is_sat(ex::Ex{Bool}, X::DRealRandVar{Bool}, A::AbstractOmega)
-  # println("Testing issat")
   ctx = X.ctx
   push_ctx!(ctx)
-  # println("push_ctx!(ctx)")
-  # push!(debugstring, "(push 1)")
 
   ## Define subset (box) of Omega using assertions
   ## For each variable - add constraints on its lower and upper bounds
@@ -188,6 +187,7 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
   ## Define subset (box) of Omega using assertions
   for (symb, vari) in Y.sym_to_var
     interval = bounds(symb, init_box)
+    println("Interval!!", interval)
     add_bound_constraints!(Y.ctx, vari, interval.l, interval. u)
   end
   DReal.add!(Y.ctx, Y.ex)
@@ -200,6 +200,8 @@ function preimage_proposal{D <: Domain}(Y::DRealRandVar{Bool}, init_box::D; args
   for (symb, var) in Y.sym_to_var
     A[symb.dim] = DReal.model(Y.ctx, var)
   end
+
+  println("AAA", A)
 
   # I believe all the boxes are going to have the same size, so assuming that's true
   # we can just return some constant for the size.

@@ -2,7 +2,7 @@ module SigmaBenchmarking
 
 using Sigma
 using Lens
-using Compat
+# using Compat
 # using DataFrames
 # using Gadfly
 

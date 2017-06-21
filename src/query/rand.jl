@@ -82,7 +82,7 @@ function rand{T}(
     preimage_sampler::Function = point_sample_mc,
     args...)
 
-  executable_X = convert_psuedo(ExecutableRandVar{T}, X)
+  executable_X = convert(ExecutableRandVar{T}, X)
   preimage_samples = preimage_sampler(Y, n; args...)
   T[executable_X(sample) for sample in preimage_samples]
 end

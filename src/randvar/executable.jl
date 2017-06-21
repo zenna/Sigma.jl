@@ -4,7 +4,7 @@
 dims(X::ExecutableRandVar) = X.dims
 
 "Evaluate a random variable on an element of scenario ω"
-(X::ExecutableRandVar)(ω::Omega) = X.func(ω)
+(X::ExecutableRandVar)(ω::Omega) = Base.invokelatest(X.func, ω)
 
 "Compile SymbolicRandVar into JuliaRandVar"
 convert{T}(::Type{ExecutableRandVar{T}}, X::SymbolicRandVar{T}) =

@@ -8,6 +8,8 @@ Smelly{Q} = Array{T, 1} where {T<:RandVar{Q}} where Q
 ExecutableRandArray{T, N} = Array{T, N} where {T<:ExecutableRandVar}
 
 dot(a::RandVar, b::RandVar) = a * b
+dot(a::Number, b::RandVar) = a * b
+dot(a::RandVar, b::Number) = a * b
 
 convert{T}(::Type{ExecutableRandArray}, xs::Array{RandVar{T}}) =
   (rv -> convert(ExecutableRandVar{T}, rv)).(xs)

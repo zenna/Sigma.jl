@@ -88,10 +88,10 @@ end
 
 function plot_density(X::RandVar, lower::Real, upper::Real;
                       n_bars = 20, progargs...)
-  xs = Array(Float64,n_bars - 1)
-  ys = Array(Float64,n_bars - 1)
-  ymin = Array(Float64,n_bars - 1)
-  ymax = Array(Float64,n_bars - 1)
+  xs = Array{Float64}(n_bars - 1)
+  ys = Array{Float64}(n_bars - 1)
+  ymin = Array{Float64}(n_bars - 1)
+  ymax = Array{Float64}(n_bars - 1)
   for i in 1:(n_bars - 1)
     j = i + 1
     l,u = linspace(lower,upper,n_bars)[i],linspace(lower,upper,n_bars)[j]
@@ -109,10 +109,10 @@ end
 # REVIEW - DRY
 function plot_cond_density(X::RandVar, Y::RandVar, lower::Real, upper::Real;
                            n_bars = 20, progargs...)
-  xs = Array(Float64,n_bars - 1)
-  ys = Array(Float64,n_bars - 1)
-  ymin = Array(Float64,n_bars - 1)
-  ymax = Array(Float64,n_bars - 1)
+  xs = Array{Float64}(n_bars - 1)
+  ys = Array{Float64}(n_bars - 1)
+  ymin = Array{Float64}(n_bars - 1)
+  ymax = Array{Float64}(n_bars - 1)
   for i in 1:(n_bars - 1)
     j = i + 1
     l,u = linspace(lower,upper,n_bars)[i],linspace(lower,upper,n_bars)[j]

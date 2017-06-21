@@ -1,8 +1,12 @@
-## Motion Planning 3D Benchmark
+``## Motion Planning 3D Benchmark
 ## =========================
 using Sigma
 using Lens
-include("../vis.jl")
+using Luxor
+import Base.convert
+# include("../vis.jl")
+
+mappairs(f, v::Vector) = map(f, v[1:end-1], v[2:end])
 
 # Use for functions which should take a normal or equivalently typed randarray
 Point = AbstractVector
@@ -65,6 +69,52 @@ function intersects(e1::ParametricEdge, e2::ParametricEdge)
   (s < 0) | (s > 1)
 end
 
+"Forward kinematic function"
+function kinematic(angles::Vector)
+  total = angles[1]
+  sin_total = sin(total)
+  cos_total = cos(total)
+  for i = 2:length(angles)
+    total = total + angles[i]
+    sin_total += sin(total)
+    cos_total += cos(total)
+  end
+  sin_total, cos_total
+end
+
+"Compute vertices from angles"
+function vertices(angles::Vector)
+  xs = [0.0]
+  ys = [0.0]
+  total = 0.0
+  sin_total = 0.0
+  cos_total = 0.0
+  for i = 1:length(angles)
+    total = total + angles[i]
+    sin_total += sin(total)
+    xs = vcat(xs, [sin_total])
+    cos_total += cos(total)
+    ys = vcat(ys, [cos_total])
+  end
+  println(xs)
+  println(ys)
+  permutedims(hcat(xs, ys), (2, 1))
+end
+
+"Edge directions from points"
+directions(points) = points[:, 2:end] - points[:, 1:end-1]
+
+"Parametric Edges from angles"
+function anglestoedge(angles::Vector)
+  ps = vertices(angles)
+  println("PS", ps)
+  dirs = directions(ps)
+  ps = ps[:, 1:end-1]
+  @assert length(ps) == length(dirs)
+  ps, dirs
+  [ParametricEdge(hcat(ps[:, i], dirs[:, i])) for i = 1:size(ps, 2)]
+end
+
 "Does edge `e1` intersect with `circle`?"
 function intersects(e1::ParametricEdge, circle::Circle)
   rayorig = e1.coords[:,1]
@@ -81,31 +131,29 @@ end
 
 intersects(e1::ParametricEdge, e2::Edge) = intersects(e1, ParametricEdge(e2))
 
+"Do `points` avoid `obs`tacles?"
 function pairwisecompare(edges::Vector, obs)
-  conditions = [intersects(e,o) for e in edges, o in obs]
+  conditions = [intersects(e, o) for e in edges, o in obs]
   (&)(conditions...)
 end
 
-# Nonlinear Check
-"Do `points` avoid `obs`tacles?"
-function avoid_obstacles(points, obs)
-  # Convert poitns into edges and check whether all
-  # edges miss all obstacles
-  edges = [ParametricEdge([points[:,i] (points[:,i+1] - points[:,i])])
+function convert(::Type{Vector{ParametricEdge}}, points::RandArray)
+  [ParametricEdge([points[:,i] (points[:,i+1] - points[:,i])])
            for i = 1:size(points,2)-1]
-  pairwisecompare(edges, obs)
 end
 
 "Are `points` valid? starts at `origin`, ends at `dest`, avoids `obstacles`?"
 function validpath(points, obstacles, origin, dest)
   is_start_ok = ispointinpoly(points[:, 1], origin)
   is_end_ok = ispointinpoly(points[:,end], dest)
-  avoids_obstacles = avoid_obstacles(points, obstacles)
+  param_edges = convert(Vector{ParametricEdge}, points)
+  avoids_obstacles = pairwisecompare(param_edges, obstacles)
   is_start_ok & avoids_obstacles & is_end_ok
 end
 
 function example_data(path_length::Integer)
-  obstacles = [Circle([5.0, 5.0], 3.0)]
+  # obstacles = [Circle([5.0, 5.0], 3.0)]
+  obstacles = [Circle([5.0, 5.0], 1.0)]
   points = mvuniform(0, 10, 2, path_length)
   origin = Rectangle([0.0 0.0
                       0.2 0.2])
@@ -114,11 +162,12 @@ function example_data(path_length::Integer)
   points, origin, dest, obstacles
 end
 
-function test_mp2d(path_length = 3, nsamples = 1)
+function test_mp2d(path_length = 4, nsamples = 1)
   points, origin, dest, obstacles = example_data(path_length)
   good_path = validpath(points, obstacles, origin, dest)
   sample = rand(points, good_path, nsamples; precision = 0.01, parallel = true, ncores = nprocs() - 1) / 10.0
 end
+
 
 function gettiming(results)
   timediffs2 = vcat([get(statsgo, proc_id=i, lensname=:sat_check) for i = 2:nprocs()]...)
@@ -126,39 +175,98 @@ function gettiming(results)
   mean(timediffs2), std(timediffs2)
 end
 
-function gencompose(c::Circle)
-  (context(units=UnitBox(0, 0, 10, 10)),
-   Compose.circle(c.center[1], c.center[2], c.r),
-   linewidth(.5mm),
-   stroke(Compose.RGB(rand(),rand(),rand())),
-   fill(nothing))
+"Draw the target at `x, y`"
+function drawtarget(x, y)
+  p1 = Luxor.Point(x, y)
+  sethue("red")
+  circle(p1, 0.1, :fill)
 end
 
-function drawthething(points, obstacles)
-  # obstacles = Array[[8.01 3.01; 1.02 9],
-  #                   [0.5 3.08; 2.02 9.04],
-  #                   [0.0 9.99; 3 5.04]]
-  # lines = make_compose_lines(obstacles)
-
-  b = [Compose.line([pair(points[:,i]),pair(points[:,i+1])]) for i = 1:(size(points,2)-1)]
-  @show c_lines = get_lines(b)
-  @show c_obstacles = map(gencompose, obstacles)
-  @show all_items = vcat(c_lines, c_obstacles)#Any[c_lines..., c_obstacles...]
-
-  apply(compose, vcat(context(), all_items))
-  # draw_lines(b,lines)
+"Draw the path"
+function drawpath(points)
+  setline(3)
+  curr = O
+  for i = 1:size(points, 2)
+    color = randomhue()
+    sethue(color)
+    x, y = points[1, i], points[2, i]
+    println("XY", x, " ", y)
+    point = Luxor.Point(x, y)
+    line(curr, point, :stroke)
+    curr = point
+  end
 end
 
-function main()
-  println("Running Main")
-  op = drawthething(sample, obstacles)
-  img = SVG("path.svg", 4inch, 4(sqrt(3)/2)inch)
-  draw(img, op)
-  # ## Draw
+function drawobstacles(obstacles)
+  for ob in obstacles
+    draw(obstacles)
+  end
 end
+
+"Draw the path, target and obstacles"
+function drawscene(points, obstacles, x, y)
+  Drawing(1000, 1000, "scenes.png")
+  origin()
+  scale(50.0, 50.0)
+  background("white")
+
+  drawpath(points)
+  drawtarget(x, y)
+
+  finish()
+  preview()
+end
+
 
 function run_benchmark()
   resultsgo, statsgo = capture(test_mp2d, [:distance, :sat_check, :post_loop])
 end
 
-test_mp2d()
+"Draw a circle"
+draw(c::Circle) = (sethue("black"); circle(Point(c.center...), c.r))
+
+function example_data_angles(path_length::Integer)
+  angles = mvuniform(0.0, Float64(pi), path_length)
+  obstacles = [Circle([0.5, 0.4], 0.5)]
+  x_target = 2.4
+  y_target = 1.5
+  angles, obstacles, x_target, y_target
+end
+
+function test_angles(path_length = 4)
+  angles, obstacles, x_target, y_target = example_data_angles(path_length)
+  x, y = kinematic(angles)
+  reach_condition = (x==x_target) & (y==y_target)
+
+  param_edges = anglestoedge(angles)
+  obstacle_condition = pairwisecompare(param_edges, obstacles)
+
+  condition = reach_condition & obstacle_condition
+
+  angles_sample = rand(angles, condition; precision=0.0001)
+  angles_sample = angles_sample/Float64(pi) # Divide due to bug in DRealRandVar
+  println("Actual Position", kinematic(angles_sample))
+  points = vertices(angles_sample)
+  print("Points", points)
+  print("Angles", angles_sample)
+  drawscene(points, obstacles, x_target, y_target)
+end
+
+# angles = rand(4)
+# smelly = anglestoedge(angles)
+# test_mp2d()
+
+# using DReal
+# path_length = 4
+# angles = [Var(Float64, 0.0, Float64(pi)) for i = 1:path_length]
+# x, y = kinematic(angles)
+# c = x == 1.0
+# println("Constraint", c)
+# add!(c)
+# # add!(y == 1.0)
+# is_satisfiable()
+# angles_mod = mid.(model(angles...))
+# println(kinematic([angles_mod...]))
+# print()
+
+test_angles()
