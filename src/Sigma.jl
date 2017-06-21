@@ -198,15 +198,4 @@ API Overview
 Sigma
 
 
-
-
-
-
-
-
-
-
-
-
-
 end

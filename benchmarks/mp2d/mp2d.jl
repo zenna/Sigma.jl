@@ -199,7 +199,7 @@ end
 
 function drawobstacles(obstacles)
   for ob in obstacles
-    draw(obstacles)
+    draw(ob)
   end
 end
 
@@ -211,6 +211,7 @@ function drawscene(points, obstacles, x, y)
   background("white")
 
   drawpath(points)
+  drawobstacles(obstacles)
   drawtarget(x, y)
 
   finish()
@@ -223,11 +224,14 @@ function run_benchmark()
 end
 
 "Draw a circle"
-draw(c::Circle) = (sethue("black"); circle(Point(c.center...), c.r))
+function draw(c::Circle)
+  sethue("black")
+  circle(Luxor.Point(c.center...), c.r, :fill)
+end
 
 function example_data_angles(path_length::Integer)
   angles = mvuniform(0.0, Float64(pi), path_length)
-  obstacles = [Circle([0.5, 0.4], 0.5)]
+  obstacles = [Circle([0.5, 1.0], 0.2)]
   x_target = 2.4
   y_target = 1.5
   angles, obstacles, x_target, y_target
@@ -251,22 +255,5 @@ function test_angles(path_length = 4)
   print("Angles", angles_sample)
   drawscene(points, obstacles, x_target, y_target)
 end
-
-# angles = rand(4)
-# smelly = anglestoedge(angles)
-# test_mp2d()
-
-# using DReal
-# path_length = 4
-# angles = [Var(Float64, 0.0, Float64(pi)) for i = 1:path_length]
-# x, y = kinematic(angles)
-# c = x == 1.0
-# println("Constraint", c)
-# add!(c)
-# # add!(y == 1.0)
-# is_satisfiable()
-# angles_mod = mid.(model(angles...))
-# println(kinematic([angles_mod...]))
-# print()
 
 test_angles()
