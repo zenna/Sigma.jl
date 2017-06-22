@@ -231,7 +231,7 @@ end
 
 function example_data_angles(path_length::Integer)
   angles = mvuniform(0.0, Float64(pi), path_length)
-  obstacles = [Circle([0.5, 1.0], 0.2)]
+  obstacles = [Circle([0.5, 1.5], 0.2)]
   x_target = 2.4
   y_target = 1.5
   angles, obstacles, x_target, y_target
