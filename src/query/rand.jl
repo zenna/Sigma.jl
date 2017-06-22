@@ -1,26 +1,37 @@
 ## Design Decisions
 #
-# - Second majo design question is who what kind of random variable to pass to the solver
-# initially we tried to make the preimage smaplers agnostic to what type of random variable
+# - Second majo design question is who what kind of random variable to pass to
+# the solver
+# initially we tried to make the preimage smaplers agnostic to what type of
+# random variable
 # it was passed.  The randvar need only implement call(X, A).  However
-# -- If the algorith is parallelised, it may need generate the C typed rand Varvar
-# -- sol 1. Make these preimage samplers expect the RandVar type and they can do their own conversion
+# -- If the algorith is parallelised, it may need generate the C typed rand
+# Varvar
+# -- sol 1. Make these preimage samplers expect the RandVar type and they can
+# do their own conversion
 # -- sol 2. Have some kind of buffer between the different cases
+
+
+# Three axes to classify samplers:
+# (i) Uncoditional samples vs (ii) conditional samples
+# (i) concrete (e.g. Float64) samples, vs (ii) abstract (e.g. Interval) samples)
+# (i) return elements of type T, or (ii) elements abstractions of T, e.g.
 
 
 ## Unconditional Sampling
 ## ======================
-rand{T}(X::ExecutableRandVar{T}) = X(LazyRandomVector(Float64))
 
-"Generate `n` unconditioned random samples from distribution of X"
-rand{T}(X::ExecutableRandVar{T}, n::Integer) =
+"single uncoditional random sample from `X`"
+rand{T}(X::JuliaRandVar{T}) = X(LazyRandomVector(Float64))
+
+"e`n` i.i.d. unconditional random samples from X"
+rand{T}(X::JuliaRandVar{T}, n::Integer) =
   [X(LazyRandomVector(Float64)) for i = 1:n]
 
 
-function rand{T}(X::SymbolicRandVar{T}, n::Integer)
-  xe = convert(ExecutableRandVar{T},X)
-  rand(xe, n)
-end
+rand{T}(X::SymbolicRandVar{T}, n::Integer) =
+  rand(convert(JuliaRandVar{T},X), n)
+
 
 ## RandVar{Bool} Preimage Samples
 ## ==============================
@@ -36,10 +47,10 @@ function abstract_sample_partition(
     args...)
 
   partition = pre_partition(Y, partition_alg; args...)
-  rand(preiamge, n)
+  rand(partition, n)
 end
 
-"`n` point Sample from preimage: Y^-1({true})"
+"`n` point samples from preimage: Y^-1({true})"
 function point_sample_partition{T<:PartitionAlgorithm}(
     Y::SymbolicRandVar{Bool},
     n::Integer;
@@ -54,7 +65,8 @@ end
 
 ## Markokv Chain Conditional Sampling
 ## ==================================
-"`n` approximate point sample from preimage: Y^-1({true})"
+"""`n` approximate point sample from preimage: Y^-1({true})
+"""
 function point_sample_mc{T<:MCMCAlgorithm}(
     Y::SymbolicRandVar{Bool},
     n::Integer;
@@ -82,7 +94,7 @@ function rand{T}(
     preimage_sampler::Function = point_sample_mc,
     args...)
 
-  executable_X = convert(ExecutableRandVar{T}, X)
+  executable_X = convert(JuliaRandVar{T}, X)
   preimage_samples = preimage_sampler(Y, n; args...)
   T[executable_X(sample) for sample in preimage_samples]
 end
@@ -128,6 +140,3 @@ rand{T}(X::SymbolicRandVar{T}) = rand(X,1)[1]
 
 "Generate single conditionam sample of tuple `X` of RandVar/Arrays given `Y`"
 rand(X::Tuple, Y::SymbolicRandVar{Bool}; args...) = rand(X,Y,1;args...)[1]
-
-# "Generate single sample from random array"
-# rand(X::RandArray; args...) = rand(X, 1)[1]

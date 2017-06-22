@@ -1,14 +1,14 @@
 ## Compile rand vars into callable functions
 ## =========================================
 
-dims(X::ExecutableRandVar) = X.dims
+dims(X::JuliaRandVar) = X.dims
 
 "Evaluate a random variable on an element of scenario ω"
-(X::ExecutableRandVar)(ω::Omega) = Base.invokelatest(X.func, ω)
+(X::JuliaRandVar)(ω::Omega) = Base.invokelatest(X.func, ω)
 
 "Compile SymbolicRandVar into JuliaRandVar"
-convert{T}(::Type{ExecutableRandVar{T}}, X::SymbolicRandVar{T}) =
-  ExecutableRandVar{T}(compile(X), dims(X))
+convert{T}(::Type{JuliaRandVar{T}}, X::SymbolicRandVar{T}) =
+  JuliaRandVar{T}(compile(X), dims(X))
 
 all_functional_randvars = union(real_real_real, real_real, real_floating,
                                 real_real_bool, ((:IfElseRandVar, :ifelse),),
@@ -38,4 +38,4 @@ function convert{T <: ElementaryRandVar}(::Type{Expr}, X::T)
 end
 
 "Convert a random variable into an executable random variable"
-executionalize{T}(X::RandVar{T}) = convert(ExecutableRandVar{T}, X)
+executionalize{T}(X::RandVar{T}) = convert(JuliaRandVar{T}, X)

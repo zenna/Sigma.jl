@@ -1,17 +1,22 @@
 ## Abstract Metropolized Sampliing
 ## ===============================
 
-"""Abstract Metropolized Sampliing samples events in preimage uniformly in
-convergence of the Markov Chain.  This algorithm is useful for high dimensions"""
+"""Abstract Metropolized Sampling (AMS) constructs Markov Chain over events.
+Returns sequence `A_1,..,A_n`, `A` with probability `μ(A)`."""
 immutable AMS <: MCMCAlgorithm end
 
-"Proposes a box by querying satisfiability solver multiple times"
-function proposebox_tl{D <: Domain}(
-    X::RandVar, box::D;
+"(A::Domain, Q(A), μ(A))  (event, proposal probability, measure of event)"
+Proposal{D} = Tuple{D, Float64, Float64}
+
+"Proposes a box by querying satisfiability solver multiple times as a blackbox"
+function propose_box_blackbox{D <: Domain}(
+    X::RandVar,
+    box::D;
     split::Function = weighted_partial_split,
     maxdepth::Int = 1000,
+    maxiters::Int = 1000,
     precision::Float64 = DEFAULT_PREC,
-    args...)
+    args...)::Proposal{D}
 
   niters = 0
   depth = 0
@@ -20,8 +25,8 @@ function proposebox_tl{D <: Domain}(
 
   A::D = box
   lens(:refine,time_ns())
-  @show image::AbstractBool = call(X, A)
-  while (niters <= 1000) && (depth <= maxdepth)
+  @show image::AbstractBool = X(A)
+  while (niters <= maxiters) && (depth <= maxdepth)
     @show depth
     @show measure(A)
     A, image
@@ -40,7 +45,7 @@ function proposebox_tl{D <: Domain}(
       # Due to bug in DReal we're getting both a query and its negation unsat
       for child in children
         try
-          child_status = call(X, child[1])
+          child_status = X(child[1])
           push!(statuses,child_status)
         catch e
           rethrow(e)
@@ -94,7 +99,7 @@ function propose_boxes{D <: Domain}(
     nsamples::Integer;
     RandVarType::Type = default_randvar(),
     precision::Float64 = default_precision(),
-    args...)
+    args...)::Vector{Proposal{D}}
 
   Y_conv = convert(RandVarType{Bool}, Y)
   set_precision!(Y_conv, precision)
@@ -104,6 +109,7 @@ function propose_boxes{D <: Domain}(
   samples = Array{Tuple{D,Float64,Float64}}(nsamples)
   for i = 1:nsamples
     before = time_ns()
+    # samples[i] = propose_box_blackbox(Y_conv, init_box; args...)
     samples[i] = preimage_proposal(Y_conv, init_box; args...)
     after = time_ns()
     lens(:sat_check, after-before)
@@ -120,7 +126,7 @@ function propose_boxes_parallel{D<:Domain}(
     init_box::D,
     nsamples::Integer;
     ncores = nprocs() - 1,
-    args...)
+    args...)::Vector{Proposal{D}}
 
   println("Using $ncores cores to generate $nsamples")
   samplespercore = div(nsamples, ncores) + 1
@@ -135,7 +141,7 @@ function propose_boxes_parallel{D<:Domain}(
 end
 
 "From set of boxes run a markov chain in batch mode"
-function run_chain{D <: Domain}(boxes::Vector{Tuple{D,Float64,Float64}})
+function run_chain{D <: Domain}(boxes::Vector{Proposal{D}})::Vector{D}
   box, logq, prevolfrac = boxes[1]
   logp = logmeasure(box) + log(prevolfrac)
   chain = Array{D}(length(boxes))

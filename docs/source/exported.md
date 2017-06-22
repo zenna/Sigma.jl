@@ -14,7 +14,7 @@ Apply a random variable to some randomness
 ---
 
 <a id="method__cond_sample.1" class="lexicon_definition"></a>
-#### cond_sample{T}(X::ExecutableRandVar{T}, Y::RandVar{Bool}, n::Integer) [¶](#method__cond_sample.1)
+#### cond_sample{T}(X::JuliaRandVar{T}, Y::RandVar{Bool}, n::Integer) [¶](#method__cond_sample.1)
 `n` conditional samples from `X` given `Y` is true
 
 *source:*
@@ -82,7 +82,7 @@ Random Variables are functions from the sample space to some other space
 ---
 
 <a id="method__abstract_cond_sample.1" class="lexicon_definition"></a>
-#### abstract_cond_sample{T}(X::ExecutableRandVar{T}, Y::RandVar{Bool}, n::Integer) [¶](#method__abstract_cond_sample.1)
+#### abstract_cond_sample{T}(X::JuliaRandVar{T}, Y::RandVar{Bool}, n::Integer) [¶](#method__abstract_cond_sample.1)
 `n` abstract Conditional samples from `X` given `Y` is true
 
 *source:*
@@ -226,8 +226,8 @@ except that it does not follow any wel ldefined distribution
 
 ---
 
-<a id="method__proposebox_tl.1" class="lexicon_definition"></a>
-#### proposebox_tl{D<:Domain{T}}(X::RandVar{T}, box::D<:Domain{T}) [¶](#method__proposebox_tl.1)
+<a id="method__propose_box_blackbox.1" class="lexicon_definition"></a>
+#### propose_box_blackbox{D<:Domain{T}}(X::RandVar{T}, box::D<:Domain{T}) [¶](#method__propose_box_blackbox.1)
 Proposes a box using refinement
 
 *source:*
@@ -236,7 +236,7 @@ Proposes a box using refinement
 ---
 
 <a id="method__rand.1" class="lexicon_definition"></a>
-#### rand{T}(X::ExecutableRandVar{T}) [¶](#method__rand.1)
+#### rand{T}(X::JuliaRandVar{T}) [¶](#method__rand.1)
 Generate an unconditioned random sample from X
 
 *source:*
@@ -245,7 +245,7 @@ Generate an unconditioned random sample from X
 ---
 
 <a id="method__rand.2" class="lexicon_definition"></a>
-#### rand{T}(X::ExecutableRandVar{T}, n::Integer) [¶](#method__rand.2)
+#### rand{T}(X::JuliaRandVar{T}, n::Integer) [¶](#method__rand.2)
 Generate `n` unconditioned random samples from distribution of X
 
 *source:*
@@ -283,8 +283,8 @@ A constant value. A constant function which 'ignores' input, e.g. ω->5
 
 ---
 
-<a id="type__executablerandvar.1" class="lexicon_definition"></a>
-#### ExecutableRandVar{T} [¶](#type__executablerandvar.1)
+<a id="type__JuliaRandVar.1" class="lexicon_definition"></a>
+#### JuliaRandVar{T} [¶](#type__JuliaRandVar.1)
 Can be excuted as a normal julia function
 
 *source:*

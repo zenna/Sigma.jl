@@ -230,30 +230,39 @@ function draw(c::Circle)
 end
 
 function example_data_angles(path_length::Integer)
-  angles = mvuniform(0.0, Float64(pi), path_length)
-  obstacles = [Circle([0.5, 1.5], 0.2)]
+  angles = mvuniform(0.0, Float64(2pi), path_length)
+  obstacles = [Circle([0.5, 1.5], 0.7)
+               Circle([2.0, 1.8], 0.7)]
   x_target = 2.4
   y_target = 1.5
   angles, obstacles, x_target, y_target
 end
 
-function test_angles(path_length = 4)
+function test_angles(path_length = 5)
   angles, obstacles, x_target, y_target = example_data_angles(path_length)
   x, y = kinematic(angles)
   reach_condition = (x==x_target) & (y==y_target)
 
   param_edges = anglestoedge(angles)
   obstacle_condition = pairwisecompare(param_edges, obstacles)
-
   condition = reach_condition & obstacle_condition
+  condition = obstacle_condition
 
-  angles_sample = rand(angles, condition; precision=0.0001)
-  angles_sample = angles_sample/Float64(pi) # Divide due to bug in DRealRandVar
+  angles_sample = rand(angles, condition; precision=0.01)
+  angles_sample = angles_sample/Float64(2pi) # Divide due to bug in DRealRandVar
   println("Actual Position", kinematic(angles_sample))
   points = vertices(angles_sample)
   print("Points", points)
   print("Angles", angles_sample)
   drawscene(points, obstacles, x_target, y_target)
 end
+
+function test_rand_angles(path_length = 5)
+  angles, obstacles, x_target, y_target = example_data_angles(path_length)
+  angles_sample = rand(angles)
+  points = vertices(angles_sample)
+  drawscene(points, obstacles, x_target, y_target)
+end
+
 
 test_angles()

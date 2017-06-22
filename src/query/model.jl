@@ -32,7 +32,7 @@ function abstract_model(Y::DRealRandVar{Bool})
 end
 
 "`n` conditional models from `X` given `Y` is true"
-function abstract_cond_model{T}(X::ExecutableRandVar{T},
+function abstract_cond_model{T}(X::JuliaRandVar{T},
                                 Y::RandVar{Bool})
   RT = rangetype(X)
   abstract_preimage_model = abstract_model(Y)
@@ -40,7 +40,7 @@ function abstract_cond_model{T}(X::ExecutableRandVar{T},
 end
 
 "`n` conditional models from `X` given `Y` is true"
-function cond_model{T}(X::ExecutableRandVar{T},
+function cond_model{T}(X::JuliaRandVar{T},
                        Y::RandVar{Bool})
   RT = rangetype(X)
   abstract_preimage_model = abstract_model(Y)
@@ -61,7 +61,7 @@ function model{T}(X::SymbolicRandVar{T},
   # interval to preimage interval, or adapt the calling of random variables with
   # normal interval values.
   warn("Model will not work with non-closed form random variables")
-  executable_X = convert(ExecutableRandVar{T}, X)
+  executable_X = convert(JuliaRandVar{T}, X)
   executable_Y = convert(RandVarType{Bool}, Y)
   cond_model(executable_X, executable_Y)
 end

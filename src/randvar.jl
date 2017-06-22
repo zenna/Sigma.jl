@@ -8,7 +8,7 @@ Id = Integer
 abstract type SymbolicRandVar{T} <: RandVar{T} end
 
 "Can be excuted as a normal julia function"
-type ExecutableRandVar{T} <: RandVar{T}
+type JuliaRandVar{T} <: RandVar{T}
   func::Function
   dims::Set{Int}
 end
@@ -22,7 +22,7 @@ end
 #
 # "A matrix of compiled random variables"
 # type ExecutableRandArray{T, N} <: DenseArray{T,N}
-#   array::Array{ExecutableRandVar{T},N}
+#   array::Array{JuliaRandVar{T},N}
 # end
 
 "The type of the range of a random variable"

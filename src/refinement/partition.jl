@@ -1,8 +1,8 @@
 ## Partitions of Sample Space Ω
 ## ============================
 
-"""A partition of a set containing both an under approximation, and the rest
-  The rest is an overapproximation - rest"""
+"""Approximate partition of a set: both an `under` approximation and `rest`.
+`under ∪ rest` is an overapproximation of set."""
 type ApproxPartition{D<:Domain}
   under::Vector{D}
   rest::Vector{D}
@@ -16,7 +16,7 @@ function measure(p::ApproxPartition)
   Interval(lb,ub)
 end
 
-"Get an over approximation"
+"`under ∪ rest` - over approximation"
 collect{D}(p::ApproxPartition{D}) = vcat(p.under, p.rest)
 
 ## Sampling
@@ -29,6 +29,7 @@ type SampleablePartition{D<:Domain}
   cat::Categorical
 
   function SampleablePartition{D}(under::Vector, rest::Vector) where {D<:Domain}
+    # Compute all measures and categorical weights only once
     over = vcat(under, rest)
     vols = Float64[measure(box) for box in over]
     pnormalize!(vols)
@@ -37,7 +38,8 @@ type SampleablePartition{D<:Domain}
   end
 end
 
-SampleablePartition{D}(p::ApproxPartition{D}) = SampleablePartition{D}(p.under, p.rest)
+SampleablePartition{D}(p::ApproxPartition{D}) =
+  SampleablePartition{D}(p.under, p.rest)
 
 "Point sample from preimage - may be invalid point due to approximations"
 abstract_sample(p::SampleablePartition) = p.over[rand(p.cat)]
@@ -52,16 +54,16 @@ end
 point_sample(p::SampleablePartition) = point_sample(p,1)[1]
 
 "Do refined rejection sampling from preimage"
-function point_sample_exact(p::SampleablePartition, Y::RandVar{Bool}; maxtries = 1E7)
+function point_sample_exact(p::SampleablePartition, Y::RandVar{Bool};
+                            maxtries = 1E7)
   for i = 1:maxtries
     sample = rand(p)
     if Y(sample) return sample end
   end
-  #TODO: Better error handling
   error("Could not get sample in $maxtries tries")
 end
 
-# Preimage of Y under F, unioned with X
+"Generic preimage partition interface - partition of Y^-1{true}."
 function pre_partition{T}(
     Y::SymbolicRandVar{Bool},
     ::Type{T};

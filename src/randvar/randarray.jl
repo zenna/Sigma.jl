@@ -5,18 +5,19 @@ import Base.dot
   `N` is the dimensionality of array"""
 RandArray{T, N} = Array{T, N} where {T<:RandVar}
 Smelly{Q} = Array{T, 1} where {T<:RandVar{Q}} where Q
-ExecutableRandArray{T, N} = Array{T, N} where {T<:ExecutableRandVar}
+ExecutableRandArray{T, N} = Array{T, N} where {T<:JuliaRandVar}
 
 dot(a::RandVar, b::RandVar) = a * b
 dot(a::Number, b::RandVar) = a * b
 dot(a::RandVar, b::Number) = a * b
 
 convert{T}(::Type{ExecutableRandArray}, xs::Array{RandVar{T}}) =
-  (rv -> convert(ExecutableRandVar{T}, rv)).(xs)
+  (rv -> convert(JuliaRandVar{T}, rv)).(xs)
 
 (xs::ExecutableRandArray)(ω::Omega) = (x->x(ω)).(xs)
 
-rand(xs::RandArray) = xs(LazyRandomVector(Float64))
+rand(xs::ExecutableRandArray) = xs(LazyRandomVector(Float64))
+rand(xs::RandArray) = rand(convert(ExecutableRandArray, xs))
 
 "Sample from `xs` conditioned on `y`"
 function rand(xs::ExecutableRandArray,
