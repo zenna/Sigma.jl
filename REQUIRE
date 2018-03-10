@@ -1,7 +1,6 @@
 julia 0.4
 Distributions
 DReal
-Gadfly
 DataStructures
 Docile
 AbstractDomains
