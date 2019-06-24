@@ -1,3 +1,5 @@
+# Sigma.jl is currently not under maintainance.  Try Omega.jl instead!
+
 # Sigma
 
 Sigma is a probabilistic programming environment implemented in Julia.
